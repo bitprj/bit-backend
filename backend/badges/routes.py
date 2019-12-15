@@ -25,15 +25,13 @@ class BadgeData(Resource):
         badge.name = form_data["name"]
         badge.description = form_data["description"]
         badge.threshold = levels
-        # badge.image = add_image(form_data["file"], "badges")
-        badge.image = "dqwd"
+        badge.image = add_image(form_data["file"], "badges")
         db.session.commit()
 
         return {"message": "Badge successfully updated"}, 202
 
     # Function to delete a badge
     def delete(self, badge_id):
-        badge_data = request.get_json()
         badge = Badge.query.get(badge_id)
         db.session.delete(badge)
         db.session.commit()
@@ -47,7 +45,7 @@ class BadgeCreate(Resource):
         form_data = request.get_json()
         levels = {}
         file = form_data["file"]
-        # image = add_image(file, "badges")
+        image = add_image(file, "badges")
         levels["2"] = form_data["level_two"]
         levels["3"] = form_data["level_three"]
         levels["4"] = form_data["level_four"]
@@ -55,7 +53,7 @@ class BadgeCreate(Resource):
 
         badge = Badge(name=form_data["name"],
                       description=form_data["description"],
-                      image=file,
+                      image=image,
                       threshold=levels
                       )
         db.session.add(badge)
