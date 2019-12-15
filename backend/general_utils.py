@@ -5,6 +5,7 @@ import urllib.parse
 import urllib.request
 
 
+# Function to upload an image to s3 based on the folder
 def add_image(file, folder):
     s3_client = boto3.client('s3')
     path = 'darlene/' + folder + '/' + file.filename

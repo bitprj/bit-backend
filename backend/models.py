@@ -1,4 +1,5 @@
 from backend import db, ma
+from marshmallow import fields
 from sqlalchemy.ext.mutable import MutableDict
 
 
@@ -20,7 +21,13 @@ class Badge(db.Model):
 
 
 class BadgeSchema(ma.Schema):
+    name = fields.Str(required=True)
+    description = fields.Str(required=True)
+    threshold = fields.Dict(required=True)
+    image = fields.Str(required=True)
+
     class Meta:
+        # Fields to show when sending data
         fields = ("id", "name", "description", "threshold", "image")
 
 
