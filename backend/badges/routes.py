@@ -1,8 +1,10 @@
 from flask import (Blueprint, request)
 from flask_restful import Resource
 from backend import api, db
+from backend.badges.schemas import badge_schema
 from backend.badges.utils import create_badge, edit_badge
-from backend.models import Badge, badge_schema
+from backend.models import Badge
+
 
 # Blueprint for badges
 badges_bp = Blueprint("badges", __name__)
@@ -13,12 +15,13 @@ class BadgeData(Resource):
     # Function to return data on a single badge
     def get(self, badge_id):
         badge = Badge.query.get(badge_id)
+
         # If badge does not exists, then return a 404 error
         # else return the badge back to the user
         if not badge:
             return {"message": "Badge does not exist"}, 404
         else:
-            return badge_schema.jsonify(badge)
+            return badge_schema.dump(badge)
 
     # Function to edit a badge
     def put(self, badge_id):
@@ -36,7 +39,7 @@ class BadgeData(Resource):
             # else edit the badge and save it to the database
             if errors:
                 return {
-                            "message": "Missing or sending incorrect data to edit a badge. Double check the JSON data that it has everything needed to create a badge."
+                            "message": "Missing or sending incorrect data to edit a badge. Double check the JSON data that it has everything needed to edit a badge."
                        }, 500
             else:
                 edit_badge(badge, form_data)
