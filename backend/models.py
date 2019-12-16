@@ -29,7 +29,21 @@ class BadgeSchema(ma.Schema):
     class Meta:
         # Fields to show when sending data
         fields = ("id", "name", "description", "threshold", "image")
+        ordered = True
 
 
 badge_schema = BadgeSchema()
 badges_schema = BadgeSchema(many=True)
+
+
+class Gem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    amount = db.Column(db.Integer, nullable=False, default=0)
+    is_local = db.Column(db.Boolean, nullable=False, default=False)
+
+    def __init__(self, amount, is_local):
+        self.amount = amount
+        self.is_local = is_local
+
+    def __repr__(self):
+        return f"Gem('{self.is_local}, {self.amount}')"

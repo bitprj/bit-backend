@@ -5,11 +5,11 @@ from backend.general_utils import add_image
 # Function to create a badge
 def create_badge(form_data):
     file = form_data["image"]
-    # image = add_image(file, "badges")
+    image = add_image(file, "badges")
 
     badge = Badge(name=form_data["name"],
                   description=form_data["description"],
-                  image="dwd",
+                  image=image,
                   threshold=form_data["threshold"]
                   )
 

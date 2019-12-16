@@ -1,84 +1,78 @@
-from flask import (Blueprint, request)
+from flask import (Blueprint, jsonify, request)
 from flask_restful import Resource
 from backend import api, db
-from backend.badges.utils import create_badge, edit_badge
-from backend.models import Badge, badge_schema
+from backend.gems.schemas import gem_schema
+from backend.gems.utils import create_gem, edit_gem
+from backend.models import Gem
 
-# Blueprint for badges
-badges_bp = Blueprint("badges", __name__)
+
+# Blueprint for gems
+gems_bp = Blueprint("gems", __name__)
 
 
 # Class to Read, Update, and Destroy routes
-class BadgeData(Resource):
-    # Function to return data on a single badge
-    def get(self, badge_id):
-        badge = Badge.query.get(badge_id)
-        # If badge does not exists, then return a 404 error
-        # else return the badge back to the user
-        if not badge:
-            return {"message": "Badge does not exist"}, 404
+class GemData(Resource):
+    # Function to return data on a single gem
+    def get(self, gem_id):
+        gem = Gem.query.get(gem_id)
+
+        # If gem does not exists, then return a 404 error
+        # else return the gem back to the user
+        if not gem:
+            return {"message": "Gem does not exist"}, 404
         else:
-            return badge_schema.jsonify(badge)
+            return gem_schema.dump(gem)
 
-    # Function to edit a badge
-    def put(self, badge_id):
-        badge = Badge.query.get(badge_id)
+    # Function to edit a gem
+    def put(self, gem_id):
+        gem = Gem.query.get(gem_id)
 
-        # If badge does not exist, then return a 404 error
-        # else edit a badge and edit it in the database
-        if not badge:
-            return {"message": "Badge does not exist"}, 404
+        # If gem does not exist, then return a 404 error
+        # else edit a gem and edit it in the database
+        if not gem:
+            return {"message": "Gem does not exist"}, 404
         else:
             form_data = request.get_json()
-            errors = badge_schema.validate(form_data)
+            errors = gem_schema.validate(form_data)
 
-            # If form data is not validated by the badge_schema, then return a 500 error
-            # else edit the badge and save it to the database
+            # If form data is not validated by the gem_schema, then return a 500 error
+            # else edit the gem and save it to the database
             if errors:
                 return {
-                            "message": "Missing or sending incorrect data to edit a badge. Double check the JSON data that it has everything needed to create a badge."
+                            "message": "Missing or sending incorrect data to edit a gem. Double check the JSON data that it has everything needed to edit a gem."
                        }, 500
             else:
-                edit_badge(badge, form_data)
+                edit_gem(gem, form_data)
                 db.session.commit()
 
-                return {"message": "Badge successfully updated"}, 202
+                return {"message": "Gem successfully updated"}, 202
 
-    # Function to delete a badge
-    def delete(self, badge_id):
-        badge = Badge.query.get(badge_id)
+    # Function to delete a gem
+    def delete(self, gem_id):
+        gem = Gem.query.get(gem_id)
 
-        # If badge does not exists, return a 404 error
-        # else delete the badge and save to database
-        if not badge:
-            return {"message": "Badge does not exists"}, 404
+        # If gem does not exists, return a 404 error
+        # else delete the gem and save to database
+        if not gem:
+            return {"message": "Gem does not exist"}, 404
         else:
-            db.session.delete(badge)
+            db.session.delete(gem)
             db.session.commit()
 
-        return {"message": "Badge successfully deleted"}, 200
+        return {"message": "Gem successfully deleted"}, 200
 
 
-# Class to define badge creation
-class BadgeCreate(Resource):
-    # Function to create a badge
+# Class to define gem creation
+class GemCreate(Resource):
+    # Function to create a gem
     def post(self):
-        form_data = request.get_json()
-        errors = badge_schema.validate(form_data)
-        # If form data is not validated by the badge_schema, then return a 500 error
-        # else create the badge and add it to the database
-        if errors:
-            return {
-                "message": "Missing or sending incorrect data to create a badge. Double check the JSON data that it has everything needed to create a badge."
-            }, 500
-        else:
-            badge = create_badge(form_data)
-            db.session.add(badge)
-            db.session.commit()
+        gem = create_gem()
+        db.session.add(gem)
+        db.session.commit()
 
-            return {"message": "Badge successfully created"}, 202
+        return {"message": "Gem successfully created"}, 202
 
 
 # Creates the routes for the classes
-api.add_resource(BadgeData, "/badges/<int:badge_id>")
-api.add_resource(BadgeCreate, "/badges/create")
+api.add_resource(GemData, "/gems/<int:gem_id>")
+api.add_resource(GemCreate, "/gems/create")

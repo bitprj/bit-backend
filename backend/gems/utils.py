@@ -1,26 +1,19 @@
-from backend.models import Badge
-from backend.general_utils import add_image
+from backend.models import Gem
 
 
-# Function to create a badge
-def create_badge(form_data):
-    file = form_data["image"]
-    # image = add_image(file, "badges")
+# Function to create a gem
+def create_gem():
+    gem = Gem(amount=0, is_local=False)
 
-    badge = Badge(name=form_data["name"],
-                  description=form_data["description"],
-                  image="dwd",
-                  threshold=form_data["threshold"]
-                  )
-
-    return badge
+    return gem
 
 
-# Function to edit a badge
-def edit_badge(badge, form_data):
-    badge.name = form_data["name"]
-    badge.description = form_data["description"]
-    badge.threshold = form_data["threshold"]
-    badge.image = add_image(form_data["image"], "badges")
+# Function to edit a gem
+def edit_gem(gem, form_data):
+    gem_difference = gem.amount + form_data["gem_adjustment"]
+
+    # Only update the gem amount if the gem.amount plus gem_adjustment is greater than 0
+    if gem_difference >= 0:
+        gem.amount = gem_difference
 
     return
