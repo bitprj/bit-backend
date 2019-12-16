@@ -20,6 +20,8 @@ db.init_app(app)
 
 from backend.badges.routes import badges_bp
 from backend.gems.routes import gems_bp
+from backend.tracks.routes import tracks_bp
 
 app.register_blueprint(badges_bp)
 app.register_blueprint(gems_bp)
+app.register_blueprint(tracks_bp)
