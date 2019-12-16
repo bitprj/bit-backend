@@ -1,8 +1,10 @@
 from flask import (Blueprint, request)
 from flask_restful import Resource
 from backend import api, db
+from backend.badges.schemas import badge_schema
 from backend.badges.utils import create_badge, edit_badge
-from backend.models import Badge, badge_schema
+from backend.models import Badge
+
 
 # Blueprint for badges
 badges_bp = Blueprint("badges", __name__)

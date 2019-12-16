@@ -1,5 +1,4 @@
-from backend import db, ma
-from marshmallow import fields
+from backend import db
 from sqlalchemy.ext.mutable import MutableDict
 
 
@@ -18,22 +17,6 @@ class Badge(db.Model):
 
     def __repr__(self):
         return f"Badge('{self.name}')"
-
-
-class BadgeSchema(ma.Schema):
-    name = fields.Str(required=True)
-    description = fields.Str(required=True)
-    threshold = fields.Dict(required=True)
-    image = fields.Str(required=True)
-
-    class Meta:
-        # Fields to show when sending data
-        fields = ("id", "name", "description", "threshold", "image")
-        ordered = True
-
-
-badge_schema = BadgeSchema()
-badges_schema = BadgeSchema(many=True)
 
 
 class Gem(db.Model):
