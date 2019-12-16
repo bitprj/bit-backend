@@ -1,7 +1,7 @@
 from backend.models import Gem
 
 
-# Function to add the gem adjustment amount to the gem variable
+# Function to create a gem
 def create_gem():
     gem = Gem(amount=0, is_local=False)
 
