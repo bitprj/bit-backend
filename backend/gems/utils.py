@@ -8,9 +8,9 @@ def create_gem():
     return gem
 
 
-# Function to edit a gem
-def edit_gem(gem, form_data):
-    gem_difference = gem.amount + form_data["gem_adjustment"]
+# Function to add gem_adjustment to gem.amount
+def edit_gem(gem, gem_adjustment):
+    gem_difference = gem.amount + gem_adjustment
 
     # Only update the gem amount if the gem.amount plus gem_adjustment is greater than 0
     if gem_difference >= 0:

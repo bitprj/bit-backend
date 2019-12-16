@@ -32,8 +32,8 @@ class GemData(Resource):
         if not gem:
             return {"message": "Gem does not exist"}, 404
         else:
-            form_data = request.get_json()
-            errors = gem_schema.validate(form_data)
+            gem_data = request.get_json()
+            errors = gem_schema.validate(gem_data)
 
             # If form data is not validated by the gem_schema, then return a 500 error
             # else edit the gem and save it to the database
@@ -42,7 +42,7 @@ class GemData(Resource):
                             "message": "Missing or sending incorrect data to edit a gem. Double check the JSON data that it has everything needed to edit a gem."
                        }, 500
             else:
-                edit_gem(gem, form_data)
+                edit_gem(gem, gem_data["gem_adjustment"])
                 db.session.commit()
 
                 return {"message": "Gem successfully updated"}, 202
