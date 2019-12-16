@@ -30,3 +30,23 @@ class Gem(db.Model):
 
     def __repr__(self):
         return f"Gem('{self.is_local}, {self.amount}')"
+
+
+class Lab(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    summary = db.Column(db.Text, nullable=False)
+    # Difficulty can be "Hard", "Medium", "Easy"
+    difficulty = db.Column(db.String(40), nullable=False)
+    image = db.Column(db.Text, nullable=False)
+
+    def __init__(self, name, description, summary, difficulty, image):
+        self.name = name
+        self.description = description
+        self.summary = summary
+        self.difficulty = difficulty
+        self.image = image
+
+    def __repr__(self):
+        return f"Lab('{self.name}')"
