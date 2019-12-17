@@ -7,10 +7,13 @@ class UserFormSchema(ma.Schema):
     name = fields.Str(required=True)
     email = fields.Str(required=True)
     password = fields.Str(required=True)
+    roles = fields.Str(required=False)
+    location = fields.Str(required=True)
+    image = fields.Str(required=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("name", "email", "password")
+        fields = ("name", "email", "password", "roles", "location", "image")
         ordered = True
 
 
@@ -19,10 +22,13 @@ class UserFormSchema(ma.Schema):
 class UserSchema(ma.Schema):
     name = fields.Str(required=True)
     email = fields.Str(required=True)
+    location = fields.Str(required=True)
+    roles = fields.Str(required=False)
+    image = fields.Str(required=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("name", "email")
+        fields = ("name", "email", "roles", "location", "image")
         ordered = True
 
 
