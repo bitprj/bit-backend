@@ -60,15 +60,36 @@ class Track(db.Model):
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    # This id is used so that the user's data like name, and email are not exposed in a jwt token
-    public_id = db.Column(db.String(50), nullable=False)
-    name = db.Column(db.String(50), nullable=False)
-    email = db.Column(db.String(50), unique=True, nullable=False)
-    password = db.Column(db.LargeBinary, unique=True, nullable=False)
+    name = db.Column(db.Text, nullable=False)
+    # username is the email
+    username = db.Column(db.Text, unique=True, nullable=False)
+    password = db.Column(db.Text, unique=True, nullable=False)
+    # Roles are Admin, Teacher, or Student
+    roles = db.Column(db.Text, nullable=False)
     location = db.Column(db.Text, nullable=False)
+    image = db.Column(db.Text, nullable=True)
+
+    @property
+    def rolenames(self):
+        try:
+            return self.roles.split(',')
+        except Exception:
+            return []
+
+    @classmethod
+    def lookup(cls, username):
+        return cls.query.filter_by(username=username).one_or_none()
+
+    @classmethod
+    def identify(cls, id):
+        return cls.query.get(id)
+
+    @property
+    def identity(self):
+        return self.id
 
     def __repr__(self):
-        return f"User('{self.email}')"
+        return f"User('{self.username}')"
 
 
 class Admin(User):
