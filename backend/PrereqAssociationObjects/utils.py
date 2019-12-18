@@ -20,11 +20,9 @@ def edit_topic_badge_prereqs(topic, badge_data):
 
             # If the topic already has a badge, edit it
             if target_badge:
-                print("edit badge")
                 target_badge.xp = badge_info["xp"]
             else:
                 # If the topic does not have badge, then create a new one
-                print("adding new badge")
                 topic_badge = topic_badge_creation(badge_info)
                 topic.badges.append(topic_badge)
 
