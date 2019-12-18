@@ -33,6 +33,21 @@ class Gem(db.Model):
         return f"Gem('{self.is_local}, {self.amount}')"
 
 
+class Module(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    icon = db.Column(db.Text, nullable=False)
+
+    def __init__(self, name, description, icon):
+        self.name = name
+        self.description = description
+        self.icon = icon
+
+    def __repr__(self):
+        return f"Module('{self.name}')"
+
+
 class Topic(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
