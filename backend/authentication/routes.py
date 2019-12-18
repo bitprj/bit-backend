@@ -1,6 +1,6 @@
 from flask import (Blueprint, jsonify, request)
 from flask_restful import Resource
-from flask_praetorian import auth_required
+from flask_praetorian import auth_required, roles_required
 from backend import api, db, guard
 from backend.authentication.schemas import user_form_schema, user_login_schema
 from backend.authentication.utils import create_user
@@ -72,17 +72,39 @@ class UserSessionHandler(Resource):
 class Protected(Resource):
     method_decorators = [auth_required]
 
+    # This route is to check if the user is authenticated with a jwt token
     def get(self):
-        return jsonify({"message": "Welcome!"})
+        return jsonify({"message": "User is logged!"})
 
 
-class Open(Resource):
+class UserIsAdmin(Resource):
+    method_decorators = [roles_required("Admin")]
+
+    # This route is used to validate if the user is an Admin
     def get(self):
-        return jsonify({"message": "Anyone can visit"})
+        return jsonify({"message": "Admin logged in!"})
+
+
+class UserIsStudent(Resource):
+    method_decorators = [roles_required("Student")]
+
+    # This route is used to validate if the user is a Student
+    def get(self):
+        return jsonify({"message": "Student logged in!"})
+
+
+class UserIsTeacher(Resource):
+    method_decorators = [roles_required("Teacher")]
+
+    # This route is used to validate if the user is a Teacher
+    def get(self):
+        return jsonify({"message": "Teacher logged in!"})
 
 
 # Creates the routes for the classes
 api.add_resource(UserCreate, "/users/<string:user_type>/create")
 api.add_resource(UserSessionHandler, "/user/login")
 api.add_resource(Protected, "/protected")
-api.add_resource(Open, "/open")
+api.add_resource(UserIsAdmin, "/isAdmin")
+api.add_resource(UserIsStudent, "/isStudent")
+api.add_resource(UserIsTeacher, "/isTeacher")
