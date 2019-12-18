@@ -28,11 +28,13 @@ guard.init_app(app, User)
 from backend.authentication.routes import authentication_bp
 from backend.badges.routes import badges_bp
 from backend.gems.routes import gems_bp
+from backend.modules.routes import modules_bp
 from backend.topics.routes import topics_bp
 from backend.tracks.routes import tracks_bp
 
 app.register_blueprint(authentication_bp)
 app.register_blueprint(badges_bp)
 app.register_blueprint(gems_bp)
+app.register_blueprint(modules_bp)
 app.register_blueprint(topics_bp)
 app.register_blueprint(tracks_bp)

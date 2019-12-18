@@ -1,5 +1,5 @@
 from backend.models import Topic
-from backend.PrereqAssociationObjects.utils import create_topic_badge_loop, edit_topic_badge_prereqs
+from backend.prereqs.utils import create_topic_badge_loop, edit_topic_badge_prereqs
 
 
 # Function to create a topic
