@@ -48,7 +48,7 @@ class UserCreate(Resource):
 
 
 # Class to login in a user
-class UserSessionHandler(Resource):
+class UserLoginHandler(Resource):
     # Function to login a user through a jwt token
     def post(self):
         form_data = request.get_json()
@@ -67,6 +67,14 @@ class UserSessionHandler(Resource):
             token = guard.encode_jwt_token(user)
 
         return {"message": "Successfully logged in!", "access_token": token}, 200
+
+
+# Class to logout a user
+class UserLogoutHandler(Resource):
+    # Function to invalidate the user's jwt token. This is used to log out the user
+    # Use this to invalidate the current user's access token
+    def delete(self):
+        return {"access_token": None}, 200
 
 
 class Protected(Resource):
@@ -103,7 +111,8 @@ class UserIsTeacher(Resource):
 
 # Creates the routes for the classes
 api.add_resource(UserCreate, "/users/<string:user_type>/create")
-api.add_resource(UserSessionHandler, "/user/login")
+api.add_resource(UserLoginHandler, "/user/login")
+api.add_resource(UserLogoutHandler, "/user/logout")
 api.add_resource(Protected, "/protected")
 api.add_resource(UserIsAdmin, "/isAdmin")
 api.add_resource(UserIsStudent, "/isStudent")
