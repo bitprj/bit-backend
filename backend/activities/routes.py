@@ -1,9 +1,11 @@
-from flask import (Blueprint, json, request)
+from flask import (Blueprint, request)
 from flask_restful import Resource
 from backend import api, db
-from backend.activities.schemas import activity_schema, activity_file_schema
+from backend.activities.schemas import activity_schema
 from backend.activities.utils import create_activity, edit_activity
 from backend.models import Activity
+from backend.prereqs.utils import assign_badge_prereqs
+from backend.prereqs.validators import validate_badges, validate_modules
 
 # Blueprint for activities
 activities_bp = Blueprint("activities", __name__)
@@ -65,20 +67,27 @@ class ActivityData(Resource):
 class ActivityCreate(Resource):
     # Function to create a activity
     def post(self):
-        form_data = request.form
-        file_data = request.files
+        form_data = request.get_json()
         errors = activity_schema.validate(form_data)
-        file_errors = activity_file_schema.validate(file_data)
 
-        if errors or file_errors:
+        if errors:
             return {
                        "message": "Missing or sending incorrect data to create an activity. Double check the JSON data that it has everything needed to create an activity."
                    }, 500
         else:
-            print(type(form_data["badge_prereqs"]))
-            # activity = create_activity(form_data, file_data)
-            # db.session.add(activity)
-            # db.session.commit()
+            module_error = validate_modules(form_data["module_ids"])
+            badge_error = validate_badges(form_data["badge_prereqs"])
+
+            if module_error or badge_error:
+                return {
+                           "message": "Badge or Module does not exist. Double check the arrays to check if they are valid in the database."
+                       }, 500
+            else:
+                activity = create_activity(form_data)
+                db.session.add(activity)
+                db.session.commit()
+                assign_badge_prereqs(form_data["badge_prereqs"], activity, "Activity")
+                db.session.commit()
 
         return {"message": "Activity successfully created"}, 202
 

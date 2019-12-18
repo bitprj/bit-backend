@@ -1,6 +1,35 @@
 from backend import db
 from sqlalchemy.ext.mutable import MutableDict
 
+# This many to many relationship is used to keep track of which activities belong to a module
+activity_module_rel = db.Table('activity_module_rel',
+                               db.Column('activity_id', db.Integer, db.ForeignKey('activity.id')),
+                               db.Column('module_id', db.Integer, db.ForeignKey('module.id'))
+                               )
+
+
+class Activity(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    summary = db.Column(db.Text, nullable=False)
+    # Difficulty can be "Hard", "Medium", "Easy"
+    difficulty = db.Column(db.String(40), nullable=False)
+    image = db.Column(db.Text, nullable=False)
+    badges = db.relationship("ActivityBadgePrereqs", back_populates="activity")
+    # modules keeps track of all of the modules that an activity belongs to
+    modules = db.relationship('Module', secondary='activity_module_rel', back_populates='activities')
+
+    def __init__(self, name, description, summary, difficulty, image):
+        self.name = name
+        self.description = description
+        self.summary = summary
+        self.difficulty = difficulty
+        self.image = image
+
+    def __repr__(self):
+        return f"Lab('{self.name}')"
+
 
 class Badge(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -8,7 +37,7 @@ class Badge(db.Model):
     description = db.Column(db.Text, nullable=False)
     threshold = db.Column(MutableDict.as_mutable(db.PickleType), nullable=False)
     image = db.Column(db.Text, nullable=False)
-    activities = db.relationship("ActivityBadgePrereqs", back_populates="activity")
+    activities = db.relationship("ActivityBadgePrereqs", back_populates="badge")
     topics = db.relationship("TopicBadgePrereqs", back_populates="badge")
 
     def __init__(self, name, description, threshold, image):
@@ -34,32 +63,13 @@ class Gem(db.Model):
         return f"Gem('{self.is_local}, {self.amount}')"
 
 
-class Activity(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Text, nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    summary = db.Column(db.Text, nullable=False)
-    # Difficulty can be "Hard", "Medium", "Easy"
-    difficulty = db.Column(db.String(40), nullable=False)
-    image = db.Column(db.Text, nullable=False)
-    badges = db.relationship("ActivityBadgePrereqs", back_populates="badge")
-
-    def __init__(self, name, description, summary, difficulty, image):
-        self.name = name
-        self.description = description
-        self.summary = summary
-        self.difficulty = difficulty
-        self.image = image
-
-    def __repr__(self):
-        return f"Lab('{self.name}')"
-
-
 class Module(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
     icon = db.Column(db.Text, nullable=False)
+    # activities keeps track of all of the activities that a module belongs to
+    activities = db.relationship('Activity', secondary='activity_module_rel', back_populates='modules')
 
     def __init__(self, name, description, icon):
         self.name = name
@@ -156,8 +166,8 @@ class ActivityBadgePrereqs(db.Model):
     activity_id = db.Column(db.Integer, db.ForeignKey('activity.id'), primary_key=True)
     badge_id = db.Column(db.Integer, db.ForeignKey('badge.id'), primary_key=True)
     xp = db.Column(db.Integer, nullable=False)
-    activity = db.relationship("Badge", back_populates="activities")
-    badge = db.relationship("Activity", back_populates="badges")
+    activity = db.relationship("Activity", back_populates="badges")
+    badge = db.relationship("Badge", back_populates="activities")
 
 
 class TopicBadgePrereqs(db.Model):

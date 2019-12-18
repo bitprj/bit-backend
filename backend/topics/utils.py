@@ -1,5 +1,5 @@
 from backend.models import Topic
-from backend.prereqs.utils import create_topic_badge_loop, edit_topic_badge_prereqs
+from backend.prereqs.utils import assign_badge_prereqs, edit_topic_badge_prereqs
 
 
 # Function to create a topic
@@ -7,7 +7,7 @@ def create_topic(form_data):
     topic = Topic(name=form_data["name"],
                   description=form_data["description"]
                   )
-    create_topic_badge_loop(topic, form_data["badge_prereqs"])
+    assign_badge_prereqs(topic, form_data["badge_prereqs"])
 
     return topic
 

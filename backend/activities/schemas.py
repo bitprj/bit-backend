@@ -8,17 +8,14 @@ class ActivitySchema(ma.Schema):
     summary = fields.String(required=True)
     difficulty = fields.String(required=True)
     image = fields.Field(required=False)
-    badge_prereqs = fields.List(fields.Dict, required=False)
+    badge_prereqs = fields.List(fields.Dict(), required=False)
+    # module_ids are the list of module_ids that keep track of which modules own this lab
+    module_ids = fields.List(fields.Int(), required=False)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "name", "description", "summary", "difficulty", "badge_prereqs", "image")
+        fields = ("id", "name", "description", "summary", "difficulty", "image", "badge_prereqs", "module_ids")
         ordered = True
 
 
-class ActivityFileSchema(ma.Schema):
-    image = fields.Field(required=True)
-
-
 activity_schema = ActivitySchema()
-activity_file_schema = ActivityFileSchema()
