@@ -1,8 +1,23 @@
 from backend import ma
-from backend.models import Topic
 from marshmallow import fields
 
 
+# This schema is used to validate topic form data
+class TopicFormSchema(ma.ModelSchema):
+    name = fields.Str(required=True)
+    description = fields.Str(required=True)
+    modules = fields.List(fields.Int(), required=False)
+    activity_prereqs = fields.List(fields.Int(), required=False)
+    module_prereqs = fields.List(fields.Int(), required=False)
+    badge_prereqs = fields.List(fields.Dict(), required=False)
+
+    class Meta:
+        # Fields to show when sending data
+        fields = ("name", "description", "modules", "activity_prereqs", "module_prereqs", "badge_prereqs")
+        ordered = True
+
+
+# This schema is used to keep track
 class TopicSchema(ma.ModelSchema):
     name = fields.Str(required=True)
     description = fields.Str(required=True)
@@ -14,8 +29,8 @@ class TopicSchema(ma.ModelSchema):
     class Meta:
         # Fields to show when sending data
         fields = ("id", "name", "description", "badge_prereqs")
-        model = Topic
         ordered = True
 
 
 topic_schema = TopicSchema()
+topic_form_schema = TopicFormSchema()

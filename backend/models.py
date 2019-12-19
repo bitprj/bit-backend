@@ -1,17 +1,37 @@
 from backend import db
 from sqlalchemy.ext.mutable import MutableDict
 
+# RELATIONSHIPS. The below tables are used to keep track of which model belongs with a model
 # This many to many relationship is used to keep track of which activities belong to a module
 activity_module_rel = db.Table('activity_module_rel',
                                db.Column('activity_id', db.Integer, db.ForeignKey('activity.id')),
                                db.Column('module_id', db.Integer, db.ForeignKey('module.id'))
                                )
 
+# This many to many relationship is used to keep track of the modules need to access a topic
+topic_module_rel = db.Table('topic_module_rel',
+                            db.Column('topic_id', db.Integer, db.ForeignKey('topic.id')),
+                            db.Column('module_id', db.Integer, db.ForeignKey('module.id'))
+                            )
+
+# PREREQUISITE The tables below are used to keep track of which model is a prerequisite to another model
 # This many to many relationship is used to keep track of the activities need to access a module
 activity_module_prereqs = db.Table('activity_module_prereqs',
                                    db.Column('activity_id', db.Integer, db.ForeignKey('activity.id')),
                                    db.Column('module_id', db.Integer, db.ForeignKey('module.id'))
                                    )
+
+# This many to many relationship is used to keep track of the modules need to access a topic
+topic_activity_prereqs = db.Table('topic_activity_prereqs',
+                                  db.Column('topic_id', db.Integer, db.ForeignKey('topic.id')),
+                                  db.Column('activity_id', db.Integer, db.ForeignKey('activity.id'))
+                                  )
+
+# This many to many relationship is used to keep track of the modules need to access a topic
+topic_module_prereqs = db.Table('topic_module_prereqs',
+                                db.Column('topic_id', db.Integer, db.ForeignKey('topic.id')),
+                                db.Column('module_id', db.Integer, db.ForeignKey('module.id'))
+                                )
 
 
 class Activity(db.Model):
@@ -22,13 +42,14 @@ class Activity(db.Model):
     # Difficulty can be "Hard", "Medium", "Easy"
     difficulty = db.Column(db.String(40), nullable=False)
     image = db.Column(db.Text, nullable=False)
+    # modules keeps track of all of the modules that an activity belongs to
+    modules = db.relationship('Module', secondary='activity_module_rel', back_populates='activities')
     # badges keeps track of all the badge xp that are required to an activity
     badges = db.relationship("ActivityBadgePrereqs", cascade="all,delete", back_populates="activity")
     # modules keeps track of all of the modules that an activity belongs to
-    module_prereqs = db.relationship('Module', secondary='activity_module_prereqs',
-                                     back_populates='activity_prereqs')  # modules keeps track of all of the modules that an activity belongs to
-    # modules keeps track of all of the modules that an activity belongs to
-    modules = db.relationship('Module', secondary='activity_module_rel', back_populates='activities')
+    module_prereqs = db.relationship('Module', secondary='activity_module_prereqs', back_populates='activity_prereqs')
+    # topic_prereqs keeps track of the activities that needs to be completed before accessing a topic
+    topic_prereqs = db.relationship("Topic", secondary="topic_activity_prereqs", back_populates="activity_prereqs")
 
     def __init__(self, name, description, summary, difficulty, image):
         self.name = name
@@ -83,10 +104,14 @@ class Module(db.Model):
     icon = db.Column(db.Text, nullable=False)
     # activities keeps track of all of the activities that a module belongs to
     activities = db.relationship('Activity', secondary='activity_module_rel', back_populates='modules')
+    # topics keep track of all of the topics that a module belongs to
+    topics = db.relationship('Topic', secondary='topic_module_rel', back_populates='modules')
     # activity_prereqs keeps track of all of the activities that are prereqs to a module
     activity_prereqs = db.relationship('Activity', secondary='activity_module_prereqs', back_populates='module_prereqs')
     # badges is used to keep track of the badge xp perquisite to access the Module
     badges = db.relationship("ModuleBadgePrereqs", cascade="all,delete", back_populates="module")
+    # topic_prereqs is used to keep track of modules that need to be completed before accessing a topic
+    topic_prereqs = db.relationship('Topic', secondary='topic_module_prereqs', back_populates='module_prereqs')
 
     def __init__(self, name, description, icon):
         self.name = name
@@ -101,7 +126,14 @@ class Topic(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
+    # modules keeps track of all of the modules that the belong to a topic
+    modules = db.relationship('Module', secondary='topic_module_rel', back_populates='topics')
+    # activity_prereqs keeps track of the activities needed to access a topic
+    activity_prereqs = db.relationship("Activity", secondary="topic_activity_prereqs", back_populates="topic_prereqs")
+    # badge_prereqs keeps track of the badge xp needed to access a topic
     badge_prereqs = db.relationship("TopicBadgePrereqs", cascade="all,delete", back_populates="topic")
+    # module_prereqs keeps track of the modules needed to access a topic
+    module_prereqs = db.relationship('Module', secondary='topic_module_prereqs', back_populates='topic_prereqs')
 
     def __init__(self, name, description):
         self.name = name
@@ -196,6 +228,7 @@ class ModuleBadgePrereqs(db.Model):
     badge = db.relationship("Badge", back_populates="modules")
 
 
+# Association object for topics and badges. This is for prerequisites
 class TopicBadgePrereqs(db.Model):
     topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), primary_key=True)
     badge_id = db.Column(db.Integer, db.ForeignKey('badge.id'), primary_key=True)
