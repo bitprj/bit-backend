@@ -1,4 +1,5 @@
 from backend.models import Module
+from backend.prereqs.fetch import get_activities
 
 
 # Function to create a module
@@ -7,6 +8,9 @@ def create_module(form_data):
                     description=form_data["description"],
                     icon=form_data["icon"]
                     )
+
+    module.activities = get_activities(form_data["activities"])
+    module.activity_prereqs = get_activities(form_data["activity_prereqs"])
 
     return module
 
