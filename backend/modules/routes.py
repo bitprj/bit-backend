@@ -43,8 +43,16 @@ class ModuleData(Resource):
                            "message": "Missing or sending incorrect data to edit a module. Double check the JSON data that it has everything needed to edit a module."
                        }, 500
             else:
-                edit_module(module, form_data)
-                db.session.commit()
+                activity_error = validate_activities(form_data["activities"])
+                badge_error = validate_badges(form_data["badge_prereqs"])
+
+                if activity_error or badge_error:
+                    return {
+                               "message": "Badge or Activity does not exist. Double check the arrays to check if they are valid in the database."
+                           }, 500
+                else:
+                    edit_module(module, form_data)
+                    db.session.commit()
 
                 return {"message": "Module successfully updated"}, 202
 

@@ -26,9 +26,10 @@ def assign_badge_prereqs(badge_data, selected_object, object_type):
     return
 
 
-# Function to delete badge prereqs
-def delete_badge_prereqs(activity):
-    for badge in activity.badges:
+# Function to delete badge prereqs based on the selected object
+# selected object could be an Activity, Module
+def delete_badge_prereqs(selected_object):
+    for badge in selected_object.badges:
         db.session.delete(badge)
     db.session.commit()
 

@@ -1,4 +1,5 @@
 from backend import ma
+from backend.badges.schemas import BadgeRequirementSchema
 from marshmallow import fields
 
 
@@ -23,10 +24,15 @@ class ModuleSchema(ma.Schema):
     name = fields.Str(required=True)
     description = fields.Str(required=True)
     icon = fields.Str(required=True)
+    badges = ma.Nested(BadgeRequirementSchema, many=True)
+    # We are referencing another Schema below. You do this in oder to avoid circular referencing
+    # The only keyword is used to show the id of the activity
+    activities = ma.Nested("ActivitySchema", only=("id",), many=True)
+    activity_prereqs = ma.Nested("ActivitySchema", only=("id",), many=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "name", "description", "icon")
+        fields = ("id", "name", "description", "icon", "badges", "activities", "activity_prereqs")
         ordered = True
 
 
