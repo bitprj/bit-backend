@@ -43,7 +43,7 @@ class ActivityData(Resource):
                            "message": "Missing or sending incorrect data to edit an activity. Double check the JSON data that it has everything needed to edit an activity."
                        }, 500
             else:
-                module_error = validate_modules(form_data["module_ids"])
+                module_error = validate_modules(form_data["modules"])
                 badge_error = validate_badges(form_data["badge_prereqs"])
 
                 if module_error or badge_error:
@@ -76,14 +76,14 @@ class ActivityCreate(Resource):
     # Function to create a activity
     def post(self):
         form_data = request.get_json()
-        errors = activity_schema.validate(form_data)
-
+        errors = activity_form_schema.validate(form_data)
+        print(errors)
         if errors:
             return {
                        "message": "Missing or sending incorrect data to create an activity. Double check the JSON data that it has everything needed to create an activity."
                    }, 500
         else:
-            module_error = validate_modules(form_data["module_ids"])
+            module_error = validate_modules(form_data["modules"])
             badge_error = validate_badges(form_data["badge_prereqs"])
 
             if module_error or badge_error:

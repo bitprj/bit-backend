@@ -16,7 +16,7 @@ class ActivityFormSchema(ma.Schema):
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "name", "description", "summary", "difficulty", "image", "badge_prereqs", "module_ids")
+        fields = ("id", "name", "description", "summary", "difficulty", "image", "badge_prereqs", "modules")
         ordered = True
 
 
