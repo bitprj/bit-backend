@@ -1,7 +1,7 @@
 from flask import (Blueprint, request)
 from flask_restful import Resource
 from backend import api, db
-from backend.modules.schemas import module_schema
+from backend.modules.schemas import module_form_schema, module_schema
 from backend.modules.utils import create_module, edit_module
 from backend.models import Module
 
@@ -33,7 +33,7 @@ class ModuleData(Resource):
             return {"message": "Module does not exist"}, 404
         else:
             form_data = request.get_json()
-            errors = module_schema.validate(form_data)
+            errors = module_form_schema.validate(form_data)
 
             # If form data is not validated by the module_schema, then return a 500 error
             # else edit the module and save it to the database
@@ -67,7 +67,7 @@ class ModuleCreate(Resource):
     # Function to create a module
     def post(self):
         form_data = request.get_json()
-        errors = module_schema.validate(form_data)
+        errors = module_form_schema.validate(form_data)
         # If form data is not validated by the module_schema, then return a 500 error
         # else create the module and add it to the database
         if errors:

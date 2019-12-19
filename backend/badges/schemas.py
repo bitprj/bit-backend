@@ -1,4 +1,5 @@
 from backend import ma
+from backend.models import ActivityBadgePrereqs
 from marshmallow import fields
 
 
@@ -12,6 +13,11 @@ class BadgeSchema(ma.Schema):
         # Fields to show when sending data
         fields = ("id", "name", "description", "threshold", "image")
         ordered = True
+
+
+class BadgeRequirementSchema(ma.ModelSchema):
+    badge_id = fields.Int(required=False)
+    xp = fields.Int(required=False)
 
 
 badge_schema = BadgeSchema()
