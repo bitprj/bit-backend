@@ -4,7 +4,8 @@ from backend import api, db
 from backend.modules.schemas import module_form_schema, module_schema
 from backend.modules.utils import create_module, edit_module
 from backend.models import Module
-
+from backend.prereqs.utils import assign_badge_prereqs
+from backend.prereqs.validators import validate_activities, validate_badges
 
 # Blueprint for modules
 modules_bp = Blueprint("modules", __name__)
@@ -39,11 +40,19 @@ class ModuleData(Resource):
             # else edit the module and save it to the database
             if errors:
                 return {
-                            "message": "Missing or sending incorrect data to edit a module. Double check the JSON data that it has everything needed to edit a module."
+                           "message": "Missing or sending incorrect data to edit a module. Double check the JSON data that it has everything needed to edit a module."
                        }, 500
             else:
-                edit_module(module, form_data)
-                db.session.commit()
+                activity_error = validate_activities(form_data["activities"])
+                badge_error = validate_badges(form_data["badge_prereqs"])
+
+                if activity_error or badge_error:
+                    return {
+                               "message": "Badge or Activity does not exist. Double check the arrays to check if they are valid in the database."
+                           }, 500
+                else:
+                    edit_module(module, form_data)
+                    db.session.commit()
 
                 return {"message": "Module successfully updated"}, 202
 
@@ -72,12 +81,22 @@ class ModuleCreate(Resource):
         # else create the module and add it to the database
         if errors:
             return {
-                "message": "Missing or sending incorrect data to create a module. Double check the JSON data that it has everything needed to create a module."
-            }, 500
+                       "message": "Missing or sending incorrect data to create a module. Double check the JSON data that it has everything needed to create a module."
+                   }, 500
         else:
-            module = create_module(form_data)
-            db.session.add(module)
-            db.session.commit()
+            activity_error = validate_activities(form_data["activities"])
+            badge_error = validate_badges(form_data["badge_prereqs"])
+
+            if badge_error or activity_error:
+                return {
+                           "message": "Badge or Activity does not exist. Double check the arrays to check if they are valid in the database."
+                       }, 500
+            else:
+                module = create_module(form_data)
+                db.session.add(module)
+                db.session.commit()
+                assign_badge_prereqs(form_data["badge_prereqs"], module, "Module")
+                db.session.commit()
 
             return {"message": "Module successfully created"}, 202
 

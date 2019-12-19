@@ -1,5 +1,5 @@
 from backend import db
-from backend.models import Badge, ActivityBadgePrereqs, TopicBadgePrereqs
+from backend.models import Badge, ActivityBadgePrereqs, ModuleBadgePrereqs, TopicBadgePrereqs
 
 
 # Function that creates a badge_reqs depending on the object_type
@@ -16,14 +16,20 @@ def assign_badge_prereqs(badge_data, selected_object, object_type):
                 target_badge = ActivityBadgePrereqs(xp=xp)
                 target_badge.badge = badge
                 target_badge.activity_id = selected_object.id
+            elif object_type == "Module":
+                target_badge = ModuleBadgePrereqs(xp=xp)
+                target_badge.badge = badge
+                target_badge.module_id = selected_object.id
+
             selected_object.badges.append(target_badge)
 
     return
 
 
-# Function to delete badge prereqs
-def delete_badge_prereqs(activity):
-    for badge in activity.badges:
+# Function to delete badge prereqs based on the selected object
+# selected object could be an Activity, Module
+def delete_badge_prereqs(selected_object):
+    for badge in selected_object.badges:
         db.session.delete(badge)
     db.session.commit()
 

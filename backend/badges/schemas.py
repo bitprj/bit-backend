@@ -15,7 +15,7 @@ class BadgeSchema(ma.Schema):
         ordered = True
 
 
-# This schema is used to display data in the ActivityBadgePrereqs model
+# This schema is used to display data in any badge association object
 class BadgeRequirementSchema(ma.ModelSchema):
     badge_id = fields.Int(required=False)
     xp = fields.Int(required=False)
