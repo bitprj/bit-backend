@@ -44,8 +44,8 @@ class Activity(db.Model):
     image = db.Column(db.Text, nullable=False)
     # modules keeps track of all of the modules that an activity belongs to
     modules = db.relationship('Module', secondary='activity_module_rel', back_populates='activities')
-    # badges keeps track of all the badge xp that are required to an activity
-    badges = db.relationship("ActivityBadgePrereqs", cascade="all,delete", back_populates="activity")
+    # badge_prereqs keeps track of all the badge xp that are required to an activity
+    badge_prereqs = db.relationship("ActivityBadgePrereqs", cascade="all,delete", back_populates="activity")
     # modules keeps track of all of the modules that an activity belongs to
     module_prereqs = db.relationship('Module', secondary='activity_module_prereqs', back_populates='activity_prereqs')
     # topic_prereqs keeps track of the activities that needs to be completed before accessing a topic
@@ -109,7 +109,7 @@ class Module(db.Model):
     # activity_prereqs keeps track of all of the activities that are prereqs to a module
     activity_prereqs = db.relationship('Activity', secondary='activity_module_prereqs', back_populates='module_prereqs')
     # badges is used to keep track of the badge xp perquisite to access the Module
-    badges = db.relationship("ModuleBadgePrereqs", cascade="all,delete", back_populates="module")
+    badge_prereqs = db.relationship("ModuleBadgePrereqs", cascade="all,delete", back_populates="module")
     # topic_prereqs is used to keep track of modules that need to be completed before accessing a topic
     topic_prereqs = db.relationship('Topic', secondary='topic_module_prereqs', back_populates='module_prereqs')
 
@@ -215,7 +215,7 @@ class ActivityBadgePrereqs(db.Model):
     activity_id = db.Column(db.Integer, db.ForeignKey('activity.id'), primary_key=True)
     badge_id = db.Column(db.Integer, db.ForeignKey('badge.id'), primary_key=True)
     xp = db.Column(db.Integer, nullable=False)
-    activity = db.relationship("Activity", back_populates="badges")
+    activity = db.relationship("Activity", back_populates="badge_prereqs")
     badge = db.relationship("Badge", back_populates="activities")
 
 
@@ -224,7 +224,7 @@ class ModuleBadgePrereqs(db.Model):
     module_id = db.Column(db.Integer, db.ForeignKey('module.id'), primary_key=True)
     badge_id = db.Column(db.Integer, db.ForeignKey('badge.id'), primary_key=True)
     xp = db.Column(db.Integer, nullable=False)
-    module = db.relationship("Module", back_populates="badges")
+    module = db.relationship("Module", back_populates="badge_prereqs")
     badge = db.relationship("Badge", back_populates="modules")
 
 

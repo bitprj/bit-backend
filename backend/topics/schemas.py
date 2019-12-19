@@ -19,16 +19,19 @@ class TopicFormSchema(ma.ModelSchema):
 
 # This schema is used to keep track
 class TopicSchema(ma.ModelSchema):
+    id = fields.Int(required=True)
     name = fields.Str(required=True)
     description = fields.Str(required=True)
-    badge_prereqs = fields.List(fields.Dict(), required=True)
-    # Below is just for testing purposes
-    # badge_prereqs = fields.Nested("BadgeSchema", required=False, many=True)
-    # badges = fields.Nested(BadgeSchema, many=True)
+    # We are referencing another Schema below. You do this in oder to avoid circular referencing
+    # The only keyword is used to show the id of modules and badge requirements
+    activity_prereqs = fields.Nested("ActivitySchema", only=("id",), many=True)
+    badge_prereqs = fields.Nested("BadgeRequirementSchema", many=True)
+    modules = ma.Nested("ModuleSchema", only=("id",), many=True)
+    module_prereqs = ma.Nested("ModuleSchema", only=("id",), many=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "name", "description", "badge_prereqs")
+        fields = ("id", "name", "description", "activity_prereqs", "badge_prereqs", "modules", "module_prereqs")
         ordered = True
 
 

@@ -77,7 +77,7 @@ class ActivityCreate(Resource):
     def post(self):
         form_data = request.get_json()
         errors = activity_form_schema.validate(form_data)
-        print(errors)
+
         if errors:
             return {
                        "message": "Missing or sending incorrect data to create an activity. Double check the JSON data that it has everything needed to create an activity."

@@ -11,7 +11,7 @@ class ActivityFormSchema(ma.Schema):
     difficulty = fields.Str(required=True)
     image = fields.Str(required=False)
     badge_prereqs = fields.List(fields.Dict(), required=False)
-    # module_ids are the list of module_ids that keep track of which modules own this lab
+    # modules are the list of module ids that keep track of which modules own this lab
     modules = fields.List(fields.Int(), required=False)
 
     class Meta:
