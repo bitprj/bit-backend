@@ -25,6 +25,7 @@ from backend.models import User
 guard.init_app(app, User)
 
 
+from backend.activities.routes import activities_bp
 from backend.authentication.routes import authentication_bp
 from backend.badges.routes import badges_bp
 from backend.gems.routes import gems_bp
@@ -32,6 +33,7 @@ from backend.modules.routes import modules_bp
 from backend.topics.routes import topics_bp
 from backend.tracks.routes import tracks_bp
 
+app.register_blueprint(activities_bp)
 app.register_blueprint(authentication_bp)
 app.register_blueprint(badges_bp)
 app.register_blueprint(gems_bp)

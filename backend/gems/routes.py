@@ -1,4 +1,4 @@
-from flask import (Blueprint, jsonify, request)
+from flask import (Blueprint, request)
 from flask_restful import Resource
 from backend import api, db
 from backend.gems.schemas import gem_schema
