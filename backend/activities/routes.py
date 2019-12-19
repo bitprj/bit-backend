@@ -1,7 +1,7 @@
 from flask import (Blueprint, request)
 from flask_restful import Resource
 from backend import api, db
-from backend.activities.schemas import activity_schema
+from backend.activities.schemas import activity_form_schema, activity_schema
 from backend.activities.utils import create_activity, edit_activity
 from backend.models import Activity
 from backend.prereqs.utils import assign_badge_prereqs
@@ -33,8 +33,8 @@ class ActivityData(Resource):
         if not activity:
             return {"message": "Activity does not exist"}, 404
         else:
-            activity_data = request.get_json()
-            errors = activity_schema.validate(activity_data)
+            form_data = request.get_json()
+            errors = activity_form_schema.validate(form_data)
 
             # If form data is not validated by the activity_schema, then return a 500 error
             # else edit the activity and save it to the database
@@ -43,8 +43,16 @@ class ActivityData(Resource):
                            "message": "Missing or sending incorrect data to edit an activity. Double check the JSON data that it has everything needed to edit an activity."
                        }, 500
             else:
-                edit_activity(activity, activity_data["activity_adjustment"])
-                db.session.commit()
+                module_error = validate_modules(form_data["module_ids"])
+                badge_error = validate_badges(form_data["badge_prereqs"])
+
+                if module_error or badge_error:
+                    return {
+                               "message": "Badge or Module does not exist. Double check the arrays to check if they are valid in the database."
+                           }, 500
+                else:
+                    edit_activity(activity, form_data)
+                    db.session.commit()
 
                 return {"message": "Activity successfully updated"}, 202
 

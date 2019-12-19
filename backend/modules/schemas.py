@@ -24,5 +24,6 @@ class ModuleSchema(ma.Schema):
         fields = ("id", "name", "description", "icon")
         ordered = True
 
+
 module_form_schema = ModuleFormSchema()
 module_schema = ModuleSchema()

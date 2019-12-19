@@ -1,14 +1,5 @@
+from backend import db
 from backend.models import Badge, ActivityBadgePrereqs, TopicBadgePrereqs
-
-
-# Function to loop through all the badge data and adds the selected badge to an
-# Use this when you have an association object with a badge
-# def assign_badge_prereqs(selected_object, badge_data, object_type):
-#     for badge_info in badge_data:
-#         badge_prereq = create_badge_prereqs(badge_info, object_type)
-#         selected_object.badges.append(badge_prereq)
-#
-#     return
 
 
 # Function that creates a badge_reqs depending on the object_type
@@ -25,26 +16,18 @@ def assign_badge_prereqs(badge_data, selected_object, object_type):
                 target_badge = ActivityBadgePrereqs(xp=xp)
                 target_badge.badge = badge
                 target_badge.activity_id = selected_object.id
-
             selected_object.badges.append(target_badge)
 
     return
 
 
-# Function to create an badge_reqs for Activities
-# def create_activity_badge_prereqs(badge_data):
-#     for badge_info in badge_data:
-#         xp = badge_info["xp"]
-#         badge = Badge.query.get(badge_info["id"])
-#
-#         # If the badge exists, then add the badge to the Activity
-#         if badge:
-#             activity_badge = ActivityBadgePrereqs(xp=xp)
-#             activity_badge.badge = badge
-#
-#             return activity_badge
-#
-#     return
+# Function to delete badge prereqs
+def delete_badge_prereqs(activity):
+    for badge in activity.badges:
+        db.session.delete(badge)
+    db.session.commit()
+
+    return
 
 
 # Function to create an association object for badges and topics

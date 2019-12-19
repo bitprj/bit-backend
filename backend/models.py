@@ -16,7 +16,7 @@ class Activity(db.Model):
     # Difficulty can be "Hard", "Medium", "Easy"
     difficulty = db.Column(db.String(40), nullable=False)
     image = db.Column(db.Text, nullable=False)
-    badges = db.relationship("ActivityBadgePrereqs", back_populates="activity")
+    badges = db.relationship("ActivityBadgePrereqs", cascade="all,delete", back_populates="activity")
     # modules keeps track of all of the modules that an activity belongs to
     modules = db.relationship('Module', secondary='activity_module_rel', back_populates='activities')
 
@@ -28,7 +28,7 @@ class Activity(db.Model):
         self.image = image
 
     def __repr__(self):
-        return f"Lab('{self.name}')"
+        return f"Activity('{self.name}')"
 
 
 class Badge(db.Model):
@@ -37,7 +37,7 @@ class Badge(db.Model):
     description = db.Column(db.Text, nullable=False)
     threshold = db.Column(MutableDict.as_mutable(db.PickleType), nullable=False)
     image = db.Column(db.Text, nullable=False)
-    activities = db.relationship("ActivityBadgePrereqs", back_populates="badge")
+    activities = db.relationship("ActivityBadgePrereqs", cascade="all,delete", back_populates="badge")
     topics = db.relationship("TopicBadgePrereqs", back_populates="badge")
 
     def __init__(self, name, description, threshold, image):
