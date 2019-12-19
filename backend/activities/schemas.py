@@ -4,6 +4,7 @@ from backend.modules.schemas import ModuleSchema
 from marshmallow import fields
 
 
+# This schema is used to validate the activity form data
 class ActivityFormSchema(ma.Schema):
     name = fields.String(required=True)
     description = fields.String(required=True)
@@ -20,6 +21,7 @@ class ActivityFormSchema(ma.Schema):
         ordered = True
 
 
+# This schema is used to display data in the Activity model
 class ActivitySchema(ma.Schema):
     name = fields.String(required=True)
     description = fields.String(required=True)
