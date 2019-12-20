@@ -4,16 +4,15 @@ from marshmallow import fields
 
 # This schema is used to validate form data for track data
 class TrackFormSchema(ma.Schema):
-    id = fields.Int(required=True)
     name = fields.Str(required=True)
     description = fields.Str(required=True)
     image = fields.Str(required=True)
     # topics is a list of topic ids
-    topics = fields.List(fields.Str, required=False)
+    topics = fields.List(fields.Int(), required=False)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "name", "description", "image", "topics")
+        fields = ("name", "description", "image", "topics")
         ordered = True
 
 
@@ -34,3 +33,4 @@ class TrackSchema(ma.Schema):
 
 
 track_schema = TrackSchema()
+track_form_schema = TrackFormSchema()

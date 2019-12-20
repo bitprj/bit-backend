@@ -136,7 +136,7 @@ class Topic(db.Model):
     # modules keeps track of all of the modules that the belong to a topic
     modules = db.relationship('Module', secondary='topic_module_rel', back_populates='topics')
     # tracks keep track of all of the topics that belong to a track
-    topics = db.relationship("Track", secondary="track_topic_rel", back_populates="topics")
+    tracks = db.relationship("Track", secondary="track_topic_rel", back_populates="topics")
     # activity_prereqs keeps track of the activities needed to access a topic
     activity_prereqs = db.relationship("Activity", secondary="topic_activity_prereqs", back_populates="topic_prereqs")
     # badge_prereqs keeps track of the badge xp needed to access a topic
