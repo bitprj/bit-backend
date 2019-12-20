@@ -20,8 +20,12 @@ def assign_badge_prereqs(badge_data, selected_object, object_type):
                 target_badge = ModuleBadgePrereqs(xp=xp)
                 target_badge.badge = badge
                 target_badge.module_id = selected_object.id
+            elif object_type == "Topic":
+                target_badge = TopicBadgePrereqs(xp=xp)
+                target_badge.badge = badge
+                target_badge.topic_id = selected_object.id
 
-            selected_object.badges.append(target_badge)
+            selected_object.badge_prereqs.append(target_badge)
 
     return
 
@@ -29,42 +33,8 @@ def assign_badge_prereqs(badge_data, selected_object, object_type):
 # Function to delete badge prereqs based on the selected object
 # selected object could be an Activity, Module
 def delete_badge_prereqs(selected_object):
-    for badge in selected_object.badges:
+    for badge in selected_object.badge_prereqs:
         db.session.delete(badge)
     db.session.commit()
-
-    return
-
-
-# Function to create an association object for badges and topics
-def create_topic_badge_prereqs(badge_info):
-    xp = badge_info["xp"]
-    badge = Badge.query.get(badge_info["id"])
-
-    # If the badge exists, then add the badge to the Topic
-    if badge:
-        topic_badge = TopicBadgePrereqs(xp=xp)
-        topic_badge.badge = badge
-
-        return topic_badge
-
-    return
-
-
-# Function to edit an association object for Topics and Badges
-def edit_topic_badge_prereqs(topic, badge_data):
-    for badge_info in badge_data:
-        badge = Badge.query.get(badge_info["id"])
-
-        if badge:
-            target_badge = TopicBadgePrereqs.query.filter_by(topic_id=topic.id, badge_id=badge_info["id"]).first()
-
-            # If the topic already has a badge, edit it
-            if target_badge:
-                target_badge.xp = badge_info["xp"]
-            else:
-                # If the topic does not have badge, then create a new one
-                topic_badge = create_topic_badge_prereqs(badge_info)
-                topic.badges.append(topic_badge)
 
     return

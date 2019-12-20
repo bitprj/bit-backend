@@ -12,7 +12,7 @@ def create_activity(form_data):
                         image=form_data["image"]
                         )
 
-    activity.modules = get_modules(form_data["module_ids"])
+    activity.modules = get_modules(form_data["modules"])
 
     return activity
 
@@ -24,7 +24,7 @@ def edit_activity(activity, form_data):
     activity.summary = form_data["summary"]
     activity.difficulty = form_data["difficulty"]
     activity.image = form_data["image"]
-    activity.modules = get_modules(form_data["module_ids"])
+    activity.modules = get_modules(form_data["modules"])
     delete_badge_prereqs(activity)
     assign_badge_prereqs(form_data["badge_prereqs"], activity, "Activity")
 

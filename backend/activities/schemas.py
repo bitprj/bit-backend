@@ -11,12 +11,12 @@ class ActivityFormSchema(ma.Schema):
     difficulty = fields.Str(required=True)
     image = fields.Str(required=False)
     badge_prereqs = fields.List(fields.Dict(), required=False)
-    # module_ids are the list of module_ids that keep track of which modules own this lab
+    # modules are the list of module ids that keep track of which modules own this lab
     modules = fields.List(fields.Int(), required=False)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "name", "description", "summary", "difficulty", "image", "badge_prereqs", "module_ids")
+        fields = ("id", "name", "description", "summary", "difficulty", "image", "badge_prereqs", "modules")
         ordered = True
 
 
@@ -28,14 +28,14 @@ class ActivitySchema(ma.Schema):
     summary = fields.Str(required=True)
     difficulty = fields.Str(required=True)
     image = fields.Str(required=False)
-    badges = ma.Nested(BadgeRequirementSchema, many=True)
+    badge_prereqs = ma.Nested(BadgeRequirementSchema, many=True)
     # We are referencing another Schema below. You do this in oder to avoid circular referencing
     # The only keyword is used to show the id of the module
     modules = fields.Nested("ModuleSchema", only=("id",), many=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "name", "description", "summary", "difficulty", "image", "badges", "modules")
+        fields = ("id", "name", "description", "summary", "difficulty", "image", "badge_prereqs", "modules")
         ordered = True
 
 
