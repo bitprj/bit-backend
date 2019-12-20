@@ -1,4 +1,4 @@
-from backend.models import Activity, Badge, Module
+from backend.models import Activity, Badge, Module, Topic
 
 
 # Function to check if the list of activity_ids are valid in the database
@@ -27,7 +27,19 @@ def validate_badges(badge_data):
 def validate_modules(module_ids):
     for module_id in module_ids:
         module = Module.query.get(module_id)
+
         if not module:
+            return True
+
+    return False
+
+
+# Function to check if the list of topic_ids are valid in the database
+def validate_topics(topic_ids):
+    for topic_id in topic_ids:
+        topic = Topic.query.get(topic_id)
+
+        if not topic:
             return True
 
     return False
