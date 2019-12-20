@@ -1,9 +1,10 @@
 from flask import (Blueprint, request)
 from flask_restful import Resource
 from backend import api, db
-from backend.tracks.schemas import track_schema
-from backend.tracks.utils import create_track, edit_track
 from backend.models import Track
+from backend.prereqs.validators import validate_topics
+from backend.tracks.schemas import track_schema, track_form_schema
+from backend.tracks.utils import create_track, edit_track
 
 
 # Blueprint for tracks
@@ -33,7 +34,7 @@ class TrackData(Resource):
             return {"message": "Track does not exist"}, 404
         else:
             form_data = request.get_json()
-            errors = track_schema.validate(form_data)
+            errors = track_form_schema.validate(form_data)
 
             # If form data is not validated by the track_schema, then return a 500 error
             # else edit the track and save it to the database
@@ -42,8 +43,15 @@ class TrackData(Resource):
                             "message": "Missing or sending incorrect data to edit a track. Double check the JSON data that it has everything needed to edit a track."
                        }, 500
             else:
-                edit_track(track, form_data)
-                db.session.commit()
+                track_error = validate_topics(form_data["topics"])
+
+                if track_error:
+                    return {
+                               "message": "Topic does not exist. Double check the arrays to check if they are valid in the database."
+                           }, 500
+                else:
+                    edit_track(track, form_data)
+                    db.session.commit()
 
                 return {"message": "Track successfully updated"}, 202
 
@@ -67,7 +75,8 @@ class TrackCreate(Resource):
     # Function to create a track
     def post(self):
         form_data = request.get_json()
-        errors = track_schema.validate(form_data)
+        errors = track_form_schema.validate(form_data)
+
         # If form data is not validated by the track_schema, then return a 500 error
         # else create the track and add it to the database
         if errors:
@@ -75,9 +84,16 @@ class TrackCreate(Resource):
                 "message": "Missing or sending incorrect data to create a track. Double check the JSON data that it has everything needed to create a track."
             }, 500
         else:
-            track = create_track(form_data)
-            db.session.add(track)
-            db.session.commit()
+            track_error = validate_topics(form_data["topics"])
+
+            if track_error:
+                return {
+                           "message": "Topic does not exist. Double check the arrays to check if they are valid in the database."
+                       }, 500
+            else:
+                track = create_track(form_data)
+                db.session.add(track)
+                db.session.commit()
 
             return {"message": "Track successfully created"}, 202
 

@@ -1,4 +1,4 @@
-from backend.models import Activity, Module
+from backend.models import Activity, Module, Topic
 
 
 # Function to return a list of activities based on a list of activity ids
@@ -22,3 +22,13 @@ def get_modules(module_ids):
 
     return modules
 
+
+# Function to return a list of topics baased on the lsit of topic ids
+def get_topics(topic_ids):
+    topics = []
+
+    for topic_id in topic_ids:
+        topic = Topic.query.get(topic_id)
+        topics.append(topic)
+
+    return topics

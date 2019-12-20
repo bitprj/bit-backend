@@ -2,17 +2,24 @@ from backend import db
 from sqlalchemy.ext.mutable import MutableDict
 
 # RELATIONSHIPS. The below tables are used to keep track of which model belongs with a model
-# This many to many relationship is used to keep track of which activities belong to a module
+# This many to many relationship is used to keep track of which activities belong to a module and vice versa
 activity_module_rel = db.Table('activity_module_rel',
                                db.Column('activity_id', db.Integer, db.ForeignKey('activity.id')),
                                db.Column('module_id', db.Integer, db.ForeignKey('module.id'))
                                )
 
-# This many to many relationship is used to keep track of the modules need to access a topic
+# This many to many relationship is used to keep track of the modules belong a topic and vice versa
 topic_module_rel = db.Table('topic_module_rel',
                             db.Column('topic_id', db.Integer, db.ForeignKey('topic.id')),
                             db.Column('module_id', db.Integer, db.ForeignKey('module.id'))
                             )
+
+# This many to many relationship is used to keep track of which topics belong to track and vice versa
+track_topic_rel = db.Table('track_topic_rel',
+                            db.Column('track_id', db.Integer, db.ForeignKey('track.id')),
+                            db.Column('topic_id', db.Integer, db.ForeignKey('topic.id'))
+                            )
+
 
 # PREREQUISITE The tables below are used to keep track of which model is a prerequisite to another model
 # This many to many relationship is used to keep track of the activities need to access a module
@@ -128,6 +135,8 @@ class Topic(db.Model):
     description = db.Column(db.Text, nullable=False)
     # modules keeps track of all of the modules that the belong to a topic
     modules = db.relationship('Module', secondary='topic_module_rel', back_populates='topics')
+    # tracks keep track of all of the topics that belong to a track
+    tracks = db.relationship("Track", secondary="track_topic_rel", back_populates="topics")
     # activity_prereqs keeps track of the activities needed to access a topic
     activity_prereqs = db.relationship("Activity", secondary="topic_activity_prereqs", back_populates="topic_prereqs")
     # badge_prereqs keeps track of the badge xp needed to access a topic
@@ -146,9 +155,15 @@ class Topic(db.Model):
 class Track(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    image = db.Column(db.Text, nullable=False)
+    # topics keep track of which topics belong to a track
+    topics = db.relationship("Topic", secondary="track_topic_rel", back_populates="tracks")
 
-    def __init__(self, name):
+    def __init__(self, name, description, image):
         self.name = name
+        self.description = description
+        self.image = image
 
     def __repr__(self):
         return f"Track('{self.name}')"
