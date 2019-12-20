@@ -91,6 +91,21 @@ class Badge(db.Model):
         return f"Badge('{self.name}')"
 
 
+class Card(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Text, nullable=False)
+    md_file = db.Column(db.Text, nullable=False)
+    gems = db.Column(db.Integer, nullable=False)
+
+    def __init__(self, name, md_file, gems):
+        self.name = name
+        self.md_file = md_file
+        self.gems = gems
+
+    def __repr__(self):
+        return f"Card('{self.name}')"
+
+
 class Gem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     amount = db.Column(db.Integer, nullable=False, default=0)
