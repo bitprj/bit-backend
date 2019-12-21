@@ -219,6 +219,9 @@ class Step(db.Model):
         self.order = order
         self.image = image
 
+    def __repr__(self):
+        return f"Step('{self.heading}')"
+
 
 class Track(db.Model):
     id = db.Column(db.Integer, primary_key=True)

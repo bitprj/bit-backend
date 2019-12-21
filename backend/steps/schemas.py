@@ -2,7 +2,7 @@ from backend import ma
 from marshmallow import fields
 
 
-# This schema is used to validate step form data
+# This schema is used to validate step data
 class StepFormSchema(ma.ModelSchema):
     heading = fields.Str(required=True)
     content = fields.Str(required=True)
@@ -17,7 +17,7 @@ class StepFormSchema(ma.ModelSchema):
 
 # This schema is used to display step data
 class StepSchema(ma.ModelSchema):
-    id = fields.Int(required=True)
+    id = fields.Int(required=False)
     heading = fields.Str(required=True)
     content = fields.Str(required=True)
     order = fields.Int(required=True)

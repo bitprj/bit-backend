@@ -6,7 +6,7 @@ from marshmallow import fields
 # This schema is used to validate concept form data
 class ConceptFormSchema(ma.ModelSchema):
     name = fields.Str(required=True)
-    cards = fields.List(fields.Int(), required=True)
+    cards = fields.List(fields.Int(), required=False)
     steps = fields.List(fields.Field, many=True)
 
     class Meta:

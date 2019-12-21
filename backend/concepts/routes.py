@@ -5,6 +5,7 @@ from backend.models import Concept
 from backend.prereqs.validators import validate_cards
 from backend.concepts.schemas import concept_schema, concept_form_schema
 from backend.concepts.utils import create_concept, edit_concept
+from backend.steps.utils import validate_step_data
 
 # Blueprint for concepts
 concepts_bp = Blueprint("concepts", __name__)
@@ -34,10 +35,11 @@ class ConceptData(Resource):
         else:
             form_data = request.get_json()
             errors = concept_form_schema.validate(form_data)
+            step_error = validate_step_data(form_data["steps"])
 
             # If form data is not validated by the concept_schema, then return a 500 error
             # else edit the concept and save it to the database
-            if errors:
+            if errors or step_error:
                 return {
                            "message": "Missing or sending incorrect data to edit a concept. Double check the JSON data that it has everything needed to edit a concept."
                        }, 500
@@ -68,10 +70,11 @@ class ConceptCreate(Resource):
     def post(self):
         form_data = request.get_json()
         errors = concept_form_schema.validate(form_data)
+        step_error = validate_step_data(form_data["steps"])
 
         # If form data is not validated by the concept_schema, then return a 500 error
         # else create the concept and add it to the database
-        if errors:
+        if errors or step_error:
             return {
                        "message": "Missing or sending incorrect data to create a concept. Double check the JSON data that it has everything needed to create a concept."
                    }, 500
