@@ -82,7 +82,7 @@ class HintCreate(Resource):
 
             if not card_error:
                 return {
-                           "message": "Card does not exist. Double check the card exists in the database."
+                           "message": "Card or Hint does not exist. Double check the card exists in the database."
                        }, 500
             else:
                 hint = create_hint(form_data, card_id)
