@@ -8,6 +8,11 @@ activity_module_rel = db.Table('activity_module_rel',
                                db.Column('module_id', db.Integer, db.ForeignKey('module.id'))
                                )
 
+card_concept_rel = db.Table('card_concept_rel',
+                            db.Column('card_id', db.Integer, db.ForeignKey('card.id')),
+                            db.Column('concept_id', db.Integer, db.ForeignKey('concept.id'))
+                            )
+
 # This many to many relationship is used to keep track of the modules belong a topic and vice versa
 topic_module_rel = db.Table('topic_module_rel',
                             db.Column('topic_id', db.Integer, db.ForeignKey('topic.id')),
@@ -107,6 +112,8 @@ class Card(db.Model):
     # activity_id and activity keeps track of which lab the card is owned by
     activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"))
     activity = db.relationship("Activity", back_populates="cards")
+    # concepts keeps track of which concepts that the card owns
+    concepts = db.relationship("Concept", secondary="card_concept_rel", back_populates="cards")
 
     def __init__(self, name, md_file, gems, activity_id):
         self.name = name
@@ -116,6 +123,21 @@ class Card(db.Model):
 
     def __repr__(self):
         return f"Card('{self.name}')"
+
+
+class Concept(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Text, nullable=False)
+    # cards keep track of which cards that a concept belongs to
+    cards = db.relationship("Card", secondary="card_concept_rel", back_populates="concepts")
+    # steps keep track of which steps that a concept owns
+    steps = db.relationship("Step", cascade="all,delete", back_populates="concept")
+
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return f"Concept('{self.name}')"
 
 
 class Gem(db.Model):
@@ -179,6 +201,23 @@ class Topic(db.Model):
 
     def __repr__(self):
         return f"Track('{self.name}')"
+
+
+class Step(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    heading = db.Column(db.Text, nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    order = db.Column(db.Integer, nullable=False)
+    image = db.Column(db.Text, nullable=False)
+    # concepts keep track of concept that it belongs to
+    concept_id = db.Column(db.Integer, db.ForeignKey("concept.id"))
+    concept = db.relationship("Concept", back_populates="steps")
+
+    def __init__(self, heading, content, order, image):
+        self.heading = heading
+        self.content = content
+        self.order = order
+        self.image = image
 
 
 class Track(db.Model):
