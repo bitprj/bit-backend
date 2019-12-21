@@ -16,10 +16,9 @@ topic_module_rel = db.Table('topic_module_rel',
 
 # This many to many relationship is used to keep track of which topics belong to track and vice versa
 track_topic_rel = db.Table('track_topic_rel',
-                            db.Column('track_id', db.Integer, db.ForeignKey('track.id')),
-                            db.Column('topic_id', db.Integer, db.ForeignKey('topic.id'))
-                            )
-
+                           db.Column('track_id', db.Integer, db.ForeignKey('track.id')),
+                           db.Column('topic_id', db.Integer, db.ForeignKey('topic.id'))
+                           )
 
 # PREREQUISITE The tables below are used to keep track of which model is a prerequisite to another model
 # This many to many relationship is used to keep track of the activities need to access a module
@@ -39,6 +38,13 @@ topic_module_prereqs = db.Table('topic_module_prereqs',
                                 db.Column('topic_id', db.Integer, db.ForeignKey('topic.id')),
                                 db.Column('module_id', db.Integer, db.ForeignKey('module.id'))
                                 )
+
+# REQUIREMENTS The tables below are used to keep track of which model is a requirement for another model
+# This is a many to many relationship to keep track of the required topics that needs to completed
+topic_track_reqs = db.Table('track_topic_reqs',
+                            db.Column('track_id', db.Integer, db.ForeignKey('track.id')),
+                            db.Column('topic_id', db.Integer, db.ForeignKey('topic.id'))
+                            )
 
 
 class Activity(db.Model):
@@ -158,6 +164,8 @@ class Topic(db.Model):
     badge_prereqs = db.relationship("TopicBadgePrereqs", cascade="all,delete", back_populates="topic")
     # module_prereqs keeps track of the modules needed to access a topic
     module_prereqs = db.relationship('Module', secondary='topic_module_prereqs', back_populates='topic_prereqs')
+    # required tracks keep track of the required tracks that need to be completed by the user
+    required_tracks = db.relationship("Track", secondary="track_topic_reqs", back_populates="required_topics")
 
     def __init__(self, name, description):
         self.name = name
@@ -171,13 +179,20 @@ class Track(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
+    focus = db.Column(db.Text, nullable=False)
+    # topic num are the number of topics needed to be completed to finish a topic
+    topic_num = db.Column(db.Integer, nullable=False)
     image = db.Column(db.Text, nullable=False)
     # topics keep track of which topics belong to a track
     topics = db.relationship("Topic", secondary="track_topic_rel", back_populates="tracks")
+    # required topics keep track of the required topics that need to be completed by the user
+    required_topics = db.relationship("Topic", secondary="track_topic_reqs", back_populates="required_tracks")
 
-    def __init__(self, name, description, image):
+    def __init__(self, name, description, focus, topic_num, image):
         self.name = name
         self.description = description
+        self.focus = focus
+        self.topic_num = topic_num
         self.image = image
 
     def __repr__(self):

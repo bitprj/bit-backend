@@ -44,8 +44,9 @@ class TrackData(Resource):
                        }, 500
             else:
                 track_error = validate_topics(form_data["topics"])
+                required_track_error = validate_topics(form_data["required_topics"])
 
-                if track_error:
+                if track_error or required_track_error:
                     return {
                                "message": "Topic does not exist. Double check the arrays to check if they are valid in the database."
                            }, 500
@@ -85,8 +86,9 @@ class TrackCreate(Resource):
             }, 500
         else:
             track_error = validate_topics(form_data["topics"])
+            required_track_error = validate_topics(form_data["required_topics"])
 
-            if track_error:
+            if track_error or required_track_error:
                 return {
                            "message": "Topic does not exist. Double check the arrays to check if they are valid in the database."
                        }, 500
