@@ -1,7 +1,6 @@
 from backend.models import Concept
-from backend.steps.utils import generate_steps
 from backend.prereqs.fetch import get_cards
-from backend.steps.utils import delete_steps
+from backend.steps.utils import delete_steps, generate_steps
 
 
 # Function to create a concept
