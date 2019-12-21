@@ -1,4 +1,15 @@
-from backend.models import Activity, Module, Topic
+from backend.models import Activity, Card, Module, Topic
+
+
+# Function to return a list of cards based on a list of card ids
+def get_cards(card_ids):
+    cards = []
+
+    for card_id in card_ids:
+        card = Card.query.get(card_id)
+        cards.append(card)
+
+    return cards
 
 
 # Function to return a list of activities based on a list of activity ids
