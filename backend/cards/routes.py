@@ -1,8 +1,9 @@
 from flask import (Blueprint, request)
 from flask_restful import Resource
 from backend import api, db
-from backend.models import Card
-
+from backend.cards.schemas import card_form_schema, card_schema
+from backend.cards.utils import create_card, edit_card
+from backend.models import Activity, Card
 
 # Blueprint for cards
 cards_bp = Blueprint("cards", __name__)
@@ -37,7 +38,7 @@ class CardData(Resource):
             # else edit the card and save it to the database
             if errors:
                 return {
-                            "message": "Missing or sending incorrect data to edit a card. Double check the JSON data that it has everything needed to edit a card."
+                           "message": "Missing or sending incorrect data to edit a card. Double check the JSON data that it has everything needed to edit a card."
                        }, 500
             else:
                 edit_card(card, form_data)
@@ -63,18 +64,23 @@ class CardData(Resource):
 # Class to define card creation
 class CardCreate(Resource):
     # Function to create a card
-    def post(self):
+    def post(self, activity_id):
         form_data = request.get_json()
         errors = card_form_schema.validate(form_data)
+        activity = Activity.query.get(activity_id)
 
+        if not activity:
+            return {
+                       "message": "Activity does not exist. Double check that it exists in the database."
+                   }, 500
         # If form data is not validated by the card_schema, then return a 500 error
         # else create the card and add it to the database
         if errors:
             return {
-                "message": "Missing or sending incorrect data to create a card. Double check the JSON data that it has everything needed to create a card."
-            }, 500
+                       "message": "Missing or sending incorrect data to create a card. Double check the JSON data that it has everything needed to create a card."
+                   }, 500
         else:
-            card = create_card(form_data)
+            card = create_card(form_data, activity_id)
             db.session.add(card)
             db.session.commit()
 
@@ -83,4 +89,4 @@ class CardCreate(Resource):
 
 # Creates the routes for the classes
 api.add_resource(CardData, "/cards/<int:card_id>")
-api.add_resource(CardCreate, "/cards/create")
+api.add_resource(CardCreate, "/activities/<int:activity_id>/cards/create")
