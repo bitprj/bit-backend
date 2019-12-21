@@ -55,6 +55,8 @@ class Activity(db.Model):
     # Difficulty can be "Hard", "Medium", "Easy"
     difficulty = db.Column(db.String(40), nullable=False)
     image = db.Column(db.Text, nullable=False)
+    # cards keeps track of all the cards that is owned by an Activity
+    cards = db.relationship("Card", cascade="all,delete", back_populates="activity")
     # modules keeps track of all of the modules that an activity belongs to
     modules = db.relationship('Module', secondary='activity_module_rel', back_populates='activities')
     # badge_prereqs keeps track of all the badge xp that are required to an activity
@@ -102,11 +104,15 @@ class Card(db.Model):
     name = db.Column(db.Text, nullable=False)
     md_file = db.Column(db.Text, nullable=False)
     gems = db.Column(db.Integer, nullable=False)
+    # activity_id and activity keeps track of which lab the card is owned by
+    activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"))
+    activity = db.relationship("Activity", back_populates="cards")
 
-    def __init__(self, name, md_file, gems):
+    def __init__(self, name, md_file, gems, activity_id):
         self.name = name
         self.md_file = md_file
         self.gems = gems
+        self.activity_id = activity_id
 
     def __repr__(self):
         return f"Card('{self.name}')"
