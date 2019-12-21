@@ -114,6 +114,8 @@ class Card(db.Model):
     activity = db.relationship("Activity", back_populates="cards")
     # concepts keeps track of which concepts that the card owns
     concepts = db.relationship("Concept", secondary="card_concept_rel", back_populates="cards")
+    # hints keep track of the hints that a card owns
+    hints = db.relationship("Hint", cascade="all,delete", back_populates="card")
 
     def __init__(self, name, md_file, gems, activity_id):
         self.name = name
@@ -151,6 +153,26 @@ class Gem(db.Model):
 
     def __repr__(self):
         return f"Gem('{self.is_local}, {self.amount}')"
+
+
+class Hint(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Text, nullable=False)
+    difficulty = db.Column(db.Text, nullable=False)
+    # Students spend gems when opening hints
+    gems = db.Column(db.Integer, nullable=False)
+    card_id = db.Column(db.Integer, db.ForeignKey("card.id"))
+    card = db.relationship("Card", back_populates="hints")
+    # steps keep track of which steps a hint owns
+    steps = db.relationship("Step", cascade="all,delete", back_populates="hint")
+
+    def __init__(self, name, difficulty, gems):
+        self.name = name
+        self.difficulty = difficulty
+        self.gems = gems
+
+    def __repr__(self):
+        return f"Hint('{self.name}')"
 
 
 class Module(db.Model):
@@ -209,9 +231,12 @@ class Step(db.Model):
     content = db.Column(db.Text, nullable=False)
     order = db.Column(db.Integer, nullable=False)
     image = db.Column(db.Text, nullable=False)
-    # concepts keep track of concept that it belongs to
+    # concept keeps track of concept that a step belongs to
     concept_id = db.Column(db.Integer, db.ForeignKey("concept.id"))
     concept = db.relationship("Concept", back_populates="steps")
+    # hint keeps track of a hint that a step belongs to
+    hint_id = db.Column(db.Integer, db.ForeignKey("hint.id"))
+    hint = db.relationship("Hint", back_populates="steps")
 
     def __init__(self, heading, content, order, image):
         self.heading = heading
