@@ -8,11 +8,12 @@ class HintFormSchema(ma.ModelSchema):
     name = fields.Str(required=True)
     difficulty = fields.Str(required=True)
     gems = fields.Int(required=True)
+    parent = fields.Int(missing=None, required=False)
     steps = fields.List(fields.Field, many=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("name", "difficulty", "gems", "steps")
+        fields = ("name", "difficulty", "gems", "parent ", "steps")
         ordered = True
 
 
@@ -22,11 +23,12 @@ class HintSchema(ma.ModelSchema):
     name = fields.Str(required=True)
     difficulty = fields.Str(required=True)
     gems = fields.Int(required=True)
+    parent = fields.Int(missing=None, required=False)
     steps = fields.Nested(StepSchema, many=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "name", "difficulty", "gems", "steps")
+        fields = ("id", "name", "difficulty", "gems", "parent", "steps")
         ordered = True
 
 

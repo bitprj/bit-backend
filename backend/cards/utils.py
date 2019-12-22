@@ -1,4 +1,5 @@
 from backend.models import Card
+from backend.prereqs.fetch import get_concepts
 
 
 # Function to create a card
@@ -17,5 +18,6 @@ def edit_card(card, form_data):
     card.name = form_data["name"]
     card.md_file = form_data["md_file"]
     card.gems = form_data["gems"]
+    card.concepts = get_concepts(form_data["concepts"])
 
     return

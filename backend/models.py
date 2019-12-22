@@ -161,15 +161,21 @@ class Hint(db.Model):
     difficulty = db.Column(db.Text, nullable=False)
     # Students spend gems when opening hints
     gems = db.Column(db.Integer, nullable=False)
+    # parent refers to the hint that owns a hint
+    # if parent is not null then the children are able to be unlocked
+    # if parent is null then it is a parent
+    # if parent is locked then the hint is unable to be unlocked
+    parent = db.Column(db.Integer, nullable=True)
     card_id = db.Column(db.Integer, db.ForeignKey("card.id"))
     card = db.relationship("Card", back_populates="hints")
     # steps keep track of which steps a hint owns
     steps = db.relationship("Step", cascade="all,delete", back_populates="hint")
 
-    def __init__(self, name, difficulty, gems):
+    def __init__(self, name, difficulty, gems, parent):
         self.name = name
         self.difficulty = difficulty
         self.gems = gems
+        self.parent = parent
 
     def __repr__(self):
         return f"Hint('{self.name}')"

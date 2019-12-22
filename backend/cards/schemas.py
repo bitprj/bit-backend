@@ -7,10 +7,11 @@ class CardFormSchema(ma.ModelSchema):
     name = fields.Str(required=True)
     md_file = fields.Str(required=True)
     gems = fields.Int(required=True)
+    concepts = fields.List(fields.Int(), required=False)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("name", "md_file", "gems")
+        fields = ("name", "md_file", "gems", "concepts")
         ordered = True
 
 
@@ -20,12 +21,14 @@ class CardSchema(ma.ModelSchema):
     name = fields.Str(required=True)
     md_file = fields.Str(required=True)
     gems = fields.Int(required=True)
-    activity_id = fields.Int(required=True)
-    activity = ma.Nested("ActivitySchema", only=("id",), many=True)
+    # activity is used to keep track of which activity that the card belongs to
+    activity = ma.Nested("ActivitySchema", only=("id",))
+    concepts = ma.Nested("ConceptSchema", only=("id",), many=True)
+    hints = ma.Nested("HintSchema", only=("id",), many=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "name", "md_file", "gems", "activity_id")
+        fields = ("id", "name", "md_file", "gems", "activity", "concepts", "hints")
         ordered = True
 
 
