@@ -13,7 +13,7 @@ class HintFormSchema(ma.ModelSchema):
 
     class Meta:
         # Fields to show when sending data
-        fields = ("name", "difficulty", "gems", "parent", "steps")
+        fields = ("name", "difficulty", "gems", "parent ", "steps")
         ordered = True
 
 
