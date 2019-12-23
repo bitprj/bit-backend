@@ -35,5 +35,17 @@ class TopicSchema(ma.ModelSchema):
         ordered = True
 
 
+# This schema is used to display the students topic progress
+class TopicProgressSchema(ma.ModelSchema):
+    completed_modules = fields.Nested("ModuleSchema", only=("id", "name", "description", "icon"), many=True)
+    incomplete_modules = fields.Nested("ModuleSchema", only=("id", "name", "description", "icon"), many=True)
+
+    class Meta:
+        # Fields to show when sending data
+        fields = ("completed_modules", "incomplete_modules")
+        ordered = True
+
+
 topic_schema = TopicSchema()
 topic_form_schema = TopicFormSchema()
+topic_progress_schema = TopicProgressSchema()

@@ -39,5 +39,18 @@ class TrackSchema(ma.Schema):
         ordered = True
 
 
+# This schema is used to return the track progress
+class TrackProgressSchema(ma.Schema):
+    completed_topics = fields.Nested("TopicSchema", only=("id", "name", "description"), many=True)
+    incomplete_topics = fields.Nested("TopicSchema", only=("id", "name", "description"), many=True)
+    topic = fields.Nested("TopicSchema", only=("id", "name", "description"), missing=None, many=False)
+
+    class Meta:
+        # Fields to show when sending data
+        fields = ("completed_topics", "incomplete_topics", "topic")
+        ordered = True
+
+
 track_schema = TrackSchema()
 track_form_schema = TrackFormSchema()
+track_progress_schema = TrackProgressSchema()

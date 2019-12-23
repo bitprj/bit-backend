@@ -1,4 +1,4 @@
-from backend.models import Topic
+from backend.models import Module, Student, Topic
 from backend.prereqs.fetch import get_activities, get_modules
 from backend.prereqs.utils import assign_badge_prereqs, delete_badge_prereqs
 
@@ -27,3 +27,26 @@ def edit_topic(topic, form_data):
     assign_badge_prereqs(form_data["badge_prereqs"], topic, "Topic")
 
     return
+
+
+# Function to get the student's topic progress based on topic id
+def get_topic_progress(student_id, topic_id):
+    student = Student.query.get(student_id)
+    modules = set(Module.query.filter(Module.topics.any(id=topic_id)))
+    completed_modules = set(student.completed_modules).intersection(modules)
+    incomplete_modules = set(student.incomplete_modules).intersection(modules)
+
+    module_progress = {"completed_modules": completed_modules,
+                       "incomplete_modules": incomplete_modules}
+
+    return module_progress
+
+
+# Function to check if a topic exists in the database
+def validate_topic(track_id):
+    topic = Topic.query.get(track_id)
+
+    if not topic:
+        return True
+
+    return False

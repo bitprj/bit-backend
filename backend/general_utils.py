@@ -1,5 +1,5 @@
-from backend import db
 from backend.config import S3_BUCKET
+from flask_praetorian.utilities import current_guard
 import boto3
 import urllib.parse
 import urllib.request
@@ -13,3 +13,12 @@ def add_image(file, folder):
     url = 'https://projectbit.s3-us-west-1.amazonaws.com/darlene/' + folder + '/' + file.filename
     image = urllib.parse.quote(url, "\./_-:")
     return image
+
+
+# Function to retrieve the user id from a  jwt token
+def get_user_id_from_token():
+    guard = current_guard()
+    token = guard.read_token_from_header()
+    jwt_data = guard.extract_jwt_token(token)
+
+    return jwt_data["id"]

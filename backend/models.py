@@ -3,52 +3,72 @@ from sqlalchemy.ext.mutable import MutableDict
 
 # RELATIONSHIPS. The below tables are used to keep track of which model belongs with a model
 # This many to many relationship is used to keep track of which activities belong to a module and vice versa
-activity_module_rel = db.Table('activity_module_rel',
-                               db.Column('activity_id', db.Integer, db.ForeignKey('activity.id')),
-                               db.Column('module_id', db.Integer, db.ForeignKey('module.id'))
+activity_module_rel = db.Table("activity_module_rel",
+                               db.Column("activity_id", db.Integer, db.ForeignKey("activity.id")),
+                               db.Column("module_id", db.Integer, db.ForeignKey("module.id"))
                                )
 
-card_concept_rel = db.Table('card_concept_rel',
-                            db.Column('card_id', db.Integer, db.ForeignKey('card.id')),
-                            db.Column('concept_id', db.Integer, db.ForeignKey('concept.id'))
+card_concept_rel = db.Table("card_concept_rel",
+                            db.Column("card_id", db.Integer, db.ForeignKey("card.id")),
+                            db.Column("concept_id", db.Integer, db.ForeignKey("concept.id"))
                             )
 
+student_topic_completed_rel = db.Table("student_topic_completed_rel",
+                                       db.Column("student_id", db.Integer, db.ForeignKey("student.id")),
+                                       db.Column("topic_id", db.Integer, db.ForeignKey("topic.id"))
+                                       )
+
+student_topic_incomplete_rel = db.Table("student_topic_incomplete_rel",
+                                        db.Column("student_id", db.Integer, db.ForeignKey("student.id")),
+                                        db.Column("track_id", db.Integer, db.ForeignKey("topic.id"))
+                                        )
+
+student_module_completed_rel = db.Table("student_module_completed_rel",
+                                        db.Column("student_id", db.Integer, db.ForeignKey("student.id")),
+                                        db.Column("module_id", db.Integer, db.ForeignKey("module.id"))
+                                        )
+
+student_module_incomplete_rel = db.Table("student_module_incomplete_rel",
+                                         db.Column("student_id", db.Integer, db.ForeignKey("student.id")),
+                                         db.Column("module_id", db.Integer, db.ForeignKey("module.id"))
+                                         )
+
 # This many to many relationship is used to keep track of the modules belong a topic and vice versa
-topic_module_rel = db.Table('topic_module_rel',
-                            db.Column('topic_id', db.Integer, db.ForeignKey('topic.id')),
-                            db.Column('module_id', db.Integer, db.ForeignKey('module.id'))
+topic_module_rel = db.Table("topic_module_rel",
+                            db.Column("topic_id", db.Integer, db.ForeignKey("topic.id")),
+                            db.Column("module_id", db.Integer, db.ForeignKey("module.id"))
                             )
 
 # This many to many relationship is used to keep track of which topics belong to track and vice versa
-track_topic_rel = db.Table('track_topic_rel',
-                           db.Column('track_id', db.Integer, db.ForeignKey('track.id')),
-                           db.Column('topic_id', db.Integer, db.ForeignKey('topic.id'))
+track_topic_rel = db.Table("track_topic_rel",
+                           db.Column("track_id", db.Integer, db.ForeignKey("track.id")),
+                           db.Column("topic_id", db.Integer, db.ForeignKey("topic.id"))
                            )
 
 # PREREQUISITE The tables below are used to keep track of which model is a prerequisite to another model
 # This many to many relationship is used to keep track of the activities need to access a module
-activity_module_prereqs = db.Table('activity_module_prereqs',
-                                   db.Column('activity_id', db.Integer, db.ForeignKey('activity.id')),
-                                   db.Column('module_id', db.Integer, db.ForeignKey('module.id'))
+activity_module_prereqs = db.Table("activity_module_prereqs",
+                                   db.Column("activity_id", db.Integer, db.ForeignKey("activity.id")),
+                                   db.Column("module_id", db.Integer, db.ForeignKey("module.id"))
                                    )
 
 # This many to many relationship is used to keep track of the modules need to access a topic
-topic_activity_prereqs = db.Table('topic_activity_prereqs',
-                                  db.Column('topic_id', db.Integer, db.ForeignKey('topic.id')),
-                                  db.Column('activity_id', db.Integer, db.ForeignKey('activity.id'))
+topic_activity_prereqs = db.Table("topic_activity_prereqs",
+                                  db.Column("topic_id", db.Integer, db.ForeignKey("topic.id")),
+                                  db.Column("activity_id", db.Integer, db.ForeignKey("activity.id"))
                                   )
 
 # This many to many relationship is used to keep track of the modules need to access a topic
-topic_module_prereqs = db.Table('topic_module_prereqs',
-                                db.Column('topic_id', db.Integer, db.ForeignKey('topic.id')),
-                                db.Column('module_id', db.Integer, db.ForeignKey('module.id'))
+topic_module_prereqs = db.Table("topic_module_prereqs",
+                                db.Column("topic_id", db.Integer, db.ForeignKey("topic.id")),
+                                db.Column("module_id", db.Integer, db.ForeignKey("module.id"))
                                 )
 
 # REQUIREMENTS The tables below are used to keep track of which model is a requirement for another model
 # This is a many to many relationship to keep track of the required topics that needs to completed
-topic_track_reqs = db.Table('track_topic_reqs',
-                            db.Column('track_id', db.Integer, db.ForeignKey('track.id')),
-                            db.Column('topic_id', db.Integer, db.ForeignKey('topic.id'))
+topic_track_reqs = db.Table("track_topic_reqs",
+                            db.Column("track_id", db.Integer, db.ForeignKey("track.id")),
+                            db.Column("topic_id", db.Integer, db.ForeignKey("topic.id"))
                             )
 
 
@@ -63,11 +83,11 @@ class Activity(db.Model):
     # cards keeps track of all the cards that is owned by an Activity
     cards = db.relationship("Card", cascade="all,delete", back_populates="activity")
     # modules keeps track of all of the modules that an activity belongs to
-    modules = db.relationship('Module', secondary='activity_module_rel', back_populates='activities')
+    modules = db.relationship("Module", secondary="activity_module_rel", back_populates="activities")
     # badge_prereqs keeps track of all the badge xp that are required to an activity
     badge_prereqs = db.relationship("ActivityBadgePrereqs", cascade="all,delete", back_populates="activity")
     # modules keeps track of all of the modules that an activity belongs to
-    module_prereqs = db.relationship('Module', secondary='activity_module_prereqs', back_populates='activity_prereqs')
+    module_prereqs = db.relationship("Module", secondary="activity_module_prereqs", back_populates="activity_prereqs")
     # topic_prereqs keeps track of the activities that needs to be completed before accessing a topic
     topic_prereqs = db.relationship("Topic", secondary="topic_activity_prereqs", back_populates="activity_prereqs")
 
@@ -187,15 +207,21 @@ class Module(db.Model):
     description = db.Column(db.Text, nullable=False)
     icon = db.Column(db.Text, nullable=False)
     # activities keeps track of all of the activities that a module belongs to
-    activities = db.relationship('Activity', secondary='activity_module_rel', back_populates='modules')
+    activities = db.relationship("Activity", secondary="activity_module_rel", back_populates="modules")
     # topics keep track of all of the topics that a module belongs to
-    topics = db.relationship('Topic', secondary='topic_module_rel', back_populates='modules')
+    topics = db.relationship("Topic", secondary="topic_module_rel", back_populates="modules")
     # activity_prereqs keeps track of all of the activities that are prereqs to a module
-    activity_prereqs = db.relationship('Activity', secondary='activity_module_prereqs', back_populates='module_prereqs')
+    activity_prereqs = db.relationship("Activity", secondary="activity_module_prereqs", back_populates="module_prereqs")
     # badges is used to keep track of the badge xp perquisite to access the Module
     badge_prereqs = db.relationship("ModuleBadgePrereqs", cascade="all,delete", back_populates="module")
     # topic_prereqs is used to keep track of modules that need to be completed before accessing a topic
-    topic_prereqs = db.relationship('Topic', secondary='topic_module_prereqs', back_populates='module_prereqs')
+    topic_prereqs = db.relationship("Topic", secondary="topic_module_prereqs", back_populates="module_prereqs")
+    # students_completed keeps track of which students have completed a module
+    students_completed = db.relationship("Student", secondary="student_module_completed_rel",
+                                         back_populates="completed_modules")
+    # students_incomplete keeps track of the students who have not completed a module
+    students_incomplete = db.relationship("Student", secondary="student_module_incomplete_rel",
+                                          back_populates="incomplete_modules")
 
     def __init__(self, name, description, icon):
         self.name = name
@@ -211,7 +237,7 @@ class Topic(db.Model):
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
     # modules keeps track of all of the modules that the belong to a topic
-    modules = db.relationship('Module', secondary='topic_module_rel', back_populates='topics')
+    modules = db.relationship("Module", secondary="topic_module_rel", back_populates="topics")
     # tracks keep track of all of the topics that belong to a track
     tracks = db.relationship("Track", secondary="track_topic_rel", back_populates="topics")
     # activity_prereqs keeps track of the activities needed to access a topic
@@ -219,16 +245,24 @@ class Topic(db.Model):
     # badge_prereqs keeps track of the badge xp needed to access a topic
     badge_prereqs = db.relationship("TopicBadgePrereqs", cascade="all,delete", back_populates="topic")
     # module_prereqs keeps track of the modules needed to access a topic
-    module_prereqs = db.relationship('Module', secondary='topic_module_prereqs', back_populates='topic_prereqs')
+    module_prereqs = db.relationship("Module", secondary="topic_module_prereqs", back_populates="topic_prereqs")
     # required tracks keep track of the required tracks that need to be completed by the user
     required_tracks = db.relationship("Track", secondary="track_topic_reqs", back_populates="required_topics")
+    # students keep track of the students current topic
+    students = db.relationship("Student", back_populates="topic")
+    # students_completed keeps track of which students have completed a topic
+    students_completed = db.relationship("Student", secondary="student_topic_completed_rel",
+                                         back_populates="completed_topics")
+    # students_incomplete keeps track of the students who have not completed a topic
+    students_incomplete = db.relationship("Student", secondary="student_topic_incomplete_rel",
+                                          back_populates="incomplete_topics")
 
     def __init__(self, name, description):
         self.name = name
         self.description = description
 
     def __repr__(self):
-        return f"Track('{self.name}')"
+        return f"Topic('{self.name}')"
 
 
 class Step(db.Model):
@@ -313,31 +347,46 @@ class User(db.Model):
 
 
 class Admin(User):
-    id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
 
     def __repr__(self):
-        return f"Admin('{self.name}')"
+        return f"Admin('{self.id}')"
 
 
 class Student(User):
-    id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
+    # completed_modules keeps track of all modules that a student has completed
+    completed_modules = db.relationship("Module", secondary="student_module_completed_rel",
+                                        back_populates="students_completed")
+    # incomplete_topics keeps track of all the modules that a student has not completed
+    incomplete_modules = db.relationship("Module", secondary="student_module_incomplete_rel",
+                                         back_populates="students_incomplete")
+    # completed_topics keeps track of all the topics that a student has completed
+    completed_topics = db.relationship("Topic", secondary="student_topic_completed_rel",
+                                       back_populates="students_completed")
+    # incomplete_topics keeps track of all the topics that a student has not completed
+    incomplete_topics = db.relationship("Topic", secondary="student_topic_incomplete_rel",
+                                        back_populates="students_incomplete")
+    # topic is used to show the students current topic
+    current_topic_id = db.Column(db.Integer, db.ForeignKey("topic.id"))
+    topic = db.relationship("Topic", back_populates="students")
 
     def __repr__(self):
-        return f"Student('{self.email}')"
+        return f"Student('{self.id}')"
 
 
 class Teacher(User):
-    id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
 
     def __repr__(self):
-        return f"Teacher('{self.email}')"
+        return f"Teacher('{self.id}')"
 
 
 ################## Association Objects ########################
 # Association object for labs and badges. This is for prerequisites
 class ActivityBadgePrereqs(db.Model):
-    activity_id = db.Column(db.Integer, db.ForeignKey('activity.id'), primary_key=True)
-    badge_id = db.Column(db.Integer, db.ForeignKey('badge.id'), primary_key=True)
+    activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"), primary_key=True)
+    badge_id = db.Column(db.Integer, db.ForeignKey("badge.id"), primary_key=True)
     xp = db.Column(db.Integer, nullable=False)
     activity = db.relationship("Activity", back_populates="badge_prereqs")
     badge = db.relationship("Badge", back_populates="activities")
@@ -354,8 +403,8 @@ class ModuleBadgePrereqs(db.Model):
 
 # Association object for topics and badges. This is for prerequisites
 class TopicBadgePrereqs(db.Model):
-    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), primary_key=True)
-    badge_id = db.Column(db.Integer, db.ForeignKey('badge.id'), primary_key=True)
+    topic_id = db.Column(db.Integer, db.ForeignKey("topic.id"), primary_key=True)
+    badge_id = db.Column(db.Integer, db.ForeignKey("badge.id"), primary_key=True)
     xp = db.Column(db.Integer, nullable=False)
 
     badge = db.relationship("Badge", back_populates="topics")

@@ -9,7 +9,7 @@ from backend.config import *
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = SECRET_KEY
-app.config['JWT_ACCESS_LIFESPAN'] = {'minutes': 10}
+app.config['JWT_ACCESS_LIFESPAN'] = {'minutes': 45}
 app.config['JWT_REFRESH_LIFESPAN'] = {'days': 1}
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 app.config['SQLALCHEMY_POOL_SIZE'] = 60000
