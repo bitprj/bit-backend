@@ -26,3 +26,13 @@ def edit_track(track, form_data):
     track.required_topics = get_topics(form_data["required_topics"])
 
     return
+
+
+# Function to check if a track exists in the database
+def validate_track(track_id):
+    track = Track.query.get(track_id)
+
+    if not track:
+        return True
+
+    return False

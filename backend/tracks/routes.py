@@ -1,11 +1,11 @@
 from flask import (Blueprint, request)
 from flask_restful import Resource
 from backend import api, db
-from backend.models import Track
+from backend.general_utils import get_user_id_from_token
+from backend.models import Student, Track
 from backend.prereqs.validators import validate_topics
 from backend.tracks.schemas import track_schema, track_form_schema
-from backend.tracks.utils import create_track, edit_track
-
+from backend.tracks.utils import create_track, edit_track, validate_track
 
 # Blueprint for tracks
 tracks_bp = Blueprint("tracks", __name__)
@@ -40,7 +40,7 @@ class TrackData(Resource):
             # else edit the track and save it to the database
             if errors:
                 return {
-                            "message": "Missing or sending incorrect data to edit a track. Double check the JSON data that it has everything needed to edit a track."
+                           "message": "Missing or sending incorrect data to edit a track. Double check the JSON data that it has everything needed to edit a track."
                        }, 500
             else:
                 track_error = validate_topics(form_data["topics"])
@@ -82,8 +82,8 @@ class TrackCreate(Resource):
         # else create the track and add it to the database
         if errors:
             return {
-                "message": "Missing or sending incorrect data to create a track. Double check the JSON data that it has everything needed to create a track."
-            }, 500
+                       "message": "Missing or sending incorrect data to create a track. Double check the JSON data that it has everything needed to create a track."
+                   }, 500
         else:
             track_error = validate_topics(form_data["topics"])
             required_track_error = validate_topics(form_data["required_topics"])
@@ -100,6 +100,35 @@ class TrackCreate(Resource):
             return {"message": "Track successfully created"}, 202
 
 
+# Class to handle track progress
+class TrackProgress(Resource):
+    # Function to update the student's completed topic
+    def put(self, track_id):
+        current_user_id = get_user_id_from_token()
+        student = Student.query.get(current_user_id)
+        topic_completed = request.get_json()
+        topic_id = topic_completed["complete"]["id"]
+        track_error = validate_track(track_id)
+
+        if track_error:
+            return {
+                       "message": "Track does not exist."
+                   }, 500
+        else:
+            # if the sent topic_id does not match the student's current topic id then send an error
+            if student.current_topic_id != topic_id:
+                return {
+                           "message": "Sent topic id does not match the student's current topic_id."
+                       }, 500
+            else:
+                student.completed_topics.append(student.topic)
+                student.current_topic_id = None
+                db.session.commit()
+
+            return {"message": "Student topic successfully updated!"}
+
+
 # Creates the routes for the classes
 api.add_resource(TrackData, "/tracks/<int:track_id>")
 api.add_resource(TrackCreate, "/tracks/create")
+api.add_resource(TrackProgress, "/tracks/<int:track_id>/progress")
