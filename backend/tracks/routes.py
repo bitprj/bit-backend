@@ -4,8 +4,9 @@ from backend import api, db
 from backend.general_utils import get_user_id_from_token
 from backend.models import Student, Track
 from backend.prereqs.validators import validate_topics
-from backend.tracks.schemas import track_schema, track_form_schema
+from backend.tracks.schemas import track_schema, track_form_schema, track_progress_schema
 from backend.tracks.utils import create_track, edit_track, validate_track
+from flask_praetorian.decorators import roles_accepted
 
 # Blueprint for tracks
 tracks_bp = Blueprint("tracks", __name__)
@@ -102,6 +103,21 @@ class TrackCreate(Resource):
 
 # Class to handle track progress
 class TrackProgress(Resource):
+    method_decorators = [roles_accepted("Student")]
+    
+    # Function to retrieve the students track progress
+    def get(self, track_id):
+        current_user_id = get_user_id_from_token()
+        student = Student.query.get(current_user_id)
+        track_error = validate_track(track_id)
+
+        if track_error:
+            return {
+                       "message": "Track does not exist."
+                   }, 500
+        else:
+            return track_progress_schema.dump(student)
+
     # Function to update the student's completed topic
     def put(self, track_id):
         current_user_id = get_user_id_from_token()
@@ -125,7 +141,7 @@ class TrackProgress(Resource):
                 student.current_topic_id = None
                 db.session.commit()
 
-            return {"message": "Student topic successfully updated!"}
+        return {"message": "Student topic successfully updated!"}
 
 
 # Creates the routes for the classes

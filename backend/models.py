@@ -246,7 +246,7 @@ class Topic(db.Model):
         self.description = description
 
     def __repr__(self):
-        return f"Track('{self.name}')"
+        return f"Topic('{self.name}')"
 
 
 class Step(db.Model):
