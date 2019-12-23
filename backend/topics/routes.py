@@ -1,11 +1,13 @@
 from flask import (Blueprint, request)
+from flask_praetorian.decorators import roles_accepted
 from flask_restful import Resource
 from backend import api, db
+from backend.general_utils import get_user_id_from_token
+from backend.models import Topic
 from backend.prereqs.utils import assign_badge_prereqs
 from backend.prereqs.validators import validate_activities, validate_badges, validate_modules
-from backend.topics.schemas import topic_schema, topic_form_schema
-from backend.topics.utils import create_topic, edit_topic
-from backend.models import Topic
+from backend.topics.schemas import topic_schema, topic_form_schema, topic_progress_schema
+from backend.topics.utils import create_topic, edit_topic, get_topic_progress, validate_topic
 
 # Blueprint for topics
 topics_bp = Blueprint("topics", __name__)
@@ -108,6 +110,26 @@ class TopicCreate(Resource):
             return {"message": "Topic successfully created"}, 202
 
 
+# Class for topic progress
+class TopicProgress(Resource):
+    method_decorators = [roles_accepted("Student")]
+
+    # Function to retrieve the module progress for a student given an id
+    def get(self, topic_id):
+        current_user_id = get_user_id_from_token()
+        track_error = validate_topic(topic_id)
+
+        if track_error:
+            return {
+                       "message": "Track does not exist."
+                   }, 500
+        else:
+            topic_progress = get_topic_progress(current_user_id, topic_id)
+            return topic_progress_schema.dump(topic_progress)
+
+
 # Creates the routes for the classes
 api.add_resource(TopicData, "/topics/<int:topic_id>")
 api.add_resource(TopicCreate, "/topics/create")
+api.add_resource(TopicProgress, "/topics/<int:topic_id>/progress")
+
