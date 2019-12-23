@@ -334,7 +334,7 @@ class Admin(User):
     id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
 
     def __repr__(self):
-        return f"Admin('{self.name}')"
+        return f"Admin('{self.id}')"
 
 
 class Student(User):
@@ -350,14 +350,14 @@ class Student(User):
     topic = db.relationship("Topic", back_populates="students")
 
     def __repr__(self):
-        return f"Student('{self.email}')"
+        return f"Student('{self.id}')"
 
 
 class Teacher(User):
     id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
 
     def __repr__(self):
-        return f"Teacher('{self.email}')"
+        return f"Teacher('{self.id}')"
 
 
 ################## Association Objects ########################
