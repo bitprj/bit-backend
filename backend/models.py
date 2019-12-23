@@ -23,6 +23,16 @@ student_topic_incomplete_rel = db.Table("student_topic_incomplete_rel",
                                         db.Column("track_id", db.Integer, db.ForeignKey("topic.id"))
                                         )
 
+student_module_completed_rel = db.Table("student_module_completed_rel",
+                                        db.Column("student_id", db.Integer, db.ForeignKey("student.id")),
+                                        db.Column("module_id", db.Integer, db.ForeignKey("module.id"))
+                                        )
+
+student_module_incomplete_rel = db.Table("student_module_incomplete_rel",
+                                         db.Column("student_id", db.Integer, db.ForeignKey("student.id")),
+                                         db.Column("module_id", db.Integer, db.ForeignKey("module.id"))
+                                         )
+
 # This many to many relationship is used to keep track of the modules belong a topic and vice versa
 topic_module_rel = db.Table("topic_module_rel",
                             db.Column("topic_id", db.Integer, db.ForeignKey("topic.id")),
@@ -206,6 +216,12 @@ class Module(db.Model):
     badge_prereqs = db.relationship("ModuleBadgePrereqs", cascade="all,delete", back_populates="module")
     # topic_prereqs is used to keep track of modules that need to be completed before accessing a topic
     topic_prereqs = db.relationship("Topic", secondary="topic_module_prereqs", back_populates="module_prereqs")
+    # students_completed keeps track of which students have completed a module
+    students_completed = db.relationship("Student", secondary="student_module_completed_rel",
+                                         back_populates="completed_modules")
+    # students_incomplete keeps track of the students who have not completed a module
+    students_incomplete = db.relationship("Student", secondary="student_module_incomplete_rel",
+                                          back_populates="incomplete_modules")
 
     def __init__(self, name, description, icon):
         self.name = name
@@ -339,6 +355,12 @@ class Admin(User):
 
 class Student(User):
     id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
+    # completed_modules keeps track of all modules that a student has completed
+    completed_modules = db.relationship("Module", secondary="student_module_completed_rel",
+                                        back_populates="students_completed")
+    # incomplete_topics keeps track of all the modules that a student has not completed
+    incomplete_modules = db.relationship("Module", secondary="student_module_incomplete_rel",
+                                         back_populates="students_incomplete")
     # completed_topics keeps track of all the topics that a student has completed
     completed_topics = db.relationship("Topic", secondary="student_topic_completed_rel",
                                        back_populates="students_completed")
