@@ -143,6 +143,12 @@ class TopicProgress(Resource):
                    }, 500
         else:
             module = Module.query.get(module_id)
+
+            if module not in student.incomplete_modules:
+                return {
+                           "message": "Module does not exist in the student's incomplete modules."
+                       }, 500
+
             student.completed_modules.append(module)
             student.incomplete_modules.remove(module)
             db.session.commit()
