@@ -3,7 +3,8 @@ from flask_praetorian.decorators import roles_accepted
 from flask_restful import Resource
 from backend import api, db
 from backend.general_utils import get_user_id_from_token
-from backend.models import Topic
+from backend.models import Module, Student, Topic
+from backend.modules.utils import vadlidate_module
 from backend.prereqs.utils import assign_badge_prereqs
 from backend.prereqs.validators import validate_activities, validate_badges, validate_modules
 from backend.topics.schemas import topic_schema, topic_form_schema, topic_progress_schema
@@ -117,19 +118,41 @@ class TopicProgress(Resource):
     # Function to retrieve the module progress for a student given an id
     def get(self, topic_id):
         current_user_id = get_user_id_from_token()
-        track_error = validate_topic(topic_id)
+        topic_error = validate_topic(topic_id)
 
-        if track_error:
+        if topic_error:
             return {
-                       "message": "Track does not exist."
+                       "message": "Topic does not exist."
                    }, 500
         else:
             topic_progress = get_topic_progress(current_user_id, topic_id)
             return topic_progress_schema.dump(topic_progress)
+
+    # Function to update the student's completed module
+    def put(self, topic_id):
+        current_user_id = get_user_id_from_token()
+        student = Student.query.get(current_user_id)
+        topic_error = validate_topic(topic_id)
+        module_completed = request.get_json()
+        module_id = module_completed["complete"]["id"]
+        module_error = vadlidate_module(module_id)
+
+        if topic_error or module_error:
+            return {
+                       "message": "Topic or Module does not exist."
+                   }, 500
+        else:
+            module = Module.query.get(module_id)
+            student.completed_modules.append(module)
+            student.incomplete_modules.remove(module)
+            db.session.commit()
+
+        return {
+                   "message": "Successfully updated student completed modules"
+               }, 202
 
 
 # Creates the routes for the classes
 api.add_resource(TopicData, "/topics/<int:topic_id>")
 api.add_resource(TopicCreate, "/topics/create")
 api.add_resource(TopicProgress, "/topics/<int:topic_id>/progress")
-
