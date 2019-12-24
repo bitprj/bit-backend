@@ -8,26 +8,43 @@ activity_module_rel = db.Table("activity_module_rel",
                                db.Column("module_id", db.Integer, db.ForeignKey("module.id"))
                                )
 
+# This many to many relationship is used to keep track of which card belongs to a concept and vice versa
 card_concept_rel = db.Table("card_concept_rel",
                             db.Column("card_id", db.Integer, db.ForeignKey("card.id")),
                             db.Column("concept_id", db.Integer, db.ForeignKey("concept.id"))
                             )
 
+# This many to many relationship is used to keep track of all of the topics that a student has completed
 student_topic_completed_rel = db.Table("student_topic_completed_rel",
                                        db.Column("student_id", db.Integer, db.ForeignKey("student.id")),
                                        db.Column("topic_id", db.Integer, db.ForeignKey("topic.id"))
                                        )
 
+# This many to many relationship is used to keep track of all of the topics that a student has not completed
 student_topic_incomplete_rel = db.Table("student_topic_incomplete_rel",
                                         db.Column("student_id", db.Integer, db.ForeignKey("student.id")),
                                         db.Column("track_id", db.Integer, db.ForeignKey("topic.id"))
                                         )
 
+# This many to many relationship is used to keep track of all of the activities that a student has completed
+student_activity_completed_rel = db.Table("student_activity_completed_rel",
+                                          db.Column("student_id", db.Integer, db.ForeignKey("student.id")),
+                                          db.Column("activity_id", db.Integer, db.ForeignKey("activity.id"))
+                                          )
+
+# This many to many relationship is used to keep track of all of the activities that a student has not completed
+student_activity_incomplete_rel = db.Table("student_activity_incomplete_rel",
+                                           db.Column("student_id", db.Integer, db.ForeignKey("student.id")),
+                                           db.Column("activity_id", db.Integer, db.ForeignKey("activity.id"))
+                                           )
+
+# This many to many relationship is used to keep track of all of the modules that a student has completed
 student_module_completed_rel = db.Table("student_module_completed_rel",
                                         db.Column("student_id", db.Integer, db.ForeignKey("student.id")),
                                         db.Column("module_id", db.Integer, db.ForeignKey("module.id"))
                                         )
 
+# This many to many relationship is used to keep track of all of the modules that a student has not completed
 student_module_incomplete_rel = db.Table("student_module_incomplete_rel",
                                          db.Column("student_id", db.Integer, db.ForeignKey("student.id")),
                                          db.Column("module_id", db.Integer, db.ForeignKey("module.id"))
@@ -88,6 +105,12 @@ class Activity(db.Model):
     badge_prereqs = db.relationship("ActivityBadgePrereqs", cascade="all,delete", back_populates="activity")
     # modules keeps track of all of the modules that an activity belongs to
     module_prereqs = db.relationship("Module", secondary="activity_module_prereqs", back_populates="activity_prereqs")
+    # students_completed keeps track of which students have completed an activity
+    students_completed = db.relationship("Student", secondary="student_activity_completed_rel",
+                                         back_populates="completed_activities")
+    # students_incomplete keeps track of the students who have not completed an activity
+    students_incomplete = db.relationship("Student", secondary="student_activity_incomplete_rel",
+                                          back_populates="incomplete_activities")
     # topic_prereqs keeps track of the activities that needs to be completed before accessing a topic
     topic_prereqs = db.relationship("Topic", secondary="topic_activity_prereqs", back_populates="activity_prereqs")
 
@@ -355,6 +378,12 @@ class Admin(User):
 
 class Student(User):
     id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
+    # completed_activities keeps track of all activities that a student has completed
+    completed_activities = db.relationship("Activity", secondary="student_activity_completed_rel",
+                                           back_populates="students_completed")
+    # incomplete_topics keeps track of all the activities that a student has not completed
+    incomplete_activities = db.relationship("Activity", secondary="student_activity_incomplete_rel",
+                                            back_populates="students_incomplete")
     # completed_modules keeps track of all modules that a student has completed
     completed_modules = db.relationship("Module", secondary="student_module_completed_rel",
                                         back_populates="students_completed")
