@@ -1,9 +1,12 @@
 from flask import (Blueprint, request)
+from flask_praetorian.decorators import roles_accepted
 from flask_restful import Resource
 from backend import api, db
-from backend.modules.schemas import module_form_schema, module_schema
-from backend.modules.utils import create_module, edit_module
-from backend.models import Module
+from backend.activities.utils import validate_activity
+from backend.general_utils import get_user_id_from_token
+from backend.modules.schemas import module_form_schema, module_schema, module_progress_schema
+from backend.modules.utils import create_module, edit_module, get_module_progress, validate_module
+from backend.models import Activity, Module, Student
 from backend.prereqs.utils import assign_badge_prereqs
 from backend.prereqs.validators import validate_activities, validate_badges
 
@@ -101,6 +104,55 @@ class ModuleCreate(Resource):
             return {"message": "Module successfully created"}, 202
 
 
+# Class for module progress
+class ModuleProgress(Resource):
+    method_decorators = [roles_accepted("Student")]
+
+    # Function to display a student's module progress
+    def get(self, module_id):
+        current_user_id = get_user_id_from_token()
+        module_error = validate_module(module_id)
+
+        if module_error:
+            return {
+                       "message": "Module does not exist"
+                   }, 500
+        else:
+            module_progress = get_module_progress(current_user_id, module_id)
+
+            return module_progress_schema.dump(module_progress)
+
+    # Function to update a student's completed_modules
+    def put(self, module_id):
+        current_user_id = get_user_id_from_token()
+        student = Student.query.get(current_user_id)
+        activity_completed = request.get_json()
+        activity_id = activity_completed["complete"]["id"]
+        module_error = validate_module(module_id)
+        activity_error = validate_activity(activity_id)
+
+        if module_error or activity_error:
+            return {
+                       "message": "Module or Activity does not exist"
+                   }, 500
+        else:
+            activity = Activity.query.get(activity_id)
+            student.completed_activities.append(activity)
+
+            if activity not in student.incomplete_activities:
+                return {
+                           "message": "Activity not in student's incomplete_activities"
+                       }, 500
+            else:
+                student.incomplete_activities.remove(activity)
+                db.session.commit()
+
+        return {
+                   "message": "Student's module progress successfully updated"
+               }, 202
+
+
 # Creates the routes for the classes
 api.add_resource(ModuleData, "/modules/<int:module_id>")
 api.add_resource(ModuleCreate, "/modules/create")
+api.add_resource(ModuleProgress, "/modules/<int:module_id>/progress")

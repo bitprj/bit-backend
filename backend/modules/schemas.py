@@ -36,5 +36,18 @@ class ModuleSchema(ma.Schema):
         ordered = True
 
 
+# This schema is used to return the module progress
+class ModuleProgressSchema(ma.Schema):
+    completed_activities = fields.Nested("TopicSchema", only=("id", "name", "description"), many=True)
+    incomplete_activities = fields.Nested("TopicSchema", only=("id", "name", "description"), many=True)
+    activity = fields.Nested("TopicSchema", only=("id", "name", "description"), missing=None, many=False)
+
+    class Meta:
+        # Fields to show when sending data
+        fields = ("completed_activities", "incomplete_activities", "activity")
+        ordered = True
+
+
 module_form_schema = ModuleFormSchema()
 module_schema = ModuleSchema()
+module_progress_schema = ModuleProgressSchema()

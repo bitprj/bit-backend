@@ -29,3 +29,13 @@ def edit_activity(activity, form_data):
     assign_badge_prereqs(form_data["badge_prereqs"], activity, "Activity")
 
     return
+
+
+# Function to check if a activity exists in the database
+def validate_activity(activity_id):
+    activity = Activity.query.get(activity_id)
+
+    if not activity:
+        return True
+
+    return False
