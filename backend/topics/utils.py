@@ -32,7 +32,7 @@ def edit_topic(topic, form_data):
 # Function to get the student's topic progress based on topic id
 def get_topic_progress(student_id, topic_id):
     student = Student.query.get(student_id)
-    modules = set(Module.query.filter(Module.topics.any(id=topic_id)))
+    modules = set(Module.query.filter(Module.topics.any(id=topic_id)).all())
     completed_modules = set(student.completed_modules).intersection(modules)
     incomplete_modules = set(student.incomplete_modules).intersection(modules)
 

@@ -27,3 +27,13 @@ def edit_module(module, form_data):
     assign_badge_prereqs(form_data["badge_prereqs"], module, "Module")
 
     return
+
+
+# Function to check if a module exists in the database
+def vadlidate_module(module_id):
+    module = Module.query.get(module_id)
+
+    if not module:
+        return True
+
+    return False
