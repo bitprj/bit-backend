@@ -122,6 +122,8 @@ class Activity(db.Model):
                                        back_populates="current_activities")
     # topic_prereqs keeps track of the activities that needs to be completed before accessing a topic
     topic_prereqs = db.relationship("Topic", secondary="topic_activity_prereqs", back_populates="activity_prereqs")
+    # students keep track of the student's activity progress
+    students = db.relationship("ActivityProgress", back_populates="student")
 
     def __init__(self, name, description, summary, difficulty, image):
         self.name = name
@@ -416,6 +418,8 @@ class Student(User):
     # current_track is used to keep track of the student's current track
     current_track_id = db.Column(db.Integer, db.ForeignKey("track.id"))
     current_track = db.relationship("Track", back_populates="students")
+    # activity_progresses keeps track of all the progresses that a student has made on their activities
+    activity_progresses = db.relationship("ActivityProgress", cascade="all,delete", back_populates="activity")
 
     def __repr__(self):
         return f"Student('{self.id}')"
@@ -439,14 +443,19 @@ class ActivityBadgePrereqs(db.Model):
 
 
 # Association object to keep track of a student's progress in an activity
-# class ActivityProgress(db.Model):
-#     activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"), primary_key=True)
-#     student_id = db.Column(db.Integer, db.ForeignKey('student.id'), primary_key=True)
-#     # last_card_completed is last card completed from an activity
-#     last_card_completed = db.Column(db.Integer, nullable=True)
-#     submitted_video = db.Column(db.Text, nullable=True)
-#     grading_is_completed = db.Column(db.Boolean, nullable=True)
-#     video_is_completed = db.Column(db.Boolean, nullable=True)
+class ActivityProgress(db.Model):
+    activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"), primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'), primary_key=True)
+    # last_card_completed is last card completed from an activity
+    last_card_completed = db.Column(db.Integer, nullable=True)
+    submitted_video = db.Column(db.Text, nullable=True)
+    grading_is_completed = db.Column(db.Boolean, nullable=True)
+    video_is_completed = db.Column(db.Boolean, nullable=True)
+
+    cards_locked = db.relationship("Card", back_populates="activity_locked_cards")
+    cards_unlocked = db.relationship("Card", back_populates="activity_unlocked_cards")
+    student = db.relationship("Student", back_populates="activity_progresses")
+    activity = db.relationship("Activity", back_populates="students")
 
 
 # Association object for modules and badges. This is for prerequisites
