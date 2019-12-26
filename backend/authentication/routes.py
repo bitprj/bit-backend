@@ -66,7 +66,9 @@ class UserLoginHandler(Resource):
             user = guard.authenticate(username, password)
             token = guard.encode_jwt_token(user)
 
-        return {"message": "Successfully logged in!", "access_token": token}, 200
+        return {"message": "Successfully logged in!",
+                "access_token": token,
+                "user_type": user.roles}, 200
 
 
 # Class to logout a user
