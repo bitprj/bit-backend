@@ -32,6 +32,12 @@ student_activity_completed_rel = db.Table("student_activity_completed_rel",
                                           db.Column("activity_id", db.Integer, db.ForeignKey("activity.id"))
                                           )
 
+# This many to many relationship is used to keep track of all of a student's current activities
+student_activity_current_rel = db.Table("student_activity_current_rel",
+                                        db.Column("student_id", db.Integer, db.ForeignKey("student.id")),
+                                        db.Column("activity_id", db.Integer, db.ForeignKey("activity.id"))
+                                        )
+
 # This many to many relationship is used to keep track of all of the activities that a student has not completed
 student_activity_incomplete_rel = db.Table("student_activity_incomplete_rel",
                                            db.Column("student_id", db.Integer, db.ForeignKey("student.id")),
@@ -111,6 +117,9 @@ class Activity(db.Model):
     # students_incomplete keeps track of the students who have not completed an activity
     students_incomplete = db.relationship("Student", secondary="student_activity_incomplete_rel",
                                           back_populates="incomplete_activities")
+    # students_current keeps track of the activities that a student is working on
+    students_current = db.relationship("Student", secondary="student_activity_current_rel",
+                                       back_populates="incomplete_activities")
     # topic_prereqs keeps track of the activities that needs to be completed before accessing a topic
     topic_prereqs = db.relationship("Topic", secondary="topic_activity_prereqs", back_populates="activity_prereqs")
 
@@ -255,6 +264,29 @@ class Module(db.Model):
         return f"Module('{self.name}')"
 
 
+class Step(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    heading = db.Column(db.Text, nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    order = db.Column(db.Integer, nullable=False)
+    image = db.Column(db.Text, nullable=False)
+    # concept keeps track of concept that a step belongs to
+    concept_id = db.Column(db.Integer, db.ForeignKey("concept.id"))
+    concept = db.relationship("Concept", back_populates="steps")
+    # hint keeps track of a hint that a step belongs to
+    hint_id = db.Column(db.Integer, db.ForeignKey("hint.id"))
+    hint = db.relationship("Hint", back_populates="steps")
+
+    def __init__(self, heading, content, order, image):
+        self.heading = heading
+        self.content = content
+        self.order = order
+        self.image = image
+
+    def __repr__(self):
+        return f"Step('{self.heading}')"
+
+
 class Topic(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -288,29 +320,6 @@ class Topic(db.Model):
         return f"Topic('{self.name}')"
 
 
-class Step(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    heading = db.Column(db.Text, nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    order = db.Column(db.Integer, nullable=False)
-    image = db.Column(db.Text, nullable=False)
-    # concept keeps track of concept that a step belongs to
-    concept_id = db.Column(db.Integer, db.ForeignKey("concept.id"))
-    concept = db.relationship("Concept", back_populates="steps")
-    # hint keeps track of a hint that a step belongs to
-    hint_id = db.Column(db.Integer, db.ForeignKey("hint.id"))
-    hint = db.relationship("Hint", back_populates="steps")
-
-    def __init__(self, heading, content, order, image):
-        self.heading = heading
-        self.content = content
-        self.order = order
-        self.image = image
-
-    def __repr__(self):
-        return f"Step('{self.heading}')"
-
-
 class Track(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -323,6 +332,8 @@ class Track(db.Model):
     topics = db.relationship("Topic", secondary="track_topic_rel", back_populates="tracks")
     # required topics keep track of the required topics that need to be completed by the user
     required_topics = db.relationship("Topic", secondary="track_topic_reqs", back_populates="required_tracks")
+    # students keep track of which student is associated with a particular track
+    students = db.relationship("Student", back_populates="current_track")
 
     def __init__(self, name, description, focus, topic_num, image):
         self.name = name
@@ -381,9 +392,12 @@ class Student(User):
     # completed_activities keeps track of all activities that a student has completed
     completed_activities = db.relationship("Activity", secondary="student_activity_completed_rel",
                                            back_populates="students_completed")
-    # incomplete_topics keeps track of all the activities that a student has not completed
+    # incomplete_activities keeps track of all the activities that a student has not completed
     incomplete_activities = db.relationship("Activity", secondary="student_activity_incomplete_rel",
                                             back_populates="students_incomplete")
+    # current_activities keeps track of all the activities that a student is working on
+    current_activities = db.relationship("Activity", secondary="student_activity_current_rel",
+                                         back_populates="students_incomplete")
     # completed_modules keeps track of all modules that a student has completed
     completed_modules = db.relationship("Module", secondary="student_module_completed_rel",
                                         back_populates="students_completed")
@@ -399,6 +413,9 @@ class Student(User):
     # topic is used to show the students current topic
     current_topic_id = db.Column(db.Integer, db.ForeignKey("topic.id"))
     topic = db.relationship("Topic", back_populates="students")
+    # current_track is used to keep track of the student's current track
+    current_track_id = db.Column(db.Integer, db.ForeignKey("track.id"))
+    current_track = db.relationship("Track", back_populates="students")
 
     def __repr__(self):
         return f"Student('{self.id}')"
