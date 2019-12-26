@@ -4,7 +4,7 @@ from flask_restful import Resource
 from backend import api, db
 from backend.general_utils import get_user_id_from_token
 from backend.models import Module, Student, Topic
-from backend.modules.utils import vadlidate_module
+from backend.modules.utils import validate_module
 from backend.prereqs.utils import assign_badge_prereqs
 from backend.prereqs.validators import validate_activities, validate_badges, validate_modules
 from backend.topics.schemas import topic_schema, topic_form_schema, topic_progress_schema
@@ -135,7 +135,7 @@ class TopicProgress(Resource):
         topic_error = validate_topic(topic_id)
         module_completed = request.get_json()
         module_id = module_completed["complete"]["id"]
-        module_error = vadlidate_module(module_id)
+        module_error = validate_module(module_id)
 
         if topic_error or module_error:
             return {

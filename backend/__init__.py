@@ -33,6 +33,7 @@ from backend.concepts.routes import concepts_bp
 from backend.gems.routes import gems_bp
 from backend.hints.routes import hints_bp
 from backend.modules.routes import modules_bp
+from backend.students.routes import students_bp
 from backend.topics.routes import topics_bp
 from backend.tracks.routes import tracks_bp
 
@@ -44,5 +45,6 @@ app.register_blueprint(concepts_bp)
 app.register_blueprint(gems_bp)
 app.register_blueprint(hints_bp)
 app.register_blueprint(modules_bp)
+app.register_blueprint(students_bp)
 app.register_blueprint(topics_bp)
 app.register_blueprint(tracks_bp)

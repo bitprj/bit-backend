@@ -119,7 +119,7 @@ class Activity(db.Model):
                                           back_populates="incomplete_activities")
     # students_current keeps track of the activities that a student is working on
     students_current = db.relationship("Student", secondary="student_activity_current_rel",
-                                       back_populates="incomplete_activities")
+                                       back_populates="current_activities")
     # topic_prereqs keeps track of the activities that needs to be completed before accessing a topic
     topic_prereqs = db.relationship("Topic", secondary="topic_activity_prereqs", back_populates="activity_prereqs")
 
@@ -397,7 +397,7 @@ class Student(User):
                                             back_populates="students_incomplete")
     # current_activities keeps track of all the activities that a student is working on
     current_activities = db.relationship("Activity", secondary="student_activity_current_rel",
-                                         back_populates="students_incomplete")
+                                         back_populates="students_current")
     # completed_modules keeps track of all modules that a student has completed
     completed_modules = db.relationship("Module", secondary="student_module_completed_rel",
                                         back_populates="students_completed")
@@ -436,6 +436,17 @@ class ActivityBadgePrereqs(db.Model):
     xp = db.Column(db.Integer, nullable=False)
     activity = db.relationship("Activity", back_populates="badge_prereqs")
     badge = db.relationship("Badge", back_populates="activities")
+
+
+# Association object to keep track of a student's progress in an activity
+# class ActivityProgress(db.Model):
+#     activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"), primary_key=True)
+#     student_id = db.Column(db.Integer, db.ForeignKey('student.id'), primary_key=True)
+#     # last_card_completed is last card completed from an activity
+#     last_card_completed = db.Column(db.Integer, nullable=True)
+#     submitted_video = db.Column(db.Text, nullable=True)
+#     grading_is_completed = db.Column(db.Boolean, nullable=True)
+#     video_is_completed = db.Column(db.Boolean, nullable=True)
 
 
 # Association object for modules and badges. This is for prerequisites
