@@ -6,12 +6,13 @@ from marshmallow import fields
 class CardFormSchema(ma.ModelSchema):
     name = fields.Str(required=True)
     md_file = fields.Str(required=True)
+    order = fields.Int(required=True)
     gems = fields.Int(required=True)
     concepts = fields.List(fields.Int(), required=False)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("name", "md_file", "gems", "concepts")
+        fields = ("name", "md_file", "order", "gems", "concepts")
         ordered = True
 
 
@@ -20,6 +21,7 @@ class CardSchema(ma.ModelSchema):
     id = fields.Int(required=True)
     name = fields.Str(required=True)
     md_file = fields.Str(required=True)
+    order = fields.Int(required=True)
     gems = fields.Int(required=True)
     # activity is used to keep track of which activity that the card belongs to
     activity = ma.Nested("ActivitySchema", only=("id",))
@@ -28,7 +30,7 @@ class CardSchema(ma.ModelSchema):
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "name", "md_file", "gems", "activity", "concepts", "hints")
+        fields = ("id", "name", "md_file", "order", "gems", "activity", "concepts", "hints")
         ordered = True
 
 
