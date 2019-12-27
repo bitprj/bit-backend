@@ -8,6 +8,20 @@ activity_module_rel = db.Table("activity_module_rel",
                                db.Column("module_id", db.Integer, db.ForeignKey("module.id"))
                                )
 
+# THis many to many relationship keeps track of the activity progress' locked cards
+activity_progress_locked_cards_rel = db.Table("activity_progress_locked_cards_rel",
+                                              db.Column("activity_progress_id", db.Integer,
+                                                        db.ForeignKey("activity_progress.id")),
+                                              db.Column("card_id", db.Integer, db.ForeignKey("card.id")),
+                                              )
+
+# THis many to many relationship keeps track of the activity progress' unlocked cards
+activity_progress_unlocked_cards_rel = db.Table("activity_progress_unlocked_cards_rel",
+                                                db.Column("activity_progress_id", db.Integer,
+                                                          db.ForeignKey("activity_progress.id")),
+                                                db.Column("card_id", db.Integer, db.ForeignKey("card.id")),
+                                                )
+
 # This many to many relationship is used to keep track of which card belongs to a concept and vice versa
 card_concept_rel = db.Table("card_concept_rel",
                             db.Column("card_id", db.Integer, db.ForeignKey("card.id")),
@@ -122,6 +136,8 @@ class Activity(db.Model):
                                        back_populates="current_activities")
     # topic_prereqs keeps track of the activities that needs to be completed before accessing a topic
     topic_prereqs = db.relationship("Topic", secondary="topic_activity_prereqs", back_populates="activity_prereqs")
+    # students keep track of the student's activity progress
+    students = db.relationship("ActivityProgress", back_populates="activity")
 
     def __init__(self, name, description, summary, difficulty, image):
         self.name = name
@@ -160,6 +176,7 @@ class Card(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text, nullable=False)
     md_file = db.Column(db.Text, nullable=False)
+    order = db.Column(db.Integer, nullable=False)
     gems = db.Column(db.Integer, nullable=False)
     # activity_id and activity keeps track of which lab the card is owned by
     activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"))
@@ -168,10 +185,17 @@ class Card(db.Model):
     concepts = db.relationship("Concept", secondary="card_concept_rel", back_populates="cards")
     # hints keep track of the hints that a card owns
     hints = db.relationship("Hint", cascade="all,delete", back_populates="card")
+    # activity_locked_cards keep track of all the activities locked cards
+    activity_locked_cards = db.relationship("ActivityProgress", secondary="activity_progress_locked_cards_rel",
+                                            back_populates="cards_locked")
+    # activity_locked_cards keep track of all the activities unlocked cards
+    activity_unlocked_cards = db.relationship("ActivityProgress", secondary="activity_progress_unlocked_cards_rel",
+                                              back_populates="cards_unlocked")
 
-    def __init__(self, name, md_file, gems, activity_id):
+    def __init__(self, name, md_file, order, gems, activity_id):
         self.name = name
         self.md_file = md_file
+        self.order = order
         self.gems = gems
         self.activity_id = activity_id
 
@@ -416,6 +440,8 @@ class Student(User):
     # current_track is used to keep track of the student's current track
     current_track_id = db.Column(db.Integer, db.ForeignKey("track.id"))
     current_track = db.relationship("Track", back_populates="students")
+    # activity_progresses keeps track of all the progresses that a student has made on their activities
+    activity_progresses = db.relationship("ActivityProgress", cascade="all,delete", back_populates="student")
 
     def __repr__(self):
         return f"Student('{self.id}')"
@@ -439,14 +465,24 @@ class ActivityBadgePrereqs(db.Model):
 
 
 # Association object to keep track of a student's progress in an activity
-# class ActivityProgress(db.Model):
-#     activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"), primary_key=True)
-#     student_id = db.Column(db.Integer, db.ForeignKey('student.id'), primary_key=True)
-#     # last_card_completed is last card completed from an activity
-#     last_card_completed = db.Column(db.Integer, nullable=True)
-#     submitted_video = db.Column(db.Text, nullable=True)
-#     grading_is_completed = db.Column(db.Boolean, nullable=True)
-#     video_is_completed = db.Column(db.Boolean, nullable=True)
+class ActivityProgress(db.Model):
+    id = db.Column('id', db.Integer, primary_key=True)
+    activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"))
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
+    # last_card_completed is last card completed from an activity
+    last_card_completed = db.Column(db.Integer, nullable=True)
+    submitted_video = db.Column(db.Text, nullable=True)
+    grading_is_completed = db.Column(db.Boolean, nullable=True)
+    video_is_completed = db.Column(db.Boolean, nullable=True)
+
+    # cards_locked keeps track os the progresses' locked cards
+    cards_locked = db.relationship("Card", secondary="activity_progress_locked_cards_rel",
+                                   back_populates="activity_locked_cards")
+    # cards_locked keeps track os the progresses' unlocked cards
+    cards_unlocked = db.relationship("Card", secondary="activity_progress_unlocked_cards_rel",
+                                     back_populates="activity_unlocked_cards")
+    student = db.relationship("Student", back_populates="activity_progresses")
+    activity = db.relationship("Activity", back_populates="students")
 
 
 # Association object for modules and badges. This is for prerequisites

@@ -6,6 +6,7 @@ from backend.prereqs.fetch import get_concepts
 def create_card(form_data, activity_id):
     card = Card(name=form_data["name"],
                 md_file=form_data["md_file"],
+                order=form_data["order"],
                 gems=form_data["gems"],
                 activity_id=activity_id
                 )
@@ -17,6 +18,7 @@ def create_card(form_data, activity_id):
 def edit_card(card, form_data):
     card.name = form_data["name"]
     card.md_file = form_data["md_file"]
+    card.order = form_data["order"]
     card.gems = form_data["gems"]
     card.concepts = get_concepts(form_data["concepts"])
 
