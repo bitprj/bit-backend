@@ -2,7 +2,6 @@ from flask import Blueprint, request
 from flask_praetorian.decorators import roles_accepted
 from flask_restful import Resource
 from backend import api, db
-from backend.activities.utils import validate_activity
 from backend.activity_progresses.schemas import activity_progress_video
 from backend.activity_progresses.utils import unlock_card
 from backend.general_utils import get_user_id_from_token
@@ -63,15 +62,8 @@ class ActivityProgressUpdate(Resource):
     # Function to submit a student's activity progress
     def put(self, activity_id):
         current_user_id = get_user_id_from_token()
-        activity_error = validate_activity(activity_id)
-
-        if activity_error:
-            return {
-                       "message": "Activity does not exist"
-                   }, 500
-        else:
-            unlock_card(activity_id, current_user_id)
-            db.session.commit()
+        unlock_card(activity_id, current_user_id)
+        db.session.commit()
 
         return {
                    "message": "Activity Progress successfully updated"

@@ -2,7 +2,6 @@ from flask import (Blueprint, request)
 from flask_praetorian.decorators import roles_accepted
 from flask_restful import Resource
 from backend import api, db
-from backend.activities.utils import validate_activity
 from backend.general_utils import get_user_id_from_token
 from backend.modules.schemas import module_form_schema, module_schema, module_progress_schema
 from backend.modules.utils import create_module, edit_module, get_module_progress, validate_module
@@ -129,7 +128,6 @@ class ModuleProgress(Resource):
         activity_completed = request.get_json()
         activity_id = activity_completed["complete"]["id"]
         module_error = validate_module(module_id)
-        activity_error = validate_activity(activity_id)
 
         if module_error or activity_error:
             return {
