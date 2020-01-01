@@ -112,6 +112,7 @@ topic_track_reqs = db.Table("track_topic_reqs",
 class Activity(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     contentful_id = db.Column(db.Text(), nullable=False)
+    name = db.Column(db.Text, nullable=True)
     # cards keeps track of all the cards that is owned by an Activity
     cards = db.relationship("Card", cascade="all,delete", back_populates="activity")
     # modules keeps track of all of the modules that an activity belongs to

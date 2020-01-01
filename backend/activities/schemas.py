@@ -6,6 +6,8 @@ from marshmallow import fields
 # This schema is used to display data in the Activity model
 class ActivitySchema(ma.Schema):
     id = fields.Int(required=True)
+    contentful_id = fields.Str(required=True)
+    name = fields.Str(required=True)
     badge_prereqs = ma.Nested(BadgeRequirementSchema, many=True)
     # We are referencing another Schema below. You do this in oder to avoid circular referencing
     # The only keyword is used to show the id of the module and card
@@ -14,8 +16,9 @@ class ActivitySchema(ma.Schema):
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "badge_prereqs", "modules", "cards")
+        fields = ("id", "contentful_id", "name", "badge_prereqs", "modules", "cards")
         ordered = True
 
 
 activity_schema = ActivitySchema()
+activities_schema = ActivitySchema(many=True)
