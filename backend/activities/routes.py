@@ -1,7 +1,7 @@
 from flask import (Blueprint, request)
 from flask_restful import Resource
 from backend import api, db
-from backend.activities.schemas import activities_schema
+from backend.activities.schemas import activity_schema, activities_schema
 from backend.activities.utils import create_activity, edit_activity
 from backend.models import Activity
 
@@ -50,7 +50,18 @@ class ActivityDelete(Resource):
         return {"message": "Activity successfully deleted"}, 200
 
 
+# This class is used to get a specific activity based on id
+class ActivityGetSpecific(Resource):
+    def get(self, activity_id):
+        activity = Activity.query.get(activity_id)
+
+        if not activity:
+            return {"message": "Activity does not exist"}, 404
+
+        return activity_schema.dump(activity)
+
+
 # Creates the routes for the classes
 api.add_resource(ActivityCRUD, "/activities")
 api.add_resource(ActivityDelete, "/activities/delete")
-
+api.add_resource(ActivityGetSpecific, "/activities/<int:activity_id>")
