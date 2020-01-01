@@ -339,7 +339,7 @@ class Topic(db.Model):
 class Track(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     contentful_id = db.Column(db.Text, nullable=False)
-    name = db.Column(db.Text, nullable=False)
+    name = db.Column(db.Text, nullable=True)
     # topics keep track of which topics belong to a track
     topics = db.relationship("Topic", secondary="track_topic_rel", back_populates="tracks")
     # required topics keep track of the required topics that need to be completed by the user

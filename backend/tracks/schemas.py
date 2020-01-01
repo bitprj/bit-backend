@@ -5,6 +5,7 @@ from marshmallow import fields
 # This schema is used to display track data
 class TrackSchema(ma.Schema):
     id = fields.Int(required=True)
+    contentful_id = fields.Str(required=True)
     name = fields.Str(required=True)
     # We are referencing another Schema below. You do this in oder to avoid circular referencing
     # The only keyword is used to show the id of topics
@@ -13,7 +14,7 @@ class TrackSchema(ma.Schema):
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "name", "topics", "required_topics")
+        fields = ("id", "contentful_id", "name", "topics", "required_topics")
         ordered = True
 
 
