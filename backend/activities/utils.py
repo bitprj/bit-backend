@@ -1,13 +1,17 @@
+from backend import contentful_client
+from backend.config import SPACE_ID
 from backend.models import Activity, Card
 
 
 # Function to add cards to activities
 def add_cards(activity, contentful_data):
+    card_list = contentful_data["parameters"]["cards"]["en-US"]
     cards = []
 
-    if contentful_data["cards"]:
-        for card in contentful_data["cards"]:
-            target_card = Card.query.filter_by(name=card.name).first()
+    if card_list:
+        for card in card_list:
+            contentful_id = card["sys"]["id"]
+            target_card = Card.query.filter_by(contentful_id=contentful_id).first()
             cards.append(target_card)
 
     activity.cards = cards
@@ -23,9 +27,19 @@ def create_activity(contentful_data):
     return activity
 
 
+# Function to delete an activity's cards
+def delete_cards(cards):
+    for card in cards:
+        # Unpublishes the card first then deletes the card in contentful
+        card_entry = contentful_client.entries(SPACE_ID, 'master').find(card.contentful_id)
+        card_entry.unpublish()
+        contentful_client.entries(SPACE_ID, 'master').delete(card.contentful_id)
+
+    return
+
+
 # Function to edit an activity
-def edit_activity(contentful_data):
-    activity = Activity.query.filter_by(contentful_id=contentful_data["entityId"]).first()
+def edit_activity(activity, contentful_data):
     activity.name = contentful_data["parameters"]["name"]["en-US"]
     add_cards(activity, contentful_data)
     

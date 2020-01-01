@@ -8,7 +8,7 @@ class CardSchema(ma.ModelSchema):
     contentful_id = fields.Str(required=True)
     name = fields.Str(required=True)
     # activity is used to keep track of which activity that the card belongs to
-    activity = ma.Nested("ActivitySchema", only=("id",))
+    activity = ma.Nested("ActivitySchema", only=("id", "contentful_id"))
     concepts = ma.Nested("ConceptSchema", only=("id",), many=True)
     hints = ma.Nested("HintSchema", only=("id",), many=True)
 
