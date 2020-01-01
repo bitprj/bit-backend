@@ -332,12 +332,8 @@ class Topic(db.Model):
 
 class Track(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    focus = db.Column(db.Text, nullable=False)
-    # topic num are the number of topics needed to be completed to finish a topic
-    topic_num = db.Column(db.Integer, nullable=False)
-    image = db.Column(db.Text, nullable=False)
+    contentful_id = db.Column(db.Text, nullable=False)
+    name = db.Column(db.Text, nullable=True)
     # topics keep track of which topics belong to a track
     topics = db.relationship("Topic", secondary="track_topic_rel", back_populates="tracks")
     # required topics keep track of the required topics that need to be completed by the user
@@ -345,12 +341,8 @@ class Track(db.Model):
     # students keep track of which student is associated with a particular track
     students = db.relationship("Student", back_populates="current_track")
 
-    def __init__(self, name, description, focus, topic_num, image):
-        self.name = name
-        self.description = description
-        self.focus = focus
-        self.topic_num = topic_num
-        self.image = image
+    def __init__(self, contentful_id):
+        self.contentful_id = contentful_id
 
     def __repr__(self):
         return f"Track('{self.name}')"
