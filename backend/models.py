@@ -166,10 +166,8 @@ class Badge(db.Model):
 
 class Card(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Text, nullable=False)
-    md_file = db.Column(db.Text, nullable=False)
-    order = db.Column(db.Integer, nullable=False)
-    gems = db.Column(db.Integer, nullable=False)
+    contentful_id = db.Column(db.Text(), nullable=False)
+    name = db.Column(db.Text, nullable=True)
     # activity_id and activity keeps track of which lab the card is owned by
     activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"))
     activity = db.relationship("Activity", back_populates="cards")
@@ -184,12 +182,8 @@ class Card(db.Model):
     activity_unlocked_cards = db.relationship("ActivityProgress", secondary="activity_progress_unlocked_cards_rel",
                                               back_populates="cards_unlocked")
 
-    def __init__(self, name, md_file, order, gems, activity_id):
-        self.name = name
-        self.md_file = md_file
-        self.order = order
-        self.gems = gems
-        self.activity_id = activity_id
+    def __init__(self, contentful_id):
+        self.contentful_id = contentful_id
 
     def __repr__(self):
         return f"Card('{self.name}')"
