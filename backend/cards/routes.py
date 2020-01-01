@@ -64,7 +64,7 @@ class CardData(Resource):
 # Class to define card creation
 class CardCreate(Resource):
     # Function to create a card
-    def post(self, activity_id):
+    def post(self):
         form_data = request.get_json()
         errors = card_form_schema.validate(form_data)
         activity = Activity.query.get(activity_id)
@@ -89,4 +89,4 @@ class CardCreate(Resource):
 
 # Creates the routes for the classes
 api.add_resource(CardData, "/cards/<int:card_id>")
-api.add_resource(CardCreate, "/activities/<int:activity_id>/cards/create")
+api.add_resource(CardCreate, "/cards/create")

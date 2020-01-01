@@ -2,7 +2,7 @@ from flask import (Blueprint, request)
 from flask_restful import Resource
 from backend import api, db
 from backend.activities.schemas import activities_schema
-from backend.activities.utils import create_activity, edit_activity, get_activity
+from backend.activities.utils import create_activity, edit_activity
 from backend.models import Activity
 
 # Blueprint for activities
