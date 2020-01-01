@@ -299,8 +299,8 @@ class Step(db.Model):
 
 class Topic(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text, nullable=False)
+    contentful_id = db.Column(db.Text, nullable=False)
+    name = db.Column(db.Text, nullable=True)
     # modules keeps track of all of the modules that the belong to a topic
     modules = db.relationship("Module", secondary="topic_module_rel", back_populates="topics")
     # tracks keep track of all of the topics that belong to a track
@@ -322,9 +322,8 @@ class Topic(db.Model):
     students_incomplete = db.relationship("Student", secondary="student_topic_incomplete_rel",
                                           back_populates="incomplete_topics")
 
-    def __init__(self, name, description):
-        self.name = name
-        self.description = description
+    def __init__(self, contentful_id):
+        self.contentful_id = contentful_id
 
     def __repr__(self):
         return f"Topic('{self.name}')"
