@@ -5,6 +5,7 @@ from flask_praetorian import Praetorian
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 from backend.config import *
+from contentful_management import Client
 
 app = Flask(__name__)
 
@@ -20,10 +21,12 @@ db = SQLAlchemy(app)
 guard = Praetorian()
 ma = Marshmallow()
 migrate = Migrate(app, db)
+contentful_client = Client(CONTENT_MANGEMENT_API_KEY)
+
 
 from backend.models import User
-guard.init_app(app, User)
 
+guard.init_app(app, User)
 
 from backend.activities.routes import activities_bp
 from backend.activity_progresses.routes import activity_progresses_bp
