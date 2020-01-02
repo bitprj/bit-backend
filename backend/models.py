@@ -191,14 +191,15 @@ class Card(db.Model):
 
 class Concept(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Text, nullable=False)
+    contentful_id = db.Column(db.Text(), nullable=False)
+    name = db.Column(db.Text, nullable=True)
     # cards keep track of which cards that a concept belongs to
     cards = db.relationship("Card", secondary="card_concept_rel", back_populates="concepts")
     # steps keep track of which steps that a concept owns
     steps = db.relationship("Step", cascade="all,delete", back_populates="concept")
 
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, contentful_id):
+        self.contentful_id = contentful_id
 
     def __repr__(self):
         return f"Concept('{self.name}')"
