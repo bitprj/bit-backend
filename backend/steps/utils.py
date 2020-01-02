@@ -1,19 +1,22 @@
 from backend import db
 from backend.models import Step
-from backend.steps.schemas import step_form_schema
 
 
 # Function to create a step
-def create_step(step_data):
-    step = Step(heading=step_data["heading"],
-                content=step_data["content"],
-                order=step_data["order"],
-                image=step_data["image"]
+def create_step(contentful_data):
+    step = Step(contentful_data["entityId"]
                 )
 
-    db.session.add(step)
-
     return step
+
+
+# Function to edit a step
+def edit_step(step, contentful_data):
+    step.heading = contentful_data["parameters"]["heading"]["en-US"]
+    # delete_steps(step.steps)
+    # step.steps = generate_steps((contentful_data["steps"]))
+
+    return
 
 
 # Function to create steps
@@ -43,7 +46,8 @@ def delete_steps(steps):
 # Function to validate step data
 def validate_step_data(step_data):
     for step_info in step_data:
-        error = step_form_schema.validate(step_info)
+        error = False
+        # error = step_form_schema.validate(step_info)
 
         if error:
             return error
