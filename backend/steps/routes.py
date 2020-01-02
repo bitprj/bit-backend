@@ -14,23 +14,20 @@ class StepCRUD(Resource):
     # Function to create a step
     def post(self):
         contentful_data = request.get_json()
-        print(contentful_data)
         step = create_step(contentful_data)
 
         db.session.add(step)
         db.session.commit()
-        print(step.id)
+
         return {"message": "Step successfully created"}, 201
 
     # Function to edit an step
     def put(self):
         contentful_data = request.get_json()
-        print(contentful_data)
         step = Step.query.filter_by(contentful_id=contentful_data["entityId"]).first()
         edit_step(step, contentful_data)
 
         db.session.commit()
-        print(step.id)
 
         return {"message": "Step successfully updated"}, 200
 
@@ -42,7 +39,6 @@ class StepGetSpecific(Resource):
 
         if not step:
             return {"message": "Step does not exist"}, 404
-        print(step.id)
 
         return step_schema.dump(step)
 
@@ -52,12 +48,10 @@ class StepDelete(Resource):
     # Function to delete a step!!
     def post(self):
         contentful_data = request.get_json()
-        print(contentful_data)
         step = Step.query.filter_by(contentful_id=contentful_data["entityId"]).first()
 
         if not step:
             return {"message": "Step does not exist"}, 404
-        print(step.id)
 
         db.session.delete(step)
         db.session.commit()

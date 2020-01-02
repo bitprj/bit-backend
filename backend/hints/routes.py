@@ -14,23 +14,20 @@ class HintCRUD(Resource):
     # Function to create a hint
     def post(self):
         contentful_data = request.get_json()
-        print(contentful_data)
         hint = create_hint(contentful_data)
 
         db.session.add(hint)
         db.session.commit()
-        print(hint.id)
+
         return {"message": "Hint successfully created"}, 201
 
     # Function to edit an hint
     def put(self):
         contentful_data = request.get_json()
-        print(contentful_data)
         hint = Hint.query.filter_by(contentful_id=contentful_data["entityId"]).first()
         edit_hint(hint, contentful_data)
 
         db.session.commit()
-        print(hint.id)
 
         return {"message": "Hint successfully updated"}, 200
 
@@ -42,7 +39,6 @@ class HintGetSpecific(Resource):
 
         if not hint:
             return {"message": "Hint does not exist"}, 404
-        print(hint.id)
 
         return hint_schema.dump(hint)
 
@@ -52,12 +48,10 @@ class HintDelete(Resource):
     # Function to delete a hint!!
     def post(self):
         contentful_data = request.get_json()
-        print(contentful_data)
         hint = Hint.query.filter_by(contentful_id=contentful_data["entityId"]).first()
 
         if not hint:
             return {"message": "Hint does not exist"}, 404
-        print(hint.id)
 
         db.session.delete(hint)
         db.session.commit()
