@@ -245,9 +245,8 @@ class Hint(db.Model):
 
 class Module(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    icon = db.Column(db.Text, nullable=False)
+    contentful_id = db.Column(db.Text(), nullable=False)
+    name = db.Column(db.Text, nullable=True)
     # activities keeps track of all of the activities that a module belongs to
     activities = db.relationship("Activity", secondary="activity_module_rel", back_populates="modules")
     # topics keep track of all of the topics that a module belongs to
@@ -265,10 +264,8 @@ class Module(db.Model):
     students_incomplete = db.relationship("Student", secondary="student_module_incomplete_rel",
                                           back_populates="incomplete_modules")
 
-    def __init__(self, name, description, icon):
-        self.name = name
-        self.description = description
-        self.icon = icon
+    def __init__(self, contentful_id):
+        self.contentful_id = contentful_id
 
     def __repr__(self):
         return f"Module('{self.name}')"
