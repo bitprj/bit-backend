@@ -111,7 +111,7 @@ topic_track_reqs = db.Table("track_topic_reqs",
 
 class Activity(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    contentful_id = db.Column(db.Text(), nullable=False)
+    contentful_id = db.Column(db.Text, nullable=False)
     name = db.Column(db.Text, nullable=True)
     # cards keeps track of all the cards that is owned by an Activity
     cards = db.relationship("Card", cascade="all,delete", back_populates="activity")
@@ -220,10 +220,8 @@ class Gem(db.Model):
 
 class Hint(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Text, nullable=False)
-    difficulty = db.Column(db.Text, nullable=False)
-    # Students spend gems when opening hints
-    gems = db.Column(db.Integer, nullable=False)
+    contentful_id = db.Column(db.Text, nullable=False)
+    name = db.Column(db.Text, nullable=True)
     # parent refers to the hint that owns a hint
     # if parent is not null then the children are able to be unlocked
     # if parent is null then it is a parent
@@ -234,11 +232,8 @@ class Hint(db.Model):
     # steps keep track of which steps a hint owns
     steps = db.relationship("Step", cascade="all,delete", back_populates="hint")
 
-    def __init__(self, name, difficulty, gems, parent):
-        self.name = name
-        self.difficulty = difficulty
-        self.gems = gems
-        self.parent = parent
+    def __init__(self, contentful_id):
+        self.contentful_id = contentful_id
 
     def __repr__(self):
         return f"Hint('{self.name}')"
@@ -274,10 +269,8 @@ class Module(db.Model):
 
 class Step(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    heading = db.Column(db.Text, nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    order = db.Column(db.Integer, nullable=False)
-    image = db.Column(db.Text, nullable=False)
+    contentful_id = db.Column(db.Text, nullable=False)
+    heading = db.Column(db.Text, nullable=True)
     # concept keeps track of concept that a step belongs to
     concept_id = db.Column(db.Integer, db.ForeignKey("concept.id"))
     concept = db.relationship("Concept", back_populates="steps")
@@ -285,11 +278,8 @@ class Step(db.Model):
     hint_id = db.Column(db.Integer, db.ForeignKey("hint.id"))
     hint = db.relationship("Hint", back_populates="steps")
 
-    def __init__(self, heading, content, order, image):
-        self.heading = heading
-        self.content = content
-        self.order = order
-        self.image = image
+    def __init__(self, contentful_id):
+        self.contentful_id = contentful_id
 
     def __repr__(self):
         return f"Step('{self.heading}')"
