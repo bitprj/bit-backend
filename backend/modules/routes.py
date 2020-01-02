@@ -3,104 +3,62 @@ from flask_praetorian.decorators import roles_accepted
 from flask_restful import Resource
 from backend import api, db
 from backend.general_utils import get_user_id_from_token
-from backend.modules.schemas import module_form_schema, module_schema, module_progress_schema
+from backend.modules.schemas import module_schema, module_progress_schema
 from backend.modules.utils import create_module, edit_module, get_module_progress, validate_module
 from backend.models import Activity, Module, Student
-from backend.prereqs.utils import assign_badge_prereqs
-from backend.prereqs.validators import validate_activities, validate_badges
 
 # Blueprint for modules
 modules_bp = Blueprint("modules", __name__)
 
 
-# Class to Read, Update, and Destroy routes
-class ModuleData(Resource):
-    # Function to return data on a single module
+# Class for module CRUD routes
+class ModuleCRUD(Resource):
+    # Function to create a module
+    def post(self):
+        contentful_data = request.get_json()
+        module = create_module(contentful_data)
+
+        db.session.add(module)
+        db.session.commit()
+
+        return {"message": "Module successfully created"}, 201
+
+    # Function to edit an module
+    def put(self):
+        contentful_data = request.get_json()
+        module = Module.query.filter_by(contentful_id=contentful_data["entityId"]).first()
+        edit_module(module, contentful_data)
+
+        db.session.commit()
+
+        return {"message": "Module successfully updated"}, 200
+
+
+# Function to get a specific Module based on module id
+class ModuleGetSpecific(Resource):
     def get(self, module_id):
         module = Module.query.get(module_id)
 
-        # If module does not exists, then return a 404 error
-        # else return the module back to the user
         if not module:
             return {"message": "Module does not exist"}, 404
-        else:
-            return module_schema.dump(module)
 
-    # Function to edit a module
-    def put(self, module_id):
-        module = Module.query.get(module_id)
+        return module_schema.dump(module)
 
-        # If module does not exist, then return a 404 error
-        # else edit a module and edit it in the database
+
+# This class is used to delete an module with a POST request
+class ModuleDelete(Resource):
+    # Function to delete a module!!
+    def post(self):
+        contentful_data = request.get_json()
+        module = Module.query.filter_by(contentful_id=contentful_data["entityId"]).first()
+
         if not module:
             return {"message": "Module does not exist"}, 404
-        else:
-            form_data = request.get_json()
-            errors = module_form_schema.validate(form_data)
 
-            # If form data is not validated by the module_schema, then return a 500 error
-            # else edit the module and save it to the database
-            if errors:
-                return {
-                           "message": "Missing or sending incorrect data to edit a module. Double check the JSON data that it has everything needed to edit a module."
-                       }, 500
-            else:
-                activity_error = validate_activities(form_data["activities"])
-                badge_error = validate_badges(form_data["badge_prereqs"])
-
-                if activity_error or badge_error:
-                    return {
-                               "message": "Badge or Activity does not exist. Double check the arrays to check if they are valid in the database."
-                           }, 500
-                else:
-                    edit_module(module, form_data)
-                    db.session.commit()
-
-                return {"message": "Module successfully updated"}, 202
-
-    # Function to delete a module
-    def delete(self, module_id):
-        module = Module.query.get(module_id)
-
-        # If module does not exists, return a 404 error
-        # else delete the module and save to database
-        if not module:
-            return {"message": "Module does not exists"}, 404
-        else:
-            db.session.delete(module)
-            db.session.commit()
+        db.session.delete(module)
+        db.session.commit()
 
         return {"message": "Module successfully deleted"}, 200
-
-
-# Class to define module creation
-class ModuleCreate(Resource):
-    # Function to create a module
-    def post(self):
-        form_data = request.get_json()
-        errors = module_form_schema.validate(form_data)
-        # If form data is not validated by the module_schema, then return a 500 error
-        # else create the module and add it to the database
-        if errors:
-            return {
-                       "message": "Missing or sending incorrect data to create a module. Double check the JSON data that it has everything needed to create a module."
-                   }, 500
-        else:
-            activity_error = validate_activities(form_data["activities"])
-            badge_error = validate_badges(form_data["badge_prereqs"])
-
-            if badge_error or activity_error:
-                return {
-                           "message": "Badge or Activity does not exist. Double check the arrays to check if they are valid in the database."
-                       }, 500
-            else:
-                module = create_module(form_data)
-                db.session.add(module)
-                db.session.commit()
-                assign_badge_prereqs(form_data["badge_prereqs"], module, "Module")
-                db.session.commit()
-
-            return {"message": "Module successfully created"}, 202
 
 
 # Class for module progress
@@ -151,6 +109,7 @@ class ModuleProgress(Resource):
 
 
 # Creates the routes for the classes
-api.add_resource(ModuleData, "/modules/<int:module_id>")
-api.add_resource(ModuleCreate, "/modules/create")
+api.add_resource(ModuleCRUD, "/modules")
+api.add_resource(ModuleDelete, "/modules/delete")
+api.add_resource(ModuleGetSpecific, "/modules/<int:module_id>")
 api.add_resource(ModuleProgress, "/modules/<int:module_id>/progress")
