@@ -45,12 +45,12 @@ def get_modules(module_ids):
     return modules
 
 
-# Function to return a list of topics baased on the lsit of topic ids
-def get_topics(topic_ids):
+# Function to return a list of topics based on the contentful jds
+def get_topics(topic_list):
     topics = []
 
-    for topic_id in topic_ids:
-        topic = Topic.query.get(topic_id)
+    for topic_id in topic_list:
+        topic = Topic.query.filter_by(contentful_id=topic_id["sys"]["id"]).first()
         topics.append(topic)
 
     return topics
