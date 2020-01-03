@@ -16,7 +16,7 @@ def create_card(contentful_data):
 def delete_card(card):
     card.concepts = []
 
-    # This is used to delete all the hints in a card
+    # This is used to delete all the hints in a card in contentful
     for hint in card.hints:
         # Unpublished the hint first then deletes the hint in contentful
         hint_entry = contentful_client.entries(SPACE_ID, 'master').find(hint.contentful_id)

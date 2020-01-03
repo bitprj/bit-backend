@@ -1,4 +1,4 @@
-from backend.models import Activity, Card, Concept, Hint, Module, Topic
+from backend.models import Activity, Card, Concept, Hint, Module, Step, Topic
 
 
 # Function to return a list of activities based on a list of activity ids
@@ -54,6 +54,17 @@ def get_modules(module_list):
         modules.append(module)
 
     return modules
+
+
+# Function to return a list of steps based on a list of step ids
+def get_steps(step_list):
+    steps = []
+
+    for step_id in step_list:
+        step = Step.query.filter_by(contentful_id=step_id["sys"]["id"]).first()
+        steps.append(step)
+
+    return steps
 
 
 # Function to return a list of topics based on the contentful jds
