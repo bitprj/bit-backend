@@ -139,7 +139,7 @@ class Activity(db.Model):
         self.contentful_id = contentful_id
 
     def __repr__(self):
-        return f"Activity('{self.contentful_id}')"
+        return f"Activity('{self.name}')"
 
 
 class Badge(db.Model):

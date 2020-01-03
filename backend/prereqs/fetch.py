@@ -1,4 +1,4 @@
-from backend.models import Activity, Card, Concept, Module, Topic
+from backend.models import Activity, Card, Concept, Hint, Module, Topic
 
 
 # Function to return a list of activities based on a list of activity ids
@@ -24,14 +24,25 @@ def get_cards(card_ids):
 
 
 # Function to return a list of concepts from a list of concept ids
-def get_concepts(concept_ids):
+def get_concepts(concept_list):
     concepts = []
 
-    for concept_id in concept_ids:
-        concept = Concept.query.get(concept_id)
+    for concept_id in concept_list:
+        concept = Concept.query.filter_by(contentful_id=concept_id["sys"]["id"]).first()
         concepts.append(concept)
 
     return concepts
+
+
+# Function to return a list of hints from a list of hint ids
+def get_hints(hint_list):
+    hints = []
+
+    for hint_id in hint_list:
+        hint = Hint.query.filter_by(contentful_id=hint_id["sys"]["id"]).first()
+        hints.append(hint)
+
+    return hints
 
 
 # Function to return a list of modules based on a list of module ids

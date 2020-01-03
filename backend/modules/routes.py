@@ -30,7 +30,7 @@ class ModuleCRUD(Resource):
         edit_module(module, contentful_data)
 
         db.session.commit()
-
+ 
         return {"message": "Module successfully updated"}, 200
 
 
