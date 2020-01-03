@@ -144,21 +144,16 @@ class Activity(db.Model):
 
 class Badge(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Text, nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    threshold = db.Column(MutableDict.as_mutable(db.PickleType), nullable=False)
-    image = db.Column(db.Text, nullable=False)
+    contentful_id = db.Column(db.Text, nullable=False)
+    name = db.Column(db.Text, nullable=True)
     # activities keep track of all the activities that are related to a badge
     activities = db.relationship("ActivityBadgePrereqs", cascade="all,delete", back_populates="badge")
     # modules keep track of all the modules that are related to a badge
     modules = db.relationship("ModuleBadgePrereqs", cascade="all,delete", back_populates="badge")
     topics = db.relationship("TopicBadgePrereqs", back_populates="badge")
 
-    def __init__(self, name, description, threshold, image):
-        self.name = name
-        self.description = description
-        self.threshold = threshold
-        self.image = image
+    def __init__(self, contentful_id):
+        self.contentful_id = contentful_id
 
     def __repr__(self):
         return f"Badge('{self.name}')"
