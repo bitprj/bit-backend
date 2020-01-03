@@ -7,8 +7,6 @@ from backend.prereqs.utils import assign_badge_prereqs, delete_badge_prereqs
 def create_topic(contentful_data):
     topic = Topic(contentful_id=contentful_data["entityId"]
                   )
-    # delete_badge_prereqs(topic)
-    # assign_badge_prereqs(form_data["badge_prereqs"], topic, "Topic")
 
     return topic
 
@@ -28,6 +26,8 @@ def edit_topic(topic, contentful_data):
     topic.modules = get_modules(contentful_data["parameters"]["modules"]["en-US"])
     topic.module_prereqs = get_modules(contentful_data["parameters"]["module_prereqs"]["en-US"])
     topic.activity_prereqs = get_activities(contentful_data["parameters"]["activity_prereqs"]["en-US"])
+    delete_badge_prereqs(topic)
+    assign_badge_prereqs(contentful_data, topic, "Topic")
 
     return
 

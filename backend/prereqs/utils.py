@@ -3,10 +3,12 @@ from backend.models import Badge, ActivityBadgePrereqs, ModuleBadgePrereqs, Topi
 
 
 # Function that creates a badge_reqs depending on the object_type
-def assign_badge_prereqs(badge_data, selected_object, object_type):
-    for badge_info in badge_data:
+def assign_badge_prereqs(contentful_data, selected_object, object_type):
+    badge_list = contentful_data["parameters"]["badge_prereqs"]["en-US"]["badge_prereqs"]
+
+    for badge_info in badge_list:
         xp = badge_info["xp"]
-        badge = Badge.query.get(badge_info["id"])
+        badge = Badge.query.get(badge_info["badge_id"])
 
         # If the badge exists, then add the badge to the object
         if badge:
@@ -33,8 +35,9 @@ def assign_badge_prereqs(badge_data, selected_object, object_type):
 # Function to delete badge prereqs based on the selected object
 # selected object could be an Activity, Module
 def delete_badge_prereqs(selected_object):
-    for badge in selected_object.badge_prereqs:
-        db.session.delete(badge)
-    db.session.commit()
+    if selected_object.badge_prereqs:
+        for badge in selected_object.badge_prereqs:
+            db.session.delete(badge)
+        db.session.commit()
 
     return
