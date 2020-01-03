@@ -25,6 +25,10 @@ class StepCRUD(Resource):
     def put(self):
         contentful_data = request.get_json()
         step = Step.query.filter_by(contentful_id=contentful_data["entityId"]).first()
+
+        if not step:
+            return {"message": "Step does not exist"}, 404
+
         edit_step(step, contentful_data)
 
         db.session.commit()

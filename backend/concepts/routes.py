@@ -25,6 +25,10 @@ class ConceptCRUD(Resource):
     def put(self):
         contentful_data = request.get_json()
         concept = Concept.query.filter_by(contentful_id=contentful_data["entityId"]).first()
+
+        if not concept:
+            return {"message": "Concept does not exist"}, 404
+
         edit_concept(concept, contentful_data)
 
         db.session.commit()

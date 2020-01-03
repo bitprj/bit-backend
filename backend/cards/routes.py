@@ -46,7 +46,7 @@ class CardDelete(Resource):
 
         if not card:
             return {"message": "Card does not exist"}, 404
-        print(card.id)
+
         delete_card(card)
 
         db.session.delete(card)
