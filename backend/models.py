@@ -238,7 +238,7 @@ class Module(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     contentful_id = db.Column(db.Text(), nullable=False)
     name = db.Column(db.Text, nullable=True)
-    # activities keeps track of all of the activities that a module belongs to
+    # activities keeps track of all of the activities that belongs to a module
     activities = db.relationship("Activity", secondary="activity_module_rel", back_populates="modules")
     # topics keep track of all of the topics that a module belongs to
     topics = db.relationship("Topic", secondary="topic_module_rel", back_populates="modules")
