@@ -9,10 +9,10 @@ class TopicSchema(ma.ModelSchema):
     name = fields.Str(required=True)
     # We are referencing another Schema below. You do this in oder to avoid circular referencing
     # The only keyword is used to show the id of modules and badge requirements
-    activity_prereqs = fields.Nested("ActivitySchema", only=("id",), many=True)
+    activity_prereqs = fields.Nested("ActivitySchema", only=("id", "contentful_id"), many=True)
     badge_prereqs = fields.Nested("BadgeRequirementSchema", many=True)
-    modules = ma.Nested("ModuleSchema", only=("id",), many=True)
-    module_prereqs = ma.Nested("ModuleSchema", only=("id",), many=True)
+    modules = ma.Nested("ModuleSchema", only=("id", "contentful_id"), many=True)
+    module_prereqs = ma.Nested("ModuleSchema", only=("id", "contentful_id"), many=True)
 
     class Meta:
         # Fields to show when sending data

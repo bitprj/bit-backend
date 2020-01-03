@@ -2,11 +2,11 @@ from backend.models import Activity, Card, Concept, Module, Topic
 
 
 # Function to return a list of activities based on a list of activity ids
-def get_activities(activity_ids):
+def get_activities(activity_list):
     activities = []
 
-    for activity_id in activity_ids:
-        activity = Activity.query.get(activity_id)
+    for activity_id in activity_list:
+        activity = Activity.query.filter_by(contentful_id=activity_id["sys"]["id"]).first()
         activities.append(activity)
 
     return activities
@@ -35,11 +35,11 @@ def get_concepts(concept_ids):
 
 
 # Function to return a list of modules based on a list of module ids
-def get_modules(module_ids):
+def get_modules(module_list):
     modules = []
 
-    for module_id in module_ids:
-        module = Module.query.get(module_id)
+    for module_id in module_list:
+        module = Module.query.filter_by(contentful_id=module_id["sys"]["id"]).first()
         modules.append(module)
 
     return modules
