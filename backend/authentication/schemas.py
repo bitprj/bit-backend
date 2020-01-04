@@ -7,13 +7,14 @@ class UserFormSchema(ma.Schema):
     name = fields.Str(required=True)
     username = fields.Email(required=True)
     password = fields.Str(required=True)
-    current_track_id = fields.Int(required=False)
+    roles = fields.Str(required=False)
     location = fields.Str(required=True)
     image = fields.Str(required=True)
+    track_id = fields.Int(required=False)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("name", "username", "password", "current_track_id", "location", "image")
+        fields = ("name", "username", "password", "roles", "location", "image", "track_id")
         ordered = True
 
 

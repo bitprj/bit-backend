@@ -52,7 +52,6 @@ class ConceptDelete(Resource):
     # Function to delete a concept!!
     def post(self):
         contentful_data = request.get_json()
-        print(contentful_data)
         concept = Concept.query.filter_by(contentful_id=contentful_data["entityId"]).first()
 
         if not concept:

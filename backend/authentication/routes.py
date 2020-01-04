@@ -16,7 +16,6 @@ class UserCreate(Resource):
     def post(self, user_type):
         form_data = request.get_json()
         errors = user_form_schema.validate(form_data)
-
         # If form data is not validated by the user_form_schema, then return a 500 error
         # else create the user and add it to the database
         if errors:
