@@ -27,6 +27,10 @@ class ModuleCRUD(Resource):
     def put(self):
         contentful_data = request.get_json()
         module = Module.query.filter_by(contentful_id=contentful_data["entityId"]).first()
+
+        if not module:
+            return {"message": "Module does not exist"}, 404
+
         edit_module(module, contentful_data)
 
         db.session.commit()

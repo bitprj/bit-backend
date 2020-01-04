@@ -9,8 +9,8 @@ class TrackSchema(ma.Schema):
     name = fields.Str(required=True)
     # We are referencing another Schema below. You do this in oder to avoid circular referencing
     # The only keyword is used to show the id of topics
-    topics = fields.Nested("TopicSchema", only=("id",), many=True)
-    required_topics = fields.Nested("TopicSchema", only=("id",), many=True)
+    topics = fields.Nested("TopicSchema", only=("id", "contentful_id"), many=True)
+    required_topics = fields.Nested("TopicSchema", only=("id", "contentful_id"), many=True)
 
     class Meta:
         # Fields to show when sending data

@@ -1,12 +1,12 @@
-from backend.models import Activity, Card, Concept, Module, Topic
+from backend.models import Activity, Card, Concept, Hint, Module, Step, Topic
 
 
 # Function to return a list of activities based on a list of activity ids
-def get_activities(activity_ids):
+def get_activities(activity_list):
     activities = []
 
-    for activity_id in activity_ids:
-        activity = Activity.query.get(activity_id)
+    for activity_id in activity_list:
+        activity = Activity.query.filter_by(contentful_id=activity_id["sys"]["id"]).first()
         activities.append(activity)
 
     return activities
@@ -24,33 +24,55 @@ def get_cards(card_ids):
 
 
 # Function to return a list of concepts from a list of concept ids
-def get_concepts(concept_ids):
+def get_concepts(concept_list):
     concepts = []
 
-    for concept_id in concept_ids:
-        concept = Concept.query.get(concept_id)
+    for concept_id in concept_list:
+        concept = Concept.query.filter_by(contentful_id=concept_id["sys"]["id"]).first()
         concepts.append(concept)
 
     return concepts
 
 
+# Function to return a list of hints from a list of hint ids
+def get_hints(hint_list):
+    hints = []
+
+    for hint_id in hint_list:
+        hint = Hint.query.filter_by(contentful_id=hint_id["sys"]["id"]).first()
+        hints.append(hint)
+
+    return hints
+
+
 # Function to return a list of modules based on a list of module ids
-def get_modules(module_ids):
+def get_modules(module_list):
     modules = []
 
-    for module_id in module_ids:
-        module = Module.query.get(module_id)
+    for module_id in module_list:
+        module = Module.query.filter_by(contentful_id=module_id["sys"]["id"]).first()
         modules.append(module)
 
     return modules
 
 
-# Function to return a list of topics baased on the lsit of topic ids
-def get_topics(topic_ids):
+# Function to return a list of steps based on a list of step ids
+def get_steps(step_list):
+    steps = []
+
+    for step_id in step_list:
+        step = Step.query.filter_by(contentful_id=step_id["sys"]["id"]).first()
+        steps.append(step)
+
+    return steps
+
+
+# Function to return a list of topics based on the contentful jds
+def get_topics(topic_list):
     topics = []
 
-    for topic_id in topic_ids:
-        topic = Topic.query.get(topic_id)
+    for topic_id in topic_list:
+        topic = Topic.query.filter_by(contentful_id=topic_id["sys"]["id"]).first()
         topics.append(topic)
 
     return topics

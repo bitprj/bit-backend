@@ -6,7 +6,7 @@ from backend.general_utils import get_user_id_from_token
 from backend.models import Module, Student, Topic
 from backend.modules.utils import validate_module
 from backend.topics.schemas import topic_schema, topic_progress_schema
-from backend.topics.utils import create_topic, edit_topic, get_topic_progress, validate_topic
+from backend.topics.utils import create_topic, delete_topic, edit_topic, get_topic_progress, validate_topic
 
 # Blueprint for topics
 topics_bp = Blueprint("topics", __name__)
@@ -28,6 +28,10 @@ class TopicCRUD(Resource):
     def put(self):
         contentful_data = request.get_json()
         topic = Topic.query.filter_by(contentful_id=contentful_data["entityId"]).first()
+
+        if not topic:
+            return {"message": "Topic does not exist"}, 404
+
         edit_topic(topic, contentful_data)
 
         db.session.commit()
@@ -55,6 +59,7 @@ class TopicDelete(Resource):
 
         if not topic:
             return {"message": "Topic does not exist"}, 404
+        delete_topic(topic)
 
         db.session.delete(topic)
         db.session.commit()

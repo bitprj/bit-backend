@@ -3,7 +3,7 @@ from flask_restful import Resource
 from backend import api, db
 from backend.models import Concept
 from backend.concepts.schemas import concept_schema
-from backend.concepts.utils import create_concept, edit_concept
+from backend.concepts.utils import create_concept, delete_concept, edit_concept
 
 # Blueprint for concepts
 concepts_bp = Blueprint("concepts", __name__)
@@ -25,6 +25,10 @@ class ConceptCRUD(Resource):
     def put(self):
         contentful_data = request.get_json()
         concept = Concept.query.filter_by(contentful_id=contentful_data["entityId"]).first()
+
+        if not concept:
+            return {"message": "Concept does not exist"}, 404
+
         edit_concept(concept, contentful_data)
 
         db.session.commit()
@@ -48,10 +52,12 @@ class ConceptDelete(Resource):
     # Function to delete a concept!!
     def post(self):
         contentful_data = request.get_json()
+        print(contentful_data)
         concept = Concept.query.filter_by(contentful_id=contentful_data["entityId"]).first()
 
         if not concept:
             return {"message": "Concept does not exist"}, 404
+        delete_concept(concept)
 
         db.session.delete(concept)
         db.session.commit()

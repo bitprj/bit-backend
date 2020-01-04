@@ -3,7 +3,7 @@ from flask_restful import Resource
 from backend import api, db
 from backend.models import Hint
 from backend.hints.schemas import hint_schema
-from backend.hints.utils import create_hint, edit_hint
+from backend.hints.utils import create_hint, delete_hint, edit_hint
 
 # Blueprint for hints
 hints_bp = Blueprint("hints", __name__)
@@ -25,6 +25,10 @@ class HintCRUD(Resource):
     def put(self):
         contentful_data = request.get_json()
         hint = Hint.query.filter_by(contentful_id=contentful_data["entityId"]).first()
+
+        if not hint:
+            return {"message": "Hint does not exist"}, 404
+
         edit_hint(hint, contentful_data)
 
         db.session.commit()
@@ -52,6 +56,7 @@ class HintDelete(Resource):
 
         if not hint:
             return {"message": "Hint does not exist"}, 404
+        delete_hint(hint)
 
         db.session.delete(hint)
         db.session.commit()

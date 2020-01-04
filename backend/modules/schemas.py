@@ -23,7 +23,7 @@ class ModuleSchema(ma.Schema):
     id = fields.Int(required=True)
     contentful_id = fields.Str(required=True)
     name = fields.Str(required=True)
-    badges = ma.Nested(BadgeRequirementSchema, many=True)
+    badge_prereqs = ma.Nested("BadgeRequirementSchema", many=True)
     # We are referencing another Schema below. You do this in oder to avoid circular referencing
     # The only keyword is used to show the id of the activity
     activities = ma.Nested("ActivitySchema", only=("id",), many=True)
@@ -31,7 +31,7 @@ class ModuleSchema(ma.Schema):
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "contentful_id", "name", "badges", "activities", "activity_prereqs")
+        fields = ("id", "contentful_id", "name", "badge_prereqs", "activities", "activity_prereqs")
         ordered = True
 
 

@@ -8,18 +8,26 @@ def create_topic(contentful_data):
     topic = Topic(contentful_id=contentful_data["entityId"]
                   )
 
-    # topic.activity_prereqs = get_activities(form_data["activity_prereqs"])
-    # topic.modules = get_modules(form_data["modules"])
-    # topic.module_prereqs = get_modules(form_data["module_prereqs"])
-    # delete_badge_prereqs(topic)
-    # assign_badge_prereqs(form_data["badge_prereqs"], topic, "Topic")
-
     return topic
+
+
+# Function to delete a topic's relationships
+def delete_topic(topic):
+    topic.modules = []
+    topic.module_prereqs = []
+    topic.activity_prereqs = []
+
+    return
 
 
 # Function to edit an topic
 def edit_topic(topic, contentful_data):
     topic.name = contentful_data["parameters"]["name"]["en-US"]
+    topic.modules = get_modules(contentful_data["parameters"]["modules"]["en-US"])
+    topic.module_prereqs = get_modules(contentful_data["parameters"]["module_prereqs"]["en-US"])
+    topic.activity_prereqs = get_activities(contentful_data["parameters"]["activity_prereqs"]["en-US"])
+    delete_badge_prereqs(topic)
+    assign_badge_prereqs(contentful_data, topic, "Topic")
 
     return
 

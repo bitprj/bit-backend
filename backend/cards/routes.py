@@ -2,7 +2,7 @@ from flask import (Blueprint, request)
 from flask_restful import Resource
 from backend import api, db
 from backend.cards.schemas import card_schema
-from backend.cards.utils import create_card, edit_card
+from backend.cards.utils import create_card, delete_card, edit_card
 from backend.models import Card
 
 # Blueprint for cards
@@ -24,6 +24,7 @@ class CardCRUD(Resource):
     # Function to edit a card
     def put(self):
         contentful_data = request.get_json()
+        print(contentful_data)
         card = Card.query.filter_by(contentful_id=contentful_data["entityId"]).first()
 
         if not card:
@@ -45,6 +46,8 @@ class CardDelete(Resource):
 
         if not card:
             return {"message": "Card does not exist"}, 404
+
+        delete_card(card)
 
         db.session.delete(card)
         db.session.commit()

@@ -1,5 +1,4 @@
 from backend import ma
-from backend.steps.schemas import StepSchema
 from marshmallow import fields
 
 
@@ -7,12 +6,12 @@ from marshmallow import fields
 class ConceptSchema(ma.ModelSchema):
     id = fields.Int(required=True)
     contentful_id = fields.Str(required=True)
-    cards = fields.Nested("CardSchema", only=("id",), many=True)
-    steps = fields.Nested(StepSchema, many=True)
+    name = fields.Str(required=True)
+    steps = fields.Nested("StepSchema", only=("id", "contentful_id"), many=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "contentful_id", "name", "cards", "steps")
+        fields = ("id", "contentful_id", "name", "steps")
         ordered = True
 
 
