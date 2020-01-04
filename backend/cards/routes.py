@@ -24,7 +24,6 @@ class CardCRUD(Resource):
     # Function to edit a card
     def put(self):
         contentful_data = request.get_json()
-        print(contentful_data)
         card = Card.query.filter_by(contentful_id=contentful_data["entityId"]).first()
 
         if not card:

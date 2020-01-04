@@ -163,6 +163,8 @@ class Card(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     contentful_id = db.Column(db.Text(), nullable=False)
     name = db.Column(db.Text, nullable=True)
+    # order is a number to keep track of the order in which this card will be displayed
+    order = db.Column(db.Integer, nullable=True)
     # activity_id and activity keeps track of which lab the card is owned by
     activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"))
     activity = db.relationship("Activity", back_populates="cards")
@@ -315,7 +317,7 @@ class Topic(db.Model):
 class Track(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     contentful_id = db.Column(db.Text, nullable=False)
-    name = db.Column(db.Text, unique=True, nullable=True)
+    name = db.Column(db.Text, nullable=True)
     # topics keep track of which topics belong to a track
     topics = db.relationship("Topic", secondary="track_topic_rel", back_populates="tracks")
     # required topics keep track of the required topics that need to be completed by the user

@@ -2,8 +2,9 @@ from flask import Blueprint, request
 from flask_praetorian.decorators import roles_accepted
 from flask_restful import Resource
 from backend import api, db
-from backend.activity_progresses.schemas import activity_progress_video
-from backend.activity_progresses.utils import unlock_card
+from backend.activities.utils import validate_activity
+from backend.activity_progresses.schemas import activity_progress_schema, activity_progress_video
+from backend.activity_progresses.utils import create_progress, unlock_card
 from backend.general_utils import get_user_id_from_token
 from backend.models import ActivityProgress
 
@@ -47,17 +48,25 @@ class ActivityProgressUpdate(Resource):
     # Function to return the last card completed on an activity
     def get(self, activity_id):
         current_user_id = get_user_id_from_token()
+        activity_error = validate_activity(activity_id)
+
+        if activity_error:
+            return {
+                       "message": "Activity does not exist"
+                   }, 404
+
         student_activity_prog = ActivityProgress.query.filter_by(student_id=current_user_id,
                                                                  activity_id=activity_id).first()
 
         if not student_activity_prog:
-            return {
-                       "message": "Student activity progress does not exist."
-                   }, 500
+            # Create Activity Progress if it does not exist
+            activity_prog = create_progress(activity_id, current_user_id)
+            db.session.add(activity_prog)
+            db.session.commit()
 
-        return {
-                   "last_card_completed": student_activity_prog.last_card_completed
-               }, 200
+            return activity_progress_schema.dump(activity_prog)
+        else:
+            return activity_progress_schema.dump(student_activity_prog)
 
     # Function to submit a student's activity progress
     def put(self, activity_id):

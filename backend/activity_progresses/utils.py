@@ -1,4 +1,19 @@
-from backend.models import ActivityProgress
+from backend.models import Activity, ActivityProgress
+
+
+# Function to create an ActivityProgress
+def create_progress(activity_id, current_user_id):
+    activity_prog = ActivityProgress(student_id=current_user_id,
+                                     activity_id=activity_id)
+
+    activity = Activity.query.get(activity_id)
+    activity.cards.sort(key=lambda x: x.order)
+    next_card = activity.cards.pop(0)
+    activity_prog.cards_locked = activity.cards
+    activity_prog.cards_unlocked.append(next_card)
+    activity_prog.last_card_completed = next_card.id
+
+    return activity_prog
 
 
 # Function to unlock a card
