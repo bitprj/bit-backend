@@ -199,6 +199,22 @@ class Card(db.Model):
         return f"Card('{self.name}')"
 
 
+class Classroom(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Text, nullable=False)
+    class_code = db.Column(db.String(5), nullable=False)
+    teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'), nullable=False)
+    teacher = db.relationship('Teacher', back_populates='classes')
+    date_start = db.Column(db.Date)
+    date_end = db.Column(db.Date)
+    # students = db.relationship('Student', secondary=studentsclasses, back_populates='classes')
+    # channels = db.relationship('Channel', cascade='all,delete', back_populates='classroom')
+    # teams = db.relationship('Team', cascade='all,delete', back_populates='classroom')
+
+    def __repr__(self):
+        return f"Class('{self.name}')"
+
+
 class Concept(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     contentful_id = db.Column(db.Text(), nullable=False)
@@ -430,6 +446,7 @@ class Student(User):
 
 class Teacher(User):
     id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
+    classes = db.relationship('Class', back_populates='teacher')
 
     def __repr__(self):
         return f"Teacher('{self.id}')"
