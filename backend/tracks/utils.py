@@ -14,7 +14,9 @@ def create_track(contentful_data):
 def edit_track(track, contentful_data):
     track.name = contentful_data["parameters"]["name"]["en-US"]
     track.topics = get_topics(contentful_data["parameters"]["topics"]["en-US"])
-    track.required_topics = get_topics(contentful_data["parameters"]["required_topics"]["en-US"])
+
+    if "required_topics" in contentful_data["parameters"]:
+        track.required_topics = get_topics(contentful_data["parameters"]["required_topics"]["en-US"])
 
     return
 

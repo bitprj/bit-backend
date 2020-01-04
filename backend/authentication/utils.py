@@ -1,5 +1,6 @@
 from backend import guard
-from backend.models import Admin, Student, Teacher
+from backend.models import Admin, Student, Teacher, Track
+from backend.prereqs.utils import assign_incomcomplete_activities, assign_incomplete_modules
 
 
 # Function to create an Admin
@@ -26,8 +27,14 @@ def create_student(form_data):
                       password=hashed_password,
                       roles="Student",
                       location=form_data["location"],
-                      image=form_data["image"]
+                      image=form_data["image"],
+                      current_track_id=form_data["track_id"]
                       )
+
+    track = Track.query.get(form_data["track_id"])
+    student.incomplete_topics = track.topics
+    student.incomplete_modules = assign_incomplete_modules(track.topics)
+    student.incomplete_activities = assign_incomcomplete_activities(track.topics)
 
     return student
 

@@ -44,3 +44,13 @@ def edit_activity(activity, contentful_data):
     add_cards(activity, contentful_data)
     
     return
+
+
+# Function to validate an activity
+def validate_activity(activity_id):
+    activity = Activity.query.get(activity_id)
+
+    if not activity:
+        return True
+
+    return False

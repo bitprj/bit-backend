@@ -29,7 +29,22 @@ def delete_card(card):
 # Function to edit a card
 def edit_card(card, contentful_data):
     card.name = contentful_data["parameters"]["name"]["en-US"]
-    card.concepts = get_concepts(contentful_data["parameters"]["concepts"]["en-US"])
-    card.hints = get_hints(contentful_data["parameters"]["hints"]["en-US"])
+    card.order = contentful_data["parameters"]["order"]["en-US"]
+
+    if "concepts" in contentful_data["parameters"]:
+        card.concepts = get_concepts(contentful_data["parameters"]["concepts"]["en-US"])
+
+    if "hints" in contentful_data["parameters"]:
+        card.hints = get_hints(contentful_data["parameters"]["hints"]["en-US"])
 
     return
+
+
+# Function to get all the card's hints
+def get_cards_hints(cards):
+    hints = []
+
+    for card in cards:
+        hints += card.hints
+
+    return hints

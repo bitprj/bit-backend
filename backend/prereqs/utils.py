@@ -33,6 +33,27 @@ def assign_badge_prereqs(contentful_data, selected_object, object_type):
     return
 
 
+# Function to add incomplete activities to a student when they choose a track
+def assign_incomcomplete_activities(topics):
+    activities = []
+
+    for topic in topics:
+        for module in topic.modules:
+            activities += module.activities
+
+    return activities
+
+
+# Function to add incomplete modules to a student when they choose a track
+def assign_incomplete_modules(topics):
+    modules = []
+
+    for topic in topics:
+        modules += topic.modules
+
+    return modules
+
+
 # Function to delete badge prereqs based on the selected object
 # selected object could be an Activity, Module
 def delete_badge_prereqs(selected_object):

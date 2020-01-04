@@ -15,9 +15,11 @@ def create_module(contentful_data):
 def edit_module(module, contentful_data):
     module.name = contentful_data["parameters"]["name"]["en-US"]
     module.activities = get_activities(contentful_data["parameters"]["activities"]["en-US"])
-    module.activity_prereqs = get_activities(contentful_data["parameters"]["activity_prereqs"]["en-US"])
     delete_badge_prereqs(module)
     assign_badge_prereqs(contentful_data, module, "Module")
+
+    if "activity_prereqs" in contentful_data["parameters"]:
+        module.activity_prereqs = get_activities(contentful_data["parameters"]["activity_prereqs"]["en-US"])
 
     return
 
