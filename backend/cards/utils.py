@@ -38,3 +38,13 @@ def edit_card(card, contentful_data):
         card.hints = get_hints(contentful_data["parameters"]["hints"]["en-US"])
 
     return
+
+
+# Function to get all the card's hints
+def get_cards_hints(cards):
+    hints = []
+
+    for card in cards:
+        hints += card.hints
+
+    return hints

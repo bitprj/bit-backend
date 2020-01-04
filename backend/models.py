@@ -1,5 +1,4 @@
 from backend import db
-from sqlalchemy.ext.mutable import MutableDict
 
 # RELATIONSHIPS. The below tables are used to keep track of which model belongs with a model
 # This many to many relationship is used to keep track of which activities belong to a module and vice versa
@@ -8,18 +7,32 @@ activity_module_rel = db.Table("activity_module_rel",
                                db.Column("module_id", db.Integer, db.ForeignKey("module.id"))
                                )
 
-# THis many to many relationship keeps track of the activity progress' locked cards
+# This many to many relationship keeps track of the activity progress' locked cards
 activity_progress_locked_cards_rel = db.Table("activity_progress_locked_cards_rel",
                                               db.Column("activity_progress_id", db.Integer,
                                                         db.ForeignKey("activity_progress.id")),
                                               db.Column("card_id", db.Integer, db.ForeignKey("card.id")),
                                               )
 
-# THis many to many relationship keeps track of the activity progress' unlocked cards
+# This many to many relationship keeps track of the activity progress' unlocked cards
 activity_progress_unlocked_cards_rel = db.Table("activity_progress_unlocked_cards_rel",
                                                 db.Column("activity_progress_id", db.Integer,
                                                           db.ForeignKey("activity_progress.id")),
                                                 db.Column("card_id", db.Integer, db.ForeignKey("card.id")),
+                                                )
+
+# This many to many relationship keeps track of the activity progress' locked hints
+activity_progress_locked_hints_rel = db.Table("activity_progress_locked_hints_rel",
+                                              db.Column("activity_progress_id", db.Integer,
+                                                        db.ForeignKey("activity_progress.id")),
+                                              db.Column("hint_id", db.Integer, db.ForeignKey("hint.id")),
+                                              )
+
+# This many to many relationship keeps track of the activity progress' locked hints
+activity_progress_unlocked_hints_rel = db.Table("activity_progress_unlocked_hints_rel",
+                                                db.Column("activity_progress_id", db.Integer,
+                                                          db.ForeignKey("activity_progress.id")),
+                                                db.Column("hint_id", db.Integer, db.ForeignKey("hint.id")),
                                                 )
 
 # This many to many relationship is used to keep track of which card belongs to a concept and vice versa
@@ -228,6 +241,12 @@ class Hint(db.Model):
     card = db.relationship("Card", back_populates="hints")
     # steps keep track of which steps a hint owns
     steps = db.relationship("Step", cascade="all,delete", back_populates="hint")
+    # activity_locked_hints keep track of all the activities locked hints
+    activity_locked_hints = db.relationship("ActivityProgress", secondary="activity_progress_locked_hints_rel",
+                                            back_populates="hints_locked")
+    # activity_locked_hints keep track of all the activities unlocked hints
+    activity_unlocked_hints = db.relationship("ActivityProgress", secondary="activity_progress_unlocked_hints_rel",
+                                              back_populates="hints_unlocked")
 
     def __init__(self, contentful_id):
         self.contentful_id = contentful_id
@@ -443,6 +462,12 @@ class ActivityProgress(db.Model):
     # cards_locked keeps track os the progresses' unlocked cards
     cards_unlocked = db.relationship("Card", secondary="activity_progress_unlocked_cards_rel",
                                      back_populates="activity_unlocked_cards")
+    # hints_locked keeps track os the progresses' locked hints
+    hints_locked = db.relationship("Hint", secondary="activity_progress_locked_hints_rel",
+                                   back_populates="activity_locked_hints")
+    # hints_unlocked keeps track os the progresses' unlocked hints
+    hints_unlocked = db.relationship("Hint", secondary="activity_progress_unlocked_hints_rel",
+                                     back_populates="activity_unlocked_hints")
     student = db.relationship("Student", back_populates="activity_progresses")
     activity = db.relationship("Activity", back_populates="students")
 

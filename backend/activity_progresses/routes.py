@@ -3,8 +3,9 @@ from flask_praetorian.decorators import roles_accepted
 from flask_restful import Resource
 from backend import api, db
 from backend.activities.utils import validate_activity
-from backend.activity_progresses.schemas import activity_progress_schema, activity_progress_video
-from backend.activity_progresses.utils import create_progress, unlock_card
+from backend.activity_progresses.schemas import activity_progress_card_hints, activity_progress_schema, \
+    activity_progress_video
+from backend.activity_progresses.utils import create_progress, get_hint_data, unlock_card
 from backend.general_utils import get_user_id_from_token
 from backend.models import ActivityProgress
 
@@ -71,12 +72,16 @@ class ActivityProgressUpdate(Resource):
     # Function to submit a student's activity progress
     def put(self, activity_id):
         current_user_id = get_user_id_from_token()
-        unlock_card(activity_id, current_user_id)
-        db.session.commit()
+        student_activity_prog = ActivityProgress.query.filter_by(student_id=current_user_id,
+                                                                 activity_id=activity_id).first()
+        if student_activity_prog.cards_locked:
+            target_card = unlock_card(student_activity_prog)
+            hints = get_hint_data(student_activity_prog, target_card)
+            return activity_progress_card_hints.dump(hints)
 
         return {
-                   "message": "Activity Progress successfully updated"
-               }, 200
+                   "message": "No more cards to unlock!"
+               }, 201
 
     def delete(self, activity_id):
         current_user_id = get_user_id_from_token()

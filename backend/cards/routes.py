@@ -1,9 +1,13 @@
 from flask import (Blueprint, request)
+from flask_praetorian import roles_accepted
 from flask_restful import Resource
 from backend import api, db
+from backend.activity_progresses.utils import get_hint_data
+from backend.activity_progresses.schemas import activity_progress_card_hints
 from backend.cards.schemas import card_schema
 from backend.cards.utils import create_card, delete_card, edit_card
-from backend.models import Card
+from backend.general_utils import get_user_id_from_token
+from backend.models import ActivityProgress, Card
 
 # Blueprint for cards
 cards_bp = Blueprint("cards", __name__)
@@ -68,7 +72,29 @@ class CardGetSpecific(Resource):
             return card_schema.dump(card)
 
 
+# This class is used to return data on the locked and unlocked hints for a card on a user
+class CardGetHints(Resource):
+    method_decorators = [roles_accepted("Student")]
+
+    # Function to return data on a single card
+    def get(self, activity_id, card_id):
+        current_user_id = get_user_id_from_token()
+        card = Card.query.get(card_id)
+
+        # If card does not exists, then return a 404 error
+        # else return the card back to the user
+        if not card:
+            return {"message": "Card does not exist"}, 404
+        else:
+            student_activity_prog = ActivityProgress.query.filter_by(student_id=current_user_id,
+                                                                     activity_id=activity_id).first()
+            hints = get_hint_data(student_activity_prog, card)
+
+            return activity_progress_card_hints.dump(hints)
+
+
 # Creates the routes for the classes
 api.add_resource(CardCRUD, "/cards")
 api.add_resource(CardDelete, "/cards/delete")
 api.add_resource(CardGetSpecific, "/cards/<int:card_id>")
+api.add_resource(CardGetHints, "/activities/<int:activity_id>/cards/<int:card_id>/fetch")
