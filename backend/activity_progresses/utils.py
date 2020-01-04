@@ -37,12 +37,10 @@ def get_hint_data(student_activity_prog, target_card):
 
 
 # Function to unlock a card
-def unlock_card(student_activity_prog):
+def unlock_card(student_activity_prog, next_card):
     locked_cards = student_activity_prog.cards_locked
     locked_cards.sort(key=lambda x: x.order)
+    locked_cards.remove(next_card)
+    student_activity_prog.cards_unlocked.append(next_card)
 
-    target_card = locked_cards.pop(0)
-    student_activity_prog.cards_unlocked.append(target_card)
-    student_activity_prog.last_card_completed = target_card.order
-
-    return target_card
+    return

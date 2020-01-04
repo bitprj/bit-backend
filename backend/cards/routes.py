@@ -2,7 +2,7 @@ from flask import (Blueprint, request)
 from flask_praetorian import roles_accepted
 from flask_restful import Resource
 from backend import api, db
-from backend.activity_progresses.utils import get_hint_data
+from backend.activity_progresses.utils import get_hint_data, unlock_card
 from backend.activity_progresses.schemas import activity_progress_card_hints
 from backend.cards.schemas import card_schema
 from backend.cards.utils import create_card, delete_card, edit_card
@@ -88,9 +88,18 @@ class CardGetHints(Resource):
         else:
             student_activity_prog = ActivityProgress.query.filter_by(student_id=current_user_id,
                                                                      activity_id=activity_id).first()
-            hints = get_hint_data(student_activity_prog, card)
+            if card in student_activity_prog.activity.cards:
+                if card in student_activity_prog.cards_locked:
+                    unlock_card(student_activity_prog, card)
+                    db.session.commit()
 
-            return activity_progress_card_hints.dump(hints)
+                student_activity_prog.last_card_completed = card.id
+                hints = get_hint_data(student_activity_prog, card)
+
+                return activity_progress_card_hints.dump(hints)
+            return {
+                       "message": "Card does not belong in activity"
+                   }, 500
 
 
 # Creates the routes for the classes

@@ -69,20 +69,6 @@ class ActivityProgressUpdate(Resource):
         else:
             return activity_progress_schema.dump(student_activity_prog)
 
-    # Function to submit a student's activity progress
-    def put(self, activity_id):
-        current_user_id = get_user_id_from_token()
-        student_activity_prog = ActivityProgress.query.filter_by(student_id=current_user_id,
-                                                                 activity_id=activity_id).first()
-        if student_activity_prog.cards_locked:
-            target_card = unlock_card(student_activity_prog)
-            hints = get_hint_data(student_activity_prog, target_card)
-            return activity_progress_card_hints.dump(hints)
-
-        return {
-                   "message": "No more cards to unlock!"
-               }, 201
-
     def delete(self, activity_id):
         current_user_id = get_user_id_from_token()
         student_activity_prog = ActivityProgress.query.filter_by(student_id=current_user_id,
