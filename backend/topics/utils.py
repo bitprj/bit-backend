@@ -24,10 +24,14 @@ def delete_topic(topic):
 def edit_topic(topic, contentful_data):
     topic.name = contentful_data["parameters"]["name"]["en-US"]
     topic.modules = get_modules(contentful_data["parameters"]["modules"]["en-US"])
-    topic.module_prereqs = get_modules(contentful_data["parameters"]["module_prereqs"]["en-US"])
-    topic.activity_prereqs = get_activities(contentful_data["parameters"]["activity_prereqs"]["en-US"])
     delete_badge_prereqs(topic)
     assign_badge_prereqs(contentful_data, topic, "Topic")
+
+    if "module_prereqs" in contentful_data["parameters"]:
+        topic.module_prereqs = get_modules(contentful_data["parameters"]["module_prereqs"]["en-US"])
+
+    if "activity_prereqs" in contentful_data["parameters"]:
+        topic.activity_prereqs = get_activities(contentful_data["parameters"]["activity_prereqs"]["en-US"])
 
     return
 
