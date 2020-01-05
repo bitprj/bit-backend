@@ -33,6 +33,7 @@ from backend.activity_progresses.routes import activity_progresses_bp
 from backend.authentication.routes import authentication_bp
 from backend.badges.routes import badges_bp
 from backend.cards.routes import cards_bp
+from backend.checkpoints.routes import checkpoints_bp
 from backend.classrooms.routes import classrooms_bp
 from backend.concepts.routes import concepts_bp
 from backend.gems.routes import gems_bp
@@ -48,6 +49,7 @@ app.register_blueprint(activity_progresses_bp)
 app.register_blueprint(authentication_bp)
 app.register_blueprint(badges_bp)
 app.register_blueprint(cards_bp)
+app.register_blueprint(checkpoints_bp)
 app.register_blueprint(classrooms_bp)
 app.register_blueprint(concepts_bp)
 app.register_blueprint(gems_bp)
