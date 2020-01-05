@@ -11,10 +11,11 @@ class UserFormSchema(ma.Schema):
     location = fields.Str(required=True)
     image = fields.Str(required=True)
     track_id = fields.Int(required=False)
+    class_code = fields.Str(required=False)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("name", "username", "password", "roles", "location", "image", "track_id")
+        fields = ("name", "username", "password", "roles", "location", "image", "track_id", "class_code")
         ordered = True
 
 
