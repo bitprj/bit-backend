@@ -204,12 +204,18 @@ class Classroom(db.Model):
     name = db.Column(db.Text, nullable=False)
     class_code = db.Column(db.String(5), nullable=False)
     teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'), nullable=False)
-    teacher = db.relationship('Teacher', back_populates='classes')
+    teacher = db.relationship('Teacher', back_populates='classrooms')
     date_start = db.Column(db.Date)
     date_end = db.Column(db.Date)
     # students = db.relationship('Student', secondary=studentsclasses, back_populates='classes')
     # channels = db.relationship('Channel', cascade='all,delete', back_populates='classroom')
     # teams = db.relationship('Team', cascade='all,delete', back_populates='classroom')
+
+    def __init__(self, name, teacher_id, date_start, date_end):
+        self.name = name
+        self.teacher_id = teacher_id
+        self.date_start = date_start
+        self.date_end = date_end
 
     def __repr__(self):
         return f"Class('{self.name}')"
@@ -446,7 +452,7 @@ class Student(User):
 
 class Teacher(User):
     id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
-    classes = db.relationship('Class', back_populates='teacher')
+    classrooms = db.relationship('Classroom', back_populates='teacher')
 
     def __repr__(self):
         return f"Teacher('{self.id}')"

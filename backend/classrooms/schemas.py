@@ -10,8 +10,21 @@ class ClassroomFormSchema(ma.Schema):
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "date_start", "date_end")
+        fields = ("name", "date_start", "date_end")
+        ordered = True
+
+
+# This schema is used to display the classroom data
+class ClassroomSchema(ma.Schema):
+    name = fields.Str(required=True)
+    date_start = fields.Date(required=True)
+    date_end = fields.Date(required=True)
+
+    class Meta:
+        # Fields to show when sending data
+        fields = ("name", "date_start", "date_end")
         ordered = True
 
 
 classroom_form_schema = ClassroomFormSchema()
+classroom_schema = ClassroomSchema()
