@@ -134,6 +134,8 @@ class Activity(db.Model):
     name = db.Column(db.Text, nullable=True)
     # cards keeps track of all the cards that is owned by an Activity
     cards = db.relationship("Card", cascade="all,delete", back_populates="activity")
+    # checkpoints keep track of all the checkpoints that are owned by an activity
+    checkpoints = db.relationship("Checkpoint", cascade="all,delete", back_populates="activity")
     # modules keeps track of all of the modules that an activity belongs to
     modules = db.relationship("Module", secondary="activity_module_rel", back_populates="activities")
     # badge_prereqs keeps track of all the badge xp that are required to an activity
@@ -203,6 +205,20 @@ class Card(db.Model):
 
     def __repr__(self):
         return f"Card('{self.name}')"
+
+
+class Checkpoint(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    contentful_id = db.Column(db.Text, nullable=False)
+    name = db.Column(db.Text, nullable=True)
+    activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"))
+    activity = db.relationship("Activity", back_populates="checkpoints")
+
+    def __init__(self, contentful_id):
+        self.contentful_id = contentful_id
+
+    def __repr__(self):
+        return f"Checkpoint('{self.name}')"
 
 
 class Classroom(db.Model):
