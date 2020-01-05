@@ -2,7 +2,7 @@ from backend import ma
 from marshmallow import fields
 
 
-# This schema is used to keep track
+# This schema is used to keep track of checkpoint data
 class CheckpointSchema(ma.ModelSchema):
     id = fields.Int(required=True)
     contentful_id = fields.Str(required=True)

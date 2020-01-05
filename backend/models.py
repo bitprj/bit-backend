@@ -516,12 +516,9 @@ class ActivityProgress(db.Model):
     # hints_unlocked keeps track os the progresses' unlocked hints
     hints_unlocked = db.relationship("Hint", secondary="activity_progress_unlocked_hints_rel",
                                      back_populates="activity_unlocked_hints")
-    # checkpoints_complete keeps track of the completed checkpoints by the student
-    checkpoints_complete = db.relationship("CheckpointProgress",
-                                           back_populates="activity_complete_checkpoints_progress")
     # checkpoints_incomplete keeps track of the incomplete checkpoints by the student
-    checkpoints_incomplete = db.relationship("CheckpointProgress",
-                                             back_populates="activity_incomplete_checkpoints_progress")
+    checkpoints = db.relationship("CheckpointProgress",
+                                  back_populates="activity_checkpoints_progress")
     student = db.relationship("Student", back_populates="activity_progresses")
     activity = db.relationship("Activity", back_populates="students")
 
@@ -531,13 +528,12 @@ class CheckpointProgress(db.Model):
     id = db.Column('id', db.Integer, primary_key=True)
     activity_progress_id = db.Column(db.Integer, db.ForeignKey("activity_progress.id"))
     checkpoint_id = db.Column(db.Integer, db.ForeignKey('checkpoint.id'))
+    contentful_id = db.Column(db.Text, nullable=False)
+    student_id = db.Column(db.Integer, nullable=False)
     image_to_receive = db.Column(db.Text, nullable=True)
-
+    is_completed = db.Column(db.Boolean, nullable=False, default=False)
     checkpoint = db.relationship("Checkpoint", back_populates="activity_progresses")
-    activity_complete_checkpoints_progress = db.relationship("ActivityProgress",
-                                                             back_populates="checkpoints_complete")
-    activity_incomplete_checkpoints_progress = db.relationship("ActivityProgress",
-                                                               back_populates="checkpoints_incomplete")
+    activity_checkpoints_progress = db.relationship("ActivityProgress", back_populates="checkpoints")
 
 
 # Association object for modules and badges. This is for prerequisites
