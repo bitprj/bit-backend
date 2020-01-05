@@ -11,33 +11,27 @@ checkpoints_bp = Blueprint("checkpoints", __name__)
 
 # Class to Read, Create, and Update
 class CheckpointCRUD(Resource):
-    # Function to create a checkpoint
+    # Function to create a checkpoint or edit a checkpoint
     def post(self):
         contentful_data = request.get_json()
         print(contentful_data)
-        checkpoint = create_checkpoint(contentful_data)
 
-        db.session.add(checkpoint)
-        db.session.commit()
-        print(checkpoint.id)
-
-        return {"message": "Checkpoint successfully created"}, 201
-
-    # Function to edit a checkpoint
-    def put(self):
-        contentful_data = request.get_json()
-        print(contentful_data)
         checkpoint = Checkpoint.query.filter_by(contentful_id=contentful_data["entityId"]).first()
 
         if not checkpoint:
-            return {"message": "Checkpoint does not exist"}, 404
-        print(checkpoint.id)
+            print("creating")
+            edit_checkpoint(checkpoint, contentful_data)
+            db.session.commit()
+            print(checkpoint.id)
+            return {"message": "Checkpoint successfully created"}, 201
+        else:
+            print("editing")
+            checkpoint = create_checkpoint(contentful_data)
+            db.session.add(checkpoint)
+            db.session.commit()
+            print(checkpoint.id)
 
-        edit_checkpoint(checkpoint, contentful_data)
-
-        db.session.commit()
-
-        return {"message": "Checkpoint successfully updated"}, 200
+            return {"message": "Checkpoint successfully updated"}, 200
 
 
 # This class is used to delete a checkpoint with a POST request
