@@ -1,10 +1,9 @@
 from flask import (Blueprint, request)
-from flask_praetorian.decorators import auth_required
 from flask_restful import Resource
 from backend import api, db
 from backend.activities.schemas import activity_schema, activities_schema
-from backend.activities.utils import create_activity, delete_cards, edit_activity
-from backend.models import Activity, ActivityProgress
+from backend.activities.utils import create_activity, delete_cards, delete_checkpoints, edit_activity
+from backend.models import Activity
 
 # Blueprint for activities
 activities_bp = Blueprint("activities", __name__)
@@ -54,6 +53,7 @@ class ActivityDelete(Resource):
             return {"message": "Activity does not exist"}, 404
 
         delete_cards(activity.cards)
+        delete_checkpoints(activity.checkpoints)
 
         db.session.delete(activity)
         db.session.commit()

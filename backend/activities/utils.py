@@ -1,6 +1,6 @@
 from backend import contentful_client
 from backend.config import SPACE_ID
-from backend.models import Activity, Card
+from backend.models import Activity, Card, Checkpoint
 
 
 # Function to add cards to activities
@@ -15,6 +15,22 @@ def add_cards(activity, contentful_data):
             cards.append(target_card)
 
     activity.cards = cards
+
+    return
+
+
+# Function to add checkpoints to activities
+def add_checkpoints(activity, contentful_data):
+    checkpoint_list = contentful_data["parameters"]["checkpoints"]["en-US"]
+    checkpoints = []
+
+    if checkpoint_list:
+        for checkpoint in checkpoint_list:
+            contentful_id = checkpoint["sys"]["id"]
+            target_checkpoint = Checkpoint.query.filter_by(contentful_id=contentful_id).first()
+            checkpoints.append(target_checkpoint)
+
+    activity.checkpoints = checkpoints
 
     return
 
@@ -38,11 +54,23 @@ def delete_cards(cards):
     return
 
 
+# Function to delete an activity's checkpoints
+def delete_checkpoints(checkpoints):
+    for checkpoint in checkpoints:
+        # Unpublishes the checkpoint first then deletes the checkpoint in contentful
+        checkpoint_entry = contentful_client.entries(SPACE_ID, 'master').find(checkpoint.contentful_id)
+        checkpoint_entry.unpublish()
+        contentful_client.entries(SPACE_ID, 'master').delete(checkpoint.contentful_id)
+
+    return
+
+
 # Function to edit an activity
 def edit_activity(activity, contentful_data):
     activity.name = contentful_data["parameters"]["name"]["en-US"]
     add_cards(activity, contentful_data)
-    
+    add_checkpoints(activity, contentful_data)
+
     return
 
 

@@ -11,10 +11,11 @@ class ActivitySchema(ma.Schema):
     badge_prereqs = ma.Nested(BadgeRequirementSchema, many=True)
     # We are referencing another Schema below. You do this in oder to avoid circular referencing
     cards = fields.Nested("CardSchema", only=("id", "contentful_id", "order"), many=True)
+    checkpoints = fields.Nested("CheckpointSchema", only=("id", "contentful_id"), many=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "contentful_id", "name", "badge_prereqs", "cards")
+        fields = ("id", "contentful_id", "name", "badge_prereqs", "cards", "checkpoints")
         ordered = True
 
 
