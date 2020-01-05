@@ -1,5 +1,5 @@
 from backend import guard
-from backend.models import Admin, Student, Teacher, Track
+from backend.models import Admin, Classroom, Student, Teacher, Track
 from backend.prereqs.utils import assign_incomcomplete_activities, assign_incomplete_modules
 
 
@@ -31,6 +31,8 @@ def create_student(form_data):
                       current_track_id=form_data["track_id"]
                       )
 
+    classroom = Classroom.query.filter_by(class_code=form_data["class_code"]).first()
+    student.classes.append(classroom)
     track = Track.query.get(form_data["track_id"])
     student.incomplete_topics = track.topics
     student.incomplete_modules = assign_incomplete_modules(track.topics)

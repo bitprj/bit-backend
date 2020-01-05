@@ -19,10 +19,13 @@ class ClassroomSchema(ma.Schema):
     name = fields.Str(required=True)
     date_start = fields.Date(required=True)
     date_end = fields.Date(required=True)
+    class_code = fields.Str(required=True)
+    teacher = fields.Nested("UserSchema", only=("name", "username"))
+    students = fields.Nested("UserSchema", only=("name", "username"), many=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("name", "date_start", "date_end")
+        fields = ("name", "date_start", "date_end", "class_code", "teacher", "students")
         ordered = True
 
 

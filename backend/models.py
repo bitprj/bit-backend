@@ -71,6 +71,12 @@ student_activity_incomplete_rel = db.Table("student_activity_incomplete_rel",
                                            db.Column("activity_id", db.Integer, db.ForeignKey("activity.id"))
                                            )
 
+# This many to many relationship is used to keep track of all the classes that a student is in
+students_classes_rel = db.Table("student_classes_rel",
+                                db.Column("student_id", db.Integer, db.ForeignKey("student.id")),
+                                db.Column("classroom_id", db.Integer, db.ForeignKey("classroom.id"))
+                                )
+
 # This many to many relationship is used to keep track of all of the modules that a student has completed
 student_module_completed_rel = db.Table("student_module_completed_rel",
                                         db.Column("student_id", db.Integer, db.ForeignKey("student.id")),
@@ -207,9 +213,8 @@ class Classroom(db.Model):
     teacher = db.relationship('Teacher', back_populates='classrooms')
     date_start = db.Column(db.Date)
     date_end = db.Column(db.Date)
-    # students = db.relationship('Student', secondary=studentsclasses, back_populates='classes')
-    # channels = db.relationship('Channel', cascade='all,delete', back_populates='classroom')
-    # teams = db.relationship('Team', cascade='all,delete', back_populates='classroom')
+    # students keep track of all the students in a classroom
+    students = db.relationship('Student', secondary=students_classes_rel, back_populates='classes')
 
     def __init__(self, name, teacher_id, date_start, date_end):
         self.name = name
@@ -445,6 +450,8 @@ class Student(User):
     current_track = db.relationship("Track", back_populates="students")
     # activity_progresses keeps track of all the progresses that a student has made on their activities
     activity_progresses = db.relationship("ActivityProgress", cascade="all,delete", back_populates="student")
+    # classes keeps track of all the student's classes
+    classes = db.relationship("Classroom", secondary=students_classes_rel, back_populates="students")
 
     def __repr__(self):
         return f"Student('{self.id}')"
