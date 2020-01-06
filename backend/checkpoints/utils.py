@@ -10,6 +10,7 @@ def create_checkpoint(contentful_data):
 
 # Function to create CheckpointProgresses
 def create_checkpoint_progresses(checkpoints, student_id):
+    print(checkpoints)
     checkpoint_progresses = []
 
     for checkpoint in checkpoints:

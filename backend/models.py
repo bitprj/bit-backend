@@ -517,7 +517,7 @@ class ActivityProgress(db.Model):
     hints_unlocked = db.relationship("Hint", secondary="activity_progress_unlocked_hints_rel",
                                      back_populates="activity_unlocked_hints")
     # checkpoints_incomplete keeps track of the incomplete checkpoints by the student
-    checkpoints = db.relationship("CheckpointProgress",
+    checkpoints = db.relationship("CheckpointProgress", cascade="all,delete",
                                   back_populates="activity_checkpoints_progress")
     student = db.relationship("Student", back_populates="activity_progresses")
     activity = db.relationship("Activity", back_populates="students")
