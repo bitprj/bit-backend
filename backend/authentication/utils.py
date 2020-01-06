@@ -56,7 +56,7 @@ def create_teacher(form_data):
     return teacher
 
 
-# Function to choose which user to create, based on uer_type
+# Function to choose which user to create, based on user_type
 def create_user(user_type, form_data):
     user = None
 

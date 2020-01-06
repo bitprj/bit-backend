@@ -211,8 +211,10 @@ class Checkpoint(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     contentful_id = db.Column(db.Text, nullable=False)
     name = db.Column(db.Text, nullable=True)
+    checkpoint_type = db.Column(db.Text, nullable=True)
     activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"))
     activity = db.relationship("Activity", back_populates="checkpoints")
+    activity_progresses = db.relationship("CheckpointProgress", back_populates="checkpoint")
 
     def __init__(self, contentful_id):
         self.contentful_id = contentful_id
@@ -514,8 +516,24 @@ class ActivityProgress(db.Model):
     # hints_unlocked keeps track os the progresses' unlocked hints
     hints_unlocked = db.relationship("Hint", secondary="activity_progress_unlocked_hints_rel",
                                      back_populates="activity_unlocked_hints")
+    # checkpoints_incomplete keeps track of the incomplete checkpoints by the student
+    checkpoints = db.relationship("CheckpointProgress", cascade="all,delete",
+                                  back_populates="activity_checkpoints_progress")
     student = db.relationship("Student", back_populates="activity_progresses")
     activity = db.relationship("Activity", back_populates="students")
+
+
+# Association object to keep track of the CheckpointProgress
+class CheckpointProgress(db.Model):
+    id = db.Column('id', db.Integer, primary_key=True)
+    activity_progress_id = db.Column(db.Integer, db.ForeignKey("activity_progress.id"))
+    checkpoint_id = db.Column(db.Integer, db.ForeignKey('checkpoint.id'))
+    contentful_id = db.Column(db.Text, nullable=False)
+    student_id = db.Column(db.Integer, nullable=False)
+    image_to_receive = db.Column(db.Text, nullable=True)
+    is_completed = db.Column(db.Boolean, nullable=False, default=False)
+    checkpoint = db.relationship("Checkpoint", back_populates="activity_progresses")
+    activity_checkpoints_progress = db.relationship("ActivityProgress", back_populates="checkpoints")
 
 
 # Association object for modules and badges. This is for prerequisites

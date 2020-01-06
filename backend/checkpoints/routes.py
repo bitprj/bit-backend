@@ -14,24 +14,20 @@ class CheckpointCRUD(Resource):
     # Function to create a checkpoint
     def post(self):
         contentful_data = request.get_json()
-        print(contentful_data)
         checkpoint = create_checkpoint(contentful_data)
 
         db.session.add(checkpoint)
         db.session.commit()
-        print(checkpoint.id)
 
         return {"message": "Checkpoint successfully created"}, 201
 
     # Function to edit a checkpoint
     def put(self):
         contentful_data = request.get_json()
-        print(contentful_data)
         checkpoint = Checkpoint.query.filter_by(contentful_id=contentful_data["entityId"]).first()
 
         if not checkpoint:
             return {"message": "Checkpoint does not exist"}, 404
-        print(checkpoint.id)
 
         edit_checkpoint(checkpoint, contentful_data)
 
@@ -45,12 +41,10 @@ class CheckpointDelete(Resource):
     # Function to delete a checkpoint
     def post(self):
         contentful_data = request.get_json()
-        print(contentful_data)
         checkpoint = Checkpoint.query.filter_by(contentful_id=contentful_data["entityId"]).first()
 
         if not checkpoint:
             return {"message": "Checkpoint does not exist"}, 404
-        print(checkpoint.id)
 
         db.session.delete(checkpoint)
         db.session.commit()

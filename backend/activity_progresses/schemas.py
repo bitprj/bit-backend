@@ -1,4 +1,5 @@
 from backend import ma
+from backend.checkpoint_progresses.schemas import CheckpointProgressSchema
 from marshmallow import fields
 
 
@@ -18,10 +19,13 @@ class ActivityProgressSchema(ma.ModelSchema):
     last_card_completed = fields.Int(required=True)
     cards_locked = fields.Nested("CardSchema", only=("id", "contentful_id", "name", "order"), many=True)
     cards_unlocked = fields.Nested("CardSchema", only=("id", "contentful_id", "name", "order"), many=True)
+    checkpoints = fields.Nested(CheckpointProgressSchema, only=("checkpoint_id", "contentful_id", "is_completed"),
+                                many=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("last_card_completed", "cards_locked", "cards_unlocked")
+        fields = (
+            "last_card_completed", "cards_locked", "cards_unlocked", "checkpoints")
         ordered = True
 
 
