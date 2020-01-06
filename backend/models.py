@@ -498,6 +498,9 @@ class ActivityProgress(db.Model):
     id = db.Column('id', db.Integer, primary_key=True)
     activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"))
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
+    is_completed = db.Column(db.Boolean, nullable=False, default=False)
+    is_graded = db.Column(db.Boolean, nullable=False, default=False)
+
     # last_card_completed is last card completed from an activity
     last_card_completed = db.Column(db.Integer, nullable=True)
     submitted_video = db.Column(db.Text, nullable=True)
@@ -531,6 +534,7 @@ class CheckpointProgress(db.Model):
     contentful_id = db.Column(db.Text, nullable=False)
     student_id = db.Column(db.Integer, nullable=False)
     image_to_receive = db.Column(db.Text, nullable=True)
+    comment = db.Column(db.Text, nullable=True)
     is_completed = db.Column(db.Boolean, nullable=False, default=False)
     checkpoint = db.relationship("Checkpoint", back_populates="activity_progresses")
     activity_checkpoints_progress = db.relationship("ActivityProgress", back_populates="checkpoints")

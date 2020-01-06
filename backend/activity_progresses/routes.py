@@ -16,24 +16,27 @@ activity_progresses_bp = Blueprint("activity_progresses", __name__)
 class ActivityProgressSubmit(Resource):
     method_decorators = [roles_accepted("Student")]
 
-    # Function to submit a student's video
+    # Function to submit a student's video. This marks the student's activity progress as complete
     def post(self, activity_id):
         submission_data = request.get_json()
-        current_user_id = get_user_id_from_token()
         video_error = activity_progress_video.validate(submission_data)
-        student_activity_prog = ActivityProgress.query.filter_by(student_id=current_user_id,
-                                                                 activity_id=activity_id).first()
+
         if video_error:
             return {
                        "message": "Missing or sending incorrect data to create an activity. Double check the JSON data that it has everything needed to create an activity."
                    }, 500
         else:
+            current_user_id = get_user_id_from_token()
+            student_activity_prog = ActivityProgress.query.filter_by(student_id=current_user_id,
+                                                                     activity_id=activity_id).first()
+
             if not student_activity_prog:
                 return {
                            "message": "Student activity progress does not exist."
                        }, 500
 
             student_activity_prog.video = submission_data["video"]
+            student_activity_prog.is_completed = True
             db.session.commit()
 
         return {

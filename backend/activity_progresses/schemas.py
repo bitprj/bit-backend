@@ -14,6 +14,16 @@ class ActivityProgressCardHints(ma.ModelSchema):
         ordered = True
 
 
+class ActivityProgressGradingSchema(ma.ModelSchema):
+    checkpoints = fields.Nested(CheckpointProgressSchema, only=("checkpoint_id", "contentful_id", "is_completed"),
+                                many=True)
+
+    class Meta:
+        # Fields to show when sending data
+        fields = ("checkpoints",)
+        ordered = True
+
+
 # This schema is used to display ActivityProgress data
 class ActivityProgressSchema(ma.ModelSchema):
     last_card_completed = fields.Int(required=True)
