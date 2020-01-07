@@ -7,6 +7,22 @@ activity_module_rel = db.Table("activity_module_rel",
                                db.Column("module_id", db.Integer, db.ForeignKey("module.id"))
                                )
 
+# This many to many relationship keeps track of the activity progress' failed checkpoints
+activity_progress_checkpoint_failed_rel = db.Table("activity_progress_checkpoint_failed_rel",
+                                                   db.Column("activity_progress_id", db.Integer,
+                                                             db.ForeignKey("activity_progress.id")),
+                                                   db.Column("checkpoint_progress_id", db.Integer,
+                                                             db.ForeignKey("checkpoint_progress.id"))
+                                                   )
+
+# This many to many relationship keeps track of the activity progress' failed checkpoints
+activity_progress_checkpoint_passed_rel = db.Table("activity_progress_checkpoint_passed_rel",
+                                                   db.Column("activity_progress_id", db.Integer,
+                                                             db.ForeignKey("activity_progress.id")),
+                                                   db.Column("checkpoint_progress_id", db.Integer,
+                                                             db.ForeignKey("checkpoint_progress.id"))
+                                                   )
+
 # This many to many relationship keeps track of the activity progress' locked cards
 activity_progress_locked_cards_rel = db.Table("activity_progress_locked_cards_rel",
                                               db.Column("activity_progress_id", db.Integer,
@@ -500,10 +516,11 @@ class ActivityProgress(db.Model):
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
     is_completed = db.Column(db.Boolean, nullable=False, default=False)
     is_graded = db.Column(db.Boolean, nullable=False, default=False)
-
+    is_passed = db.Column(db.Boolean, nullable=False, default=False)
     # last_card_completed is last card completed from an activity
     last_card_completed = db.Column(db.Integer, nullable=True)
     submitted_video = db.Column(db.Text, nullable=True)
+    # Delete the two columns below later
     grading_is_completed = db.Column(db.Boolean, nullable=True)
     video_is_completed = db.Column(db.Boolean, nullable=True)
 
@@ -522,6 +539,12 @@ class ActivityProgress(db.Model):
     # checkpoints_incomplete keeps track of the incomplete checkpoints by the student
     checkpoints = db.relationship("CheckpointProgress", cascade="all,delete",
                                   back_populates="activity_checkpoints_progress")
+    # checkpoints_failed keeps track of the checkpoint progresses where the student failed to fulfill the requirements
+    checkpoints_failed = db.relationship("CheckpointProgress", secondary="activity_progress_checkpoint_failed_rel",
+                                         back_populates="activity_failed")
+    # checkpoints_passed keeps track of the checkpoint progresses where the student fulfilled the requirements
+    checkpoints_passed = db.relationship("CheckpointProgress", secondary="activity_progress_checkpoint_passed_rel",
+                                         back_populates="activity_passed")
     student = db.relationship("Student", back_populates="activity_progresses")
     activity = db.relationship("Activity", back_populates="students")
 
@@ -539,6 +562,12 @@ class CheckpointProgress(db.Model):
     is_completed = db.Column(db.Boolean, nullable=False, default=False)
     checkpoint = db.relationship("Checkpoint", back_populates="activity_progresses")
     activity_checkpoints_progress = db.relationship("ActivityProgress", back_populates="checkpoints")
+    # activity_passed keeps track of a failed checkpoint progress
+    activity_failed = db.relationship("ActivityProgress", secondary="activity_progress_checkpoint_failed_rel",
+                                      back_populates="checkpoints_failed")
+    # activity_passed keeps track of a passed checkpoint progress
+    activity_passed = db.relationship("ActivityProgress", secondary="activity_progress_checkpoint_passed_rel",
+                                      back_populates="checkpoints_passed")
 
 
 # Association object for modules and badges. This is for prerequisites

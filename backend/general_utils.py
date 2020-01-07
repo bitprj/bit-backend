@@ -6,7 +6,7 @@ import urllib.request
 
 
 # Function to upload an image to s3 based on the folder
-def add_image(file, folder):
+def add_file(file, folder):
     s3_client = boto3.client('s3')
     path = 'darlene/' + folder + '/' + file.filename
     s3_client.put_object(Bucket=S3_BUCKET, Key=path, Body=file)
@@ -15,10 +15,18 @@ def add_image(file, folder):
     return image
 
 
-# Function to retrieve the user id from a  jwt token
+# Function to retrieve the user id from a jwt token
 def get_user_id_from_token():
     guard = current_guard()
     token = guard.read_token_from_header()
     jwt_data = guard.extract_jwt_token(token)
+
+    return jwt_data["id"]
+
+
+# Function to retrieve a user id given a jwt token in a dictionary
+def get_user_id(data):
+    guard = current_guard()
+    jwt_data = guard.extract_jwt_token(data["jwt_token"])
 
     return jwt_data["id"]
