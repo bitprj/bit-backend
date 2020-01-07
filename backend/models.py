@@ -520,9 +520,6 @@ class ActivityProgress(db.Model):
     # last_card_completed is last card completed from an activity
     last_card_completed = db.Column(db.Integer, nullable=True)
     submitted_video = db.Column(db.Text, nullable=True)
-    # Delete the two columns below later
-    grading_is_completed = db.Column(db.Boolean, nullable=True)
-    video_is_completed = db.Column(db.Boolean, nullable=True)
 
     # cards_locked keeps track os the progresses' locked cards
     cards_locked = db.relationship("Card", secondary="activity_progress_locked_cards_rel",

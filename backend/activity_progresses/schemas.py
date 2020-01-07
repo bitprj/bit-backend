@@ -58,16 +58,7 @@ class ActivityProgressSchema(ma.ModelSchema):
         ordered = True
 
 
-class ActivityProgressVideo(ma.ModelSchema):
-    video = fields.Str(required=True)
-
-    class Meta:
-        # Fields to show when sending data
-        fields = ("video",)
-
-
 activity_progress_card_hints = ActivityProgressCardHints()
 activity_progress_schema = ActivityProgressSchema()
-activity_progress_video = ActivityProgressVideo()
 activity_progress_submission_schema = ActivityProgressSubmissionSchema(many=True)
 activity_progress_grading_schema = ActivityProgressGradingSchema()

@@ -34,9 +34,7 @@ class CheckpointProgressSubmit(Resource):
                 checkpoint_prog.image_to_receive = image
             elif checkpoint.checkpoint_type == "Video":
                 video_file = request.files["video"]
-                print(video_file)
                 video = add_file(video_file, "checkpoints")
-                print(video)
                 checkpoint_prog.video_to_receive = video
             elif checkpoint.checkpoint_type == "okPy":
                 print(request.form)
