@@ -13,14 +13,6 @@ def get_activities(classroom):
     return ungraded_activities
 
 
-# Function to assign comments to checkpoint progress when a teacher grades
-def give_comment_to_checkpoints(form_data):
-    assign_comments(form_data["checkpoints_failed"])
-    assign_comments(form_data["checkpoints_passed"])
-
-    return
-
-
 # Loops through the checkpoint progresses, finds the checkpoint progress and assigns the comment
 def assign_comments(checkpoints):
     for checkpoint in checkpoints:

@@ -5,8 +5,8 @@ from backend import api, db
 from backend.activity_progresses.schemas import activity_progress_submission_schema, activity_progress_grading_schema
 from backend.classrooms.utils import owns_classroom, validate_classroom
 from backend.general_utils import get_user_id_from_token
-from backend.models import ActivityProgress, Classroom, Student
-from backend.teachers.utils import get_activities, give_comment_to_checkpoints
+from backend.models import ActivityProgress, Classroom
+from backend.teachers.utils import assign_comments, get_activities
 
 # Blueprint for teachers
 teachers_bp = Blueprint("teachers", __name__)
@@ -68,9 +68,10 @@ class TeacherAssignments(Resource):
                                "message": "Missing or sending incorrect data to create a classroom. Double check the JSON data that it has everything needed to create a classroom."
                            }, 500
                 else:
-                    give_comment_to_checkpoints(form_data)
                     activity_progress = ActivityProgress.query.get(form_data["activity_progress_id"])
-
+                    assign_comments(form_data["checkpoints_failed"])
+                    assign_comments(form_data["checkpoints_passed"])
+                    
                     if form_data["checkpoints_failed"]:
                         activity_progress.is_passed = False
                     else:
