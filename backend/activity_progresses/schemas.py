@@ -14,13 +14,16 @@ class ActivityProgressCardHints(ma.ModelSchema):
         ordered = True
 
 
+# This schema is used to display activity progress' checkpoints for the teacher to grade
 class ActivityProgressGradingSchema(ma.ModelSchema):
-    checkpoints = fields.Nested(CheckpointProgressSchema, only=("checkpoint_id", "contentful_id", "is_completed"),
-                                many=True)
+    student = fields.Nested("StudentSchema", only=("name",))
+    activity = fields.Nested("ActivitySchema", only=("name",))
+    checkpoints = fields.Nested("CheckpointProgressSchema",
+                                only=("is_completed", "image_to_receive", "video_to_receive", "checkpoint"), many=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("checkpoints",)
+        fields = ("student", "activity", "checkpoints")
         ordered = True
 
 
@@ -50,3 +53,4 @@ class ActivityProgressVideo(ma.ModelSchema):
 activity_progress_card_hints = ActivityProgressCardHints()
 activity_progress_schema = ActivityProgressSchema()
 activity_progress_video = ActivityProgressVideo()
+activity_progress_grading_schema = ActivityProgressGradingSchema(many=True)

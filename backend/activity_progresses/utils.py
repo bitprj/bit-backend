@@ -1,7 +1,7 @@
 from backend import db
 from backend.cards.utils import get_cards_hints
 from backend.checkpoints.utils import create_checkpoint_progresses
-from backend.models import Activity, ActivityProgress
+from backend.models import Activity, ActivityProgress, CheckpointProgress
 
 
 # Function to create an ActivityProgress
@@ -36,6 +36,22 @@ def get_hint_data(student_activity_prog, target_card):
     }
 
     return hints
+
+
+# Function to check if the ActivityProgress is completed by checking if all the checkpoints are completed
+def is_activity_completed(activity_progress_id, student_id):
+    activity_progress = ActivityProgress.query.get(activity_progress_id)
+    incomplete_checkpoint_progresses = CheckpointProgress.query.filter_by(activity_progress_id=activity_progress_id,
+                                                                          is_completed=False,
+                                                                          student_id=student_id).all()
+    # If there are any incomplete progresses, then return immediately, else mark activity_progress as completed
+    if incomplete_checkpoint_progresses:
+        activity_progress.is_completed = False
+        return
+
+    activity_progress.is_completed = True
+
+    return
 
 
 # Function to unlock a card

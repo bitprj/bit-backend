@@ -27,10 +27,21 @@ def edit_classroom(classroom, form_data):
 
 
 # Function to see if the teacher owns this classroom
-def owns_classroom(classroom, teacher_id):
+def owns_classroom(classroom_id, teacher_id):
     teacher = Teacher.query.get(teacher_id)
+    classroom = Classroom.query.get(classroom_id)
 
     if classroom.teacher_id == teacher.id:
+        return True
+
+    return False
+
+
+# Function to check if the Classroom exist in the database
+def validate_classroom(classroom_id):
+    classroom = Classroom.query.get(classroom_id)
+
+    if not classroom:
         return True
 
     return False

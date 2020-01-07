@@ -534,6 +534,7 @@ class CheckpointProgress(db.Model):
     contentful_id = db.Column(db.Text, nullable=False)
     student_id = db.Column(db.Integer, nullable=False)
     image_to_receive = db.Column(db.Text, nullable=True)
+    video_to_receive = db.Column(db.Text, nullable=True)
     comment = db.Column(db.Text, nullable=True)
     is_completed = db.Column(db.Boolean, nullable=False, default=False)
     checkpoint = db.relationship("Checkpoint", back_populates="activity_progresses")
