@@ -5,6 +5,7 @@ from backend import api, db, guard
 from backend.authentication.schemas import user_form_schema, user_login_schema
 from backend.authentication.utils import create_user
 from backend.authentication.validators import check_user_existence
+from backend.general_utils import get_user_id_from_token
 
 # Blueprint for users
 authentication_bp = Blueprint("authentication", __name__)
