@@ -2,7 +2,17 @@ from backend import contentful_client
 from backend.config import SPACE_ID
 from backend.models import Hint
 from backend.prereqs.fetch import get_steps
-from backend.steps.utils import delete_steps, generate_steps
+
+
+# Function to assign children hints to a parent
+def assign_hints_to_parent_hint(children_hints):
+    hints = []
+
+    for hint in children_hints:
+        target_hint = Hint.query.filter_by(contentful_id=hint["sys"]["id"]).first()
+        hints.append(target_hint)
+
+    return hints
 
 
 # Function to create a hint
@@ -30,4 +40,29 @@ def edit_hint(hint, contentful_data):
     hint.name = contentful_data["parameters"]["name"]["en-US"]
     hint.steps = get_steps(contentful_data["parameters"]["steps"]["en-US"])
 
+    if "children_hints" in contentful_data["parameters"]:
+        hint.hint_children = assign_hints_to_parent_hint(contentful_data["parameters"]["children_hints"]["en-US"])
+
     return
+
+
+# Function to get all hint_children from a list of hints
+def get_hint_children(hints):
+    all_hints = []
+
+    for hint in hints:
+        all_hints += hint.hint_children
+
+    all_hints += hints
+
+    return all_hints
+
+
+# Function to validate a hint
+def validate_hint(hint_id):
+    hint = Hint.query.get(hint_id)
+
+    if not hint:
+        return False
+
+    return True

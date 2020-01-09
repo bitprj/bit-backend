@@ -293,13 +293,10 @@ class Hint(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     contentful_id = db.Column(db.Text, nullable=False)
     name = db.Column(db.Text, nullable=True)
-    # parent refers to the hint that owns a hint
-    # if parent is not null then the children are able to be unlocked
-    # if parent is null then it is a parent
-    # if parent is locked then the hint is unable to be unlocked
-    parent = db.Column(db.Integer, nullable=True)
     card_id = db.Column(db.Integer, db.ForeignKey("card.id"))
     card = db.relationship("Card", back_populates="hints")
+    parent_hint_id = db.Column(db.Integer, db.ForeignKey("hint.id"), nullable=True)
+    hint_children = db.relationship("Hint", cascade="all,delete", backref=db.backref('parent_hint', remote_side='Hint.id'))
     # steps keep track of which steps a hint owns
     steps = db.relationship("Step", cascade="all,delete", back_populates="hint")
     # activity_locked_hints keep track of all the activities locked hints
@@ -555,6 +552,8 @@ class CheckpointProgress(db.Model):
     student_id = db.Column(db.Integer, nullable=False)
     image_to_receive = db.Column(db.Text, nullable=True)
     video_to_receive = db.Column(db.Text, nullable=True)
+    test_cases_failed = db.Column(db.Integer, nullable=True)
+    test_cases_passed = db.Column(db.Integer, nullable=True)
     comment = db.Column(db.Text, nullable=True)
     is_completed = db.Column(db.Boolean, nullable=False, default=False)
     checkpoint = db.relationship("Checkpoint", back_populates="activity_progresses")

@@ -1,6 +1,7 @@
 from backend import db
 from backend.cards.utils import get_cards_hints
 from backend.checkpoints.utils import create_checkpoint_progresses
+from backend.hints.utils import get_hint_children
 from backend.models import Activity, ActivityProgress, CheckpointProgress
 
 
@@ -25,7 +26,7 @@ def create_progress(activity_id, current_user_id):
 
 # Function to get the hint data based on a card
 def get_hint_data(student_activity_prog, target_card):
-    card_hints = set(target_card.hints)
+    card_hints = set(get_hint_children(target_card.hints))
     locked_card_hints = set(student_activity_prog.hints_locked).intersection(card_hints)
     unlocked_card_hints = set(student_activity_prog.hints_unlocked).intersection(card_hints)
     db.session.commit()
@@ -62,3 +63,14 @@ def unlock_card(student_activity_prog, next_card):
     student_activity_prog.cards_unlocked.append(next_card)
 
     return
+
+
+# Function to unlock a hint
+def unlock_hint(student_activity_prog, hint):
+    if hint in student_activity_prog.hints_locked:
+        student_activity_prog.hints_unlocked.append(hint)
+        student_activity_prog.hints_locked.remove(hint)
+
+        return "Hint unlocked!"
+
+    return "Hint is not locked"
