@@ -4,9 +4,10 @@ from flask_restful import Resource
 from backend import api, db
 from backend.activities.utils import validate_activity
 from backend.activity_progresses.schemas import activity_progress_schema
-from backend.activity_progresses.utils import create_progress
+from backend.activity_progresses.utils import create_progress, unlock_hint
 from backend.general_utils import get_user_id_from_token
-from backend.models import ActivityProgress
+from backend.hints.utils import validate_hint
+from backend.models import ActivityProgress, Hint
 
 # Blueprint for activity progresses
 activity_progresses_bp = Blueprint("activity_progresses", __name__)
@@ -56,5 +57,45 @@ class ActivityProgressUpdate(Resource):
                }, 200
 
 
+# Class to handle the activity progress' hints
+class ActivityProgressHints(Resource):
+    method_decorators = [roles_accepted("Student")]
+
+    # Function to unlock a hint by its hint_id
+    def put(self, activity_id, hint_id):
+        current_user_id = get_user_id_from_token()
+        activity_error = validate_activity(activity_id)
+
+        if activity_error:
+            return {
+                       "message": "Activity does not exist"
+                   }, 404
+        else:
+            student_activity_prog = ActivityProgress.query.filter_by(student_id=current_user_id,
+                                                                     activity_id=activity_id).first()
+            if not student_activity_prog:
+                return {
+                    "message": "Activity progress does not exist"
+                }, 404
+            else:
+
+                hint_error = validate_hint(hint_id)
+
+                if not hint_error:
+                    return {
+                               "message": "Hint does not exist"
+                           }, 404
+                else:
+                    hint = Hint.query.get(hint_id)
+
+                    unlock_message = unlock_hint(student_activity_prog, hint)
+                    db.session.commit()
+
+                    return {
+                               "message": unlock_message
+                           }, 200
+
+
 # Creates the routes for the classes
 api.add_resource(ActivityProgressUpdate, "/activities/<int:activity_id>/progress")
+api.add_resource(ActivityProgressHints, "/activities/<int:activity_id>/hints/<int:hint_id>")

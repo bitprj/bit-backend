@@ -5,8 +5,8 @@ from marshmallow import fields
 
 # This schema is used to display the current card's hints data
 class ActivityProgressCardHints(ma.ModelSchema):
-    hints_locked = fields.Nested("HintSchema", only=("id", "contentful_id", "name"), many=True)
-    hints_unlocked = fields.Nested("HintSchema", only=("id", "contentful_id", "name"), many=True)
+    hints_locked = fields.Nested("HintSchema", only=("id", "contentful_id", "name", "hint_children"), many=True)
+    hints_unlocked = fields.Nested("HintSchema", only=("id", "contentful_id", "name", "hint_children"), many=True)
 
     class Meta:
         # Fields to show when sending data

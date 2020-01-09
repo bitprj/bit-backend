@@ -44,3 +44,25 @@ def edit_hint(hint, contentful_data):
         hint.hint_children = assign_hints_to_parent_hint(contentful_data["parameters"]["children_hints"]["en-US"])
 
     return
+
+
+# Function to get all hint_children from a list of hints
+def get_hint_children(hints):
+    all_hints = []
+
+    for hint in hints:
+        all_hints += hint.hint_children
+
+    all_hints += hints
+
+    return all_hints
+
+
+# Function to validate a hint
+def validate_hint(hint_id):
+    hint = Hint.query.get(hint_id)
+
+    if not hint:
+        return False
+
+    return True
