@@ -1,12 +1,10 @@
 from flask import (Blueprint, request)
-from flask_praetorian.decorators import roles_accepted
 from flask_restful import Resource
 from backend import api, db
 from backend.activity_progresses.utils import is_activity_completed
 from backend.checkpoint_progresses.utils import fill_in_checkpoint_progress
 from backend.general_utils import get_user_id_from_token, get_user_id
 from backend.models import Checkpoint, CheckpointProgress
-import ast
 
 # Blueprint for checkpoints
 checkpoint_progresses_bp = Blueprint("checkpoint_progresses", __name__)
