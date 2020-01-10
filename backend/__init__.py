@@ -6,6 +6,7 @@ from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 from backend.config import *
 from contentful_management import Client
+import pusher
 
 app = Flask(__name__)
 
@@ -22,7 +23,12 @@ guard = Praetorian()
 ma = Marshmallow()
 migrate = Migrate(app, db)
 contentful_client = Client(CONTENT_MANGEMENT_API_KEY)
-
+pusher_client = pusher.Pusher(
+    app_id=PUSHER_APP_ID,
+    key=PUSHER_KEY,
+    secret=PUSHER_SECRET,
+    cluster=PUSHER_CLUSTER,
+    ssl=True)
 
 from backend.models import User
 
