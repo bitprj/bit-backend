@@ -2,7 +2,17 @@ from backend import db
 from backend.cards.utils import get_cards_hints
 from backend.checkpoints.utils import create_checkpoint_progresses
 from backend.hints.utils import get_hint_children
-from backend.models import Activity, ActivityProgress, CheckpointProgress
+from backend.models import Activity, ActivityProgress, CheckpointProgress, HintStatus
+
+
+# Function to create a list of HintStatus Models based on an array of hints
+def create_hint_status(activity_prog, hints):
+    for hint in hints:
+        hint_status = HintStatus(activity_progress_id=activity_prog.id,
+                                 is_locked=False)
+        hint_status.hint = hint
+
+    return
 
 
 # Function to create an ActivityProgress
@@ -13,8 +23,7 @@ def create_progress(activity_id, current_user_id):
     activity = Activity.query.get(activity_id)
     activity_prog.checkpoints = create_checkpoint_progresses(activity.checkpoints, current_user_id)
     activity.cards.sort(key=lambda x: x.order)
-    # Fills in the hints and cards as locked in the activity progress
-    activity_prog.hints_locked = get_cards_hints(activity.cards)
+    # activity_prog.hints_locked = get_cards_hints(activity.cards)
     next_card = activity.cards[0]
     activity_prog.cards_locked = activity.cards
     activity_prog.cards_locked.pop(0)
@@ -51,6 +60,7 @@ def is_activity_completed(activity_progress_id, student_id):
         return
 
     activity_progress.is_completed = True
+    activity_progress.is_graded = False
 
     return
 

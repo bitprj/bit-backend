@@ -4,7 +4,8 @@ from flask_restful import Resource
 from backend import api, db
 from backend.activities.utils import validate_activity
 from backend.activity_progresses.schemas import activity_progress_schema
-from backend.activity_progresses.utils import create_progress, unlock_hint
+from backend.activity_progresses.utils import create_progress, unlock_hint, create_hint_status
+from backend.cards.utils import get_cards_hints
 from backend.general_utils import get_user_id_from_token
 from backend.hints.utils import validate_hint
 from backend.models import ActivityProgress, Hint
@@ -34,6 +35,11 @@ class ActivityProgressUpdate(Resource):
             # Create Activity Progress if it does not exist
             activity_prog = create_progress(activity_id, current_user_id)
             db.session.add(activity_prog)
+            db.session.commit()
+
+            # Fills in the hints and cards as locked in the activity progress
+            hints = get_cards_hints(activity_prog.activity.cards)
+            create_hint_status(activity_prog, hints)
             db.session.commit()
 
             return activity_progress_schema.dump(activity_prog)
