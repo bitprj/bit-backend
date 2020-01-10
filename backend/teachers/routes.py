@@ -6,7 +6,8 @@ from backend.activity_progresses.schemas import activity_progress_submission_sch
 from backend.classrooms.utils import owns_classroom, validate_classroom
 from backend.general_utils import get_user_id_from_token
 from backend.models import ActivityProgress, Classroom
-from backend.teachers.utils import assign_comments, get_activities
+from backend.teachers.utils import assign_comments, get_activities, pusher_activity
+from datetime import datetime
 
 # Blueprint for teachers
 teachers_bp = Blueprint("teachers", __name__)
@@ -78,7 +79,11 @@ class TeacherAssignments(Resource):
                         activity_progress.is_passed = True
 
                     activity_progress.is_graded = True
+                    activity_progress.date_graded = datetime.now().date()
                     db.session.commit()
+
+                    pusher_activity(activity_progress)
+
         return {
                    "message": "Student Activity has been graded"
                }, 200

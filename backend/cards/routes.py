@@ -2,11 +2,11 @@ from flask import (Blueprint, request)
 from flask_praetorian import roles_accepted
 from flask_restful import Resource
 from backend import api, db
-from backend.activity_progresses.utils import get_hint_data, unlock_card
-from backend.activity_progresses.schemas import activity_progress_card_hints
+from backend.activity_progresses.utils import unlock_card
 from backend.cards.schemas import card_schema
 from backend.cards.utils import create_card, delete_card, edit_card
 from backend.general_utils import get_user_id_from_token
+from backend.hints.schemas import hint_status_schemas
 from backend.models import ActivityProgress, Card
 
 # Blueprint for cards
@@ -94,9 +94,8 @@ class CardGetHints(Resource):
                     db.session.commit()
 
                 student_activity_prog.last_card_completed = card.id
-                hints = get_hint_data(student_activity_prog, card)
 
-                return activity_progress_card_hints.dump(hints)
+                return hint_status_schemas.dump(student_activity_prog.hints)
             return {
                        "message": "Card does not belong in activity"
                    }, 500

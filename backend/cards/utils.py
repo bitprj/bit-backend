@@ -1,7 +1,6 @@
 from backend import contentful_client
 from backend.models import Card
 from backend.config import SPACE_ID
-from backend.hints.utils import get_hint_children
 from backend.prereqs.fetch import get_concepts, get_hints
 
 
@@ -44,12 +43,8 @@ def edit_card(card, contentful_data):
 # Function to get all the card's hints
 def get_cards_hints(cards):
     hints = []
-    all_hints = []
 
     for card in cards:
         hints += card.hints
 
-    # gets the hint's children hints and adds it to all_hints
-    all_hints += get_hint_children(hints)
-
-    return all_hints
+    return hints

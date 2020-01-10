@@ -37,20 +37,6 @@ activity_progress_unlocked_cards_rel = db.Table("activity_progress_unlocked_card
                                                 db.Column("card_id", db.Integer, db.ForeignKey("card.id")),
                                                 )
 
-# This many to many relationship keeps track of the activity progress' locked hints
-activity_progress_locked_hints_rel = db.Table("activity_progress_locked_hints_rel",
-                                              db.Column("activity_progress_id", db.Integer,
-                                                        db.ForeignKey("activity_progress.id")),
-                                              db.Column("hint_id", db.Integer, db.ForeignKey("hint.id")),
-                                              )
-
-# This many to many relationship keeps track of the activity progress' locked hints
-activity_progress_unlocked_hints_rel = db.Table("activity_progress_unlocked_hints_rel",
-                                                db.Column("activity_progress_id", db.Integer,
-                                                          db.ForeignKey("activity_progress.id")),
-                                                db.Column("hint_id", db.Integer, db.ForeignKey("hint.id")),
-                                                )
-
 # This many to many relationship is used to keep track of which card belongs to a concept and vice versa
 card_concept_rel = db.Table("card_concept_rel",
                             db.Column("card_id", db.Integer, db.ForeignKey("card.id")),
@@ -296,15 +282,11 @@ class Hint(db.Model):
     card_id = db.Column(db.Integer, db.ForeignKey("card.id"))
     card = db.relationship("Card", back_populates="hints")
     parent_hint_id = db.Column(db.Integer, db.ForeignKey("hint.id"), nullable=True)
-    hint_children = db.relationship("Hint", cascade="all,delete", backref=db.backref('parent_hint', remote_side='Hint.id'))
+    hint_children = db.relationship("Hint", cascade="all,delete",
+                                    backref=db.backref('parent_hint', remote_side='Hint.id'))
     # steps keep track of which steps a hint owns
     steps = db.relationship("Step", cascade="all,delete", back_populates="hint")
-    # activity_locked_hints keep track of all the activities locked hints
-    activity_locked_hints = db.relationship("ActivityProgress", secondary="activity_progress_locked_hints_rel",
-                                            back_populates="hints_locked")
-    # activity_locked_hints keep track of all the activities unlocked hints
-    activity_unlocked_hints = db.relationship("ActivityProgress", secondary="activity_progress_unlocked_hints_rel",
-                                              back_populates="hints_unlocked")
+    activity_progresses = db.relationship("HintStatus", back_populates="hint")
 
     def __init__(self, contentful_id):
         self.contentful_id = contentful_id
@@ -516,7 +498,7 @@ class ActivityProgress(db.Model):
     is_passed = db.Column(db.Boolean, nullable=False, default=False)
     # last_card_completed is last card completed from an activity
     last_card_completed = db.Column(db.Integer, nullable=True)
-    submitted_video = db.Column(db.Text, nullable=True)
+    date_graded = db.Column(db.Date, nullable=True)
 
     # cards_locked keeps track os the progresses' locked cards
     cards_locked = db.relationship("Card", secondary="activity_progress_locked_cards_rel",
@@ -524,12 +506,7 @@ class ActivityProgress(db.Model):
     # cards_locked keeps track os the progresses' unlocked cards
     cards_unlocked = db.relationship("Card", secondary="activity_progress_unlocked_cards_rel",
                                      back_populates="activity_unlocked_cards")
-    # hints_locked keeps track os the progresses' locked hints
-    hints_locked = db.relationship("Hint", secondary="activity_progress_locked_hints_rel",
-                                   back_populates="activity_locked_hints")
-    # hints_unlocked keeps track os the progresses' unlocked hints
-    hints_unlocked = db.relationship("Hint", secondary="activity_progress_unlocked_hints_rel",
-                                     back_populates="activity_unlocked_hints")
+    hints = db.relationship("HintStatus", cascade="all,delete", back_populates="activity")
     # checkpoints_incomplete keeps track of the incomplete checkpoints by the student
     checkpoints = db.relationship("CheckpointProgress", cascade="all,delete",
                                   back_populates="activity_checkpoints_progress")
@@ -564,6 +541,21 @@ class CheckpointProgress(db.Model):
     # activity_passed keeps track of a passed checkpoint progress
     activity_passed = db.relationship("ActivityProgress", secondary="activity_progress_checkpoint_passed_rel",
                                       back_populates="checkpoints_passed")
+
+
+# Association object for Hint and Activity Progress. Keeps track of which hint is locked
+class HintStatus(db.Model):
+    id = db.Column('id', db.Integer, primary_key=True)
+    activity_progress_id = db.Column(db.Integer, db.ForeignKey("activity_progress.id"))
+    hint_id = db.Column(db.Integer, db.ForeignKey('hint.id'))
+    is_unlocked = db.Column(db.Boolean, nullable=False, default=False)
+
+    # hint children and parent_hint_id allows a one to many relationship on itself
+    parent_hint_id = db.Column(db.Integer, db.ForeignKey("hint_status.id"), nullable=True)
+    hint_children = db.relationship("HintStatus", cascade="all,delete",
+                                    backref=db.backref('parent_hint', remote_side='HintStatus.id'))
+    hint = db.relationship("Hint", back_populates="activity_progresses")
+    activity = db.relationship("ActivityProgress", back_populates="hints")
 
 
 # Association object for modules and badges. This is for prerequisites
