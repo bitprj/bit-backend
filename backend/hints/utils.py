@@ -1,6 +1,6 @@
-from backend import contentful_client
+from backend import contentful_client, db
 from backend.config import SPACE_ID
-from backend.models import Hint
+from backend.models import Hint, HintStatus
 from backend.prereqs.fetch import get_steps
 
 
@@ -21,6 +21,24 @@ def create_hint(contentful_data):
                 )
 
     return hint
+
+
+# Function to create a list of HintStatus Models based on an array of hints
+def create_hint_status(activity_prog, hints):
+    for hint in hints:
+        hint_status = HintStatus(activity_progress_id=activity_prog.id,
+                                 is_unlocked=False)
+        hint_status.hint = hint
+
+        db.session.commit()
+
+        for children_hint in hint.hint_children:
+            child_hint_status = HintStatus(activity_progress_id=activity_prog.id,
+                                           parent_hint_id=hint_status.id,
+                                           is_unlocked=False)
+            child_hint_status.hint = children_hint
+
+    return
 
 
 # Function to delete a hint's relationship
@@ -44,18 +62,6 @@ def edit_hint(hint, contentful_data):
         hint.hint_children = assign_hints_to_parent_hint(contentful_data["parameters"]["children_hints"]["en-US"])
 
     return
-
-
-# Function to get all hint_children from a list of hints
-def get_hint_children(hints):
-    all_hints = []
-
-    for hint in hints:
-        all_hints += hint.hint_children
-
-    all_hints += hints
-
-    return all_hints
 
 
 # Function to validate a hint
