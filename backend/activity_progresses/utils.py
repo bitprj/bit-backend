@@ -1,18 +1,5 @@
-from backend import db
-from backend.cards.utils import get_cards_hints
 from backend.checkpoints.utils import create_checkpoint_progresses
-from backend.hints.utils import get_hint_children
 from backend.models import Activity, ActivityProgress, CheckpointProgress, HintStatus
-
-
-# Function to create a list of HintStatus Models based on an array of hints
-def create_hint_status(activity_prog, hints):
-    for hint in hints:
-        hint_status = HintStatus(activity_progress_id=activity_prog.id,
-                                 is_locked=False)
-        hint_status.hint = hint
-
-    return
 
 
 # Function to create an ActivityProgress
@@ -23,7 +10,6 @@ def create_progress(activity_id, current_user_id):
     activity = Activity.query.get(activity_id)
     activity_prog.checkpoints = create_checkpoint_progresses(activity.checkpoints, current_user_id)
     activity.cards.sort(key=lambda x: x.order)
-    # activity_prog.hints_locked = get_cards_hints(activity.cards)
     next_card = activity.cards[0]
     activity_prog.cards_locked = activity.cards
     activity_prog.cards_locked.pop(0)
@@ -31,21 +17,6 @@ def create_progress(activity_id, current_user_id):
     activity_prog.last_card_completed = next_card.id
 
     return activity_prog
-
-
-# Function to get the hint data based on a card
-def get_hint_data(student_activity_prog, target_card):
-    card_hints = set(get_hint_children(target_card.hints))
-    locked_card_hints = set(student_activity_prog.hints_locked).intersection(card_hints)
-    unlocked_card_hints = set(student_activity_prog.hints_unlocked).intersection(card_hints)
-    db.session.commit()
-
-    hints = {
-        "hints_locked": locked_card_hints,
-        "hints_unlocked": unlocked_card_hints
-    }
-
-    return hints
 
 
 # Function to check if the ActivityProgress is completed by checking if all the checkpoints are completed
@@ -77,10 +48,11 @@ def unlock_card(student_activity_prog, next_card):
 
 # Function to unlock a hint
 def unlock_hint(student_activity_prog, hint):
-    if hint in student_activity_prog.hints_locked:
-        student_activity_prog.hints_unlocked.append(hint)
-        student_activity_prog.hints_locked.remove(hint)
+    hint_status = HintStatus.query.filter_by(hint_id=hint.id, activity_progress_id=student_activity_prog.id).first()
 
-        return "Hint unlocked!"
+    if hint_status.is_unlocked:
+        return "Hint already unlocked"
 
-    return "Hint is not locked"
+    hint_status.is_unlocked = True
+
+    return "Hint unlocked!"

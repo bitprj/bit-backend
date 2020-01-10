@@ -3,17 +3,6 @@ from backend.checkpoint_progresses.schemas import CheckpointProgressSchema
 from marshmallow import fields
 
 
-# This schema is used to display the current card's hints data
-class ActivityProgressCardHints(ma.ModelSchema):
-    hints_locked = fields.Nested("HintSchema", only=("id", "contentful_id", "name", "hint_children"), many=True)
-    hints_unlocked = fields.Nested("HintSchema", only=("id", "contentful_id", "name", "hint_children"), many=True)
-
-    class Meta:
-        # Fields to show when sending data
-        fields = ("hints_locked", "hints_unlocked")
-        ordered = True
-
-
 # This schema is used to grade a student's activity
 class ActivityProgressGradingSchema(ma.ModelSchema):
     activity_progress_id = fields.Int(required=True)
@@ -58,7 +47,6 @@ class ActivityProgressSchema(ma.ModelSchema):
         ordered = True
 
 
-activity_progress_card_hints = ActivityProgressCardHints()
 activity_progress_schema = ActivityProgressSchema()
 activity_progress_submission_schema = ActivityProgressSubmissionSchema(many=True)
 activity_progress_grading_schema = ActivityProgressGradingSchema()
