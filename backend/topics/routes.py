@@ -5,6 +5,7 @@ from backend import api, db
 from backend.general_utils import get_user_id_from_token
 from backend.models import Module, Student, Topic
 from backend.modules.utils import validate_module
+from backend.topics.decorators import topic_delete, topic_exists, topic_exists_in_contentful
 from backend.topics.schemas import topic_schema, topic_progress_schema
 from backend.topics.utils import create_topic, delete_topic, edit_topic, get_topic_progress, validate_topic
 
@@ -14,6 +15,8 @@ topics_bp = Blueprint("topics", __name__)
 
 # Class for topic CRUD routes
 class TopicCRUD(Resource):
+    method_decorators = [topic_exists_in_contentful]
+
     # Function to create a topic
     def post(self):
         contentful_data = request.get_json()
@@ -28,10 +31,6 @@ class TopicCRUD(Resource):
     def put(self):
         contentful_data = request.get_json()
         topic = Topic.query.filter_by(contentful_id=contentful_data["entityId"]).first()
-
-        if not topic:
-            return {"message": "Topic does not exist"}, 404
-
         edit_topic(topic, contentful_data)
 
         db.session.commit()
@@ -39,32 +38,30 @@ class TopicCRUD(Resource):
         return {"message": "Topic successfully updated"}, 200
 
 
-# Function to get a specific Topic based on topic id
-class TopicGetSpecific(Resource):
-    def get(self, topic_id):
-        topic = Topic.query.get(topic_id)
-
-        if not topic:
-            return {"message": "Topic does not exist"}, 404
-
-        return topic_schema.dump(topic)
-
-
 # This class is used to delete an topic with a POST request
 class TopicDelete(Resource):
+    method_decorators = [topic_delete]
+
     # Function to delete a topic!!
     def post(self):
         contentful_data = request.get_json()
         topic = Topic.query.filter_by(contentful_id=contentful_data["entityId"]).first()
-
-        if not topic:
-            return {"message": "Topic does not exist"}, 404
         delete_topic(topic)
 
         db.session.delete(topic)
         db.session.commit()
 
         return {"message": "Topic successfully deleted"}, 200
+
+
+# Function to get a specific Topic based on topic id
+class TopicGetSpecific(Resource):
+    method_decorators = [topic_exists]
+
+    def get(self, topic_id):
+        topic = Topic.query.get(topic_id)
+
+        return topic_schema.dump(topic)
 
 
 # Class for topic progress
