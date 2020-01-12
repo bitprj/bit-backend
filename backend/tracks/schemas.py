@@ -22,11 +22,12 @@ class TrackSchema(ma.Schema):
 class TrackProgressSchema(ma.Schema):
     completed_topics = fields.Nested("TopicSchema", only=("id", "name"), many=True)
     incomplete_topics = fields.Nested("TopicSchema", only=("id", "name"), many=True)
+    inprogress_topics = fields.Nested("TopicSchema", only=("id", "name"), many=True)
     topic = fields.Nested("TopicSchema", only=("id", "name"), missing=None, many=False)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("completed_topics", "incomplete_topics", "topic")
+        fields = ("completed_topics", "incomplete_topics", "inprogress_topics", "topic")
         ordered = True
 
 

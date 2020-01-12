@@ -51,6 +51,7 @@ from backend.students.routes import students_bp
 from backend.teachers.routes import teachers_bp
 from backend.topics.routes import topics_bp
 from backend.tracks.routes import tracks_bp
+from backend.track_progresses.routes import track_progresses_bp
 
 app.register_blueprint(activities_bp)
 app.register_blueprint(activity_progresses_bp)
@@ -69,3 +70,4 @@ app.register_blueprint(students_bp)
 app.register_blueprint(teachers_bp)
 app.register_blueprint(topics_bp)
 app.register_blueprint(tracks_bp)
+app.register_blueprint(track_progresses_bp)
