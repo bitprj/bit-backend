@@ -42,7 +42,6 @@ def can_complete_topic(f):
 
         if topic:
             can_complete = completed_modules(student, topic.modules)
-            
             if can_complete:
                 return f(*args, **kwargs)
             else:
