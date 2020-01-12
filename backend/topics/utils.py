@@ -3,6 +3,18 @@ from backend.prereqs.fetch import get_activities, get_modules
 from backend.prereqs.utils import assign_badge_prereqs, delete_badge_prereqs
 
 
+# Function to check if a student has completed the required modules for a topic
+def completed_modules(student, modules):
+    student_modules = set(student.completed_modules)
+    modules_set = set(modules)
+    modules_completed = student_modules.intersection(modules_set)
+
+    if modules_completed == modules_set:
+        return True
+
+    return False
+
+
 # Function to create a topic
 def create_topic(contentful_data):
     topic = Topic(contentful_id=contentful_data["entityId"]

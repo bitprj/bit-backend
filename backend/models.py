@@ -52,7 +52,13 @@ student_topic_completed_rel = db.Table("student_topic_completed_rel",
 # This many to many relationship is used to keep track of all of the topics that a student has not completed
 student_topic_incomplete_rel = db.Table("student_topic_incomplete_rel",
                                         db.Column("student_id", db.Integer, db.ForeignKey("student.id")),
-                                        db.Column("track_id", db.Integer, db.ForeignKey("topic.id"))
+                                        db.Column("topic_id", db.Integer, db.ForeignKey("topic.id"))
+                                        )
+
+# This many to many relationship is used to keep track of all of the topics that a student is currently working on
+student_topic_inprogress_rel = db.Table("student_topic_inprogress_rel",
+                                        db.Column("student_id", db.Integer, db.ForeignKey("student.id")),
+                                        db.Column("topic_id", db.Integer, db.ForeignKey("topic.id"))
                                         )
 
 # This many to many relationship is used to keep track of all of the activities that a student has completed
@@ -357,14 +363,15 @@ class Topic(db.Model):
     module_prereqs = db.relationship("Module", secondary="topic_module_prereqs", back_populates="topic_prereqs")
     # required tracks keep track of the required tracks that need to be completed by the user
     required_tracks = db.relationship("Track", secondary="track_topic_reqs", back_populates="required_topics")
-    # students keep track of the students current topic
-    students = db.relationship("Student", back_populates="topic")
     # students_completed keeps track of which students have completed a topic
     students_completed = db.relationship("Student", secondary="student_topic_completed_rel",
                                          back_populates="completed_topics")
     # students_incomplete keeps track of the students who have not completed a topic
     students_incomplete = db.relationship("Student", secondary="student_topic_incomplete_rel",
                                           back_populates="incomplete_topics")
+    # students_inprogress keeps track of the students that are currently on a topic
+    students_inprogress = db.relationship("Student", secondary="student_topic_inprogress_rel",
+                                          back_populates="inprogress_topics")
 
     def __init__(self, contentful_id):
         self.contentful_id = contentful_id
@@ -455,9 +462,9 @@ class Student(User):
     # incomplete_topics keeps track of all the topics that a student has not completed
     incomplete_topics = db.relationship("Topic", secondary="student_topic_incomplete_rel",
                                         back_populates="students_incomplete")
-    # topic is used to show the students current topic
-    current_topic_id = db.Column(db.Integer, db.ForeignKey("topic.id"))
-    topic = db.relationship("Topic", back_populates="students")
+    # inprogress_topics keeps track of all the topics that a student has not completed
+    inprogress_topics = db.relationship("Topic", secondary="student_topic_inprogress_rel",
+                                        back_populates="students_inprogress")
     # current_track is used to keep track of the student's current track
     current_track_id = db.Column(db.Integer, db.ForeignKey("track.id"))
     current_track = db.relationship("Track", back_populates="students")
