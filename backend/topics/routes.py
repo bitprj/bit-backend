@@ -1,5 +1,5 @@
 from flask import (Blueprint, request)
-from flask_praetorian.decorators import roles_accepted
+from flask_praetorian.decorators import auth_required, roles_accepted
 from flask_restful import Resource
 from backend import api, db
 from backend.general_utils import get_user_id_from_token
@@ -56,7 +56,7 @@ class TopicDelete(Resource):
 
 # Function to get a specific Topic based on topic id
 class TopicGetSpecific(Resource):
-    method_decorators = [topic_exists]
+    method_decorators = [topic_exists, auth_required]
 
     def get(self, topic_id):
         topic = Topic.query.get(topic_id)

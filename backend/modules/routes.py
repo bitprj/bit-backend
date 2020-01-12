@@ -1,8 +1,9 @@
 from flask import (Blueprint, request)
-from flask_praetorian.decorators import roles_accepted
+from flask_praetorian.decorators import auth_required, roles_accepted
 from flask_restful import Resource
 from backend import api, db
 from backend.general_utils import get_user_id_from_token
+from backend.modules.decorators import module_delete, module_exists, module_exists_in_contentful
 from backend.modules.schemas import module_schema, module_progress_schema
 from backend.modules.utils import create_module, edit_module, get_module_progress, validate_module
 from backend.models import Activity, Module, Student
@@ -13,6 +14,8 @@ modules_bp = Blueprint("modules", __name__)
 
 # Class for module CRUD routes
 class ModuleCRUD(Resource):
+    method_decorators = [module_exists_in_contentful]
+
     # Function to create a module
     def post(self):
         contentful_data = request.get_json()
@@ -27,10 +30,6 @@ class ModuleCRUD(Resource):
     def put(self):
         contentful_data = request.get_json()
         module = Module.query.filter_by(contentful_id=contentful_data["entityId"]).first()
-
-        if not module:
-            return {"message": "Module does not exist"}, 404
-
         edit_module(module, contentful_data)
 
         db.session.commit()
@@ -38,31 +37,29 @@ class ModuleCRUD(Resource):
         return {"message": "Module successfully updated"}, 200
 
 
-# Function to get a specific Module based on module id
-class ModuleGetSpecific(Resource):
-    def get(self, module_id):
-        module = Module.query.get(module_id)
-
-        if not module:
-            return {"message": "Module does not exist"}, 404
-
-        return module_schema.dump(module)
-
-
 # This class is used to delete an module with a POST request
 class ModuleDelete(Resource):
+    method_decorators = [module_delete]
+
     # Function to delete a module!!
     def post(self):
         contentful_data = request.get_json()
         module = Module.query.filter_by(contentful_id=contentful_data["entityId"]).first()
 
-        if not module:
-            return {"message": "Module does not exist"}, 404
-
         db.session.delete(module)
         db.session.commit()
 
         return {"message": "Module successfully deleted"}, 200
+
+
+# Function to get a specific Module based on module id
+class ModuleGetSpecific(Resource):
+    method_decorators = [auth_required, module_exists]
+
+    def get(self, module_id):
+        module = Module.query.get(module_id)
+
+        return module_schema.dump(module)
 
 
 # Class for module progress
