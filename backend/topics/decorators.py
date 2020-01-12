@@ -1,8 +1,78 @@
 from flask import request
 from backend import contentful_client
 from backend.config import SPACE_ID
-from backend.models import Topic
+from backend.general_utils import get_user_id_from_token
+from backend.models import Student, Topic
+from backend.topics.utils import completed_modules
 from functools import wraps
+
+
+# Decorator to check if a student is allowed to access a module or not
+def can_add_topic(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        current_user_id = get_user_id_from_token()
+        student = Student.query.get(current_user_id)
+        topic = Topic.query.get(kwargs['topic_id'])
+
+        if topic:
+            can_add = completed_modules(student, topic.module_prereqs)
+
+            if can_add:
+                return f(*args, **kwargs)
+            else:
+                return {
+                           "message": "You have not completed the prerequisites for this topic"
+                       }, 500
+        else:
+            return {
+                       "message": "Topic does not exist"
+                   }, 404
+
+    return wrap
+
+
+# Decorator to check if a student is allowed to complete a topic
+def can_complete_topic(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        current_user_id = get_user_id_from_token()
+        student = Student.query.get(current_user_id)
+        topic = Topic.query.get(kwargs['topic_id'])
+
+        if topic:
+            can_complete = completed_modules(student, topic.modules)
+            
+            if can_complete:
+                return f(*args, **kwargs)
+            else:
+                return {
+                           "message": "You have not completed enough modules to pass the topic"
+                       }, 500
+        else:
+            return {
+                       "message": "Topic does not exist"
+                   }, 404
+
+    return wrap
+
+
+# Decorator to check if a student has already completed a topic
+def has_completed_topic(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        current_user_id = get_user_id_from_token()
+        student = Student.query.get(current_user_id)
+        topic = Topic.query.get(kwargs['topic_id'])
+
+        if topic in student.completed_topics and topic not in student.inprogress_topics:
+            return {
+                       "message": "Topic already completed"
+                   }, 500
+
+        return f(*args, **kwargs)
+
+    return wrap
 
 
 # Decorator to check if a topic exists
