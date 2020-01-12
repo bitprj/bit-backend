@@ -56,7 +56,7 @@ class TopicDelete(Resource):
 
 # Function to get a specific Topic based on topic id
 class TopicGetSpecific(Resource):
-    method_decorators = [topic_exists, auth_required]
+    method_decorators = [auth_required, topic_exists]
 
     def get(self, topic_id):
         topic = Topic.query.get(topic_id)

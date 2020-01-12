@@ -21,16 +21,15 @@ def add_cards(activity, contentful_data):
 
 # Function to add checkpoints to activities
 def add_checkpoints(activity, contentful_data):
-    checkpoint_list = contentful_data["parameters"]["checkpoints"]["en-US"]
-    checkpoints = []
+    if "checkpoints" in contentful_data["parameters"]:
+        checkpoint_list = contentful_data["parameters"]["checkpoints"]["en-US"]
+        checkpoints = []
 
-    if checkpoint_list:
         for checkpoint in checkpoint_list:
             contentful_id = checkpoint["sys"]["id"]
             target_checkpoint = Checkpoint.query.filter_by(contentful_id=contentful_id).first()
             checkpoints.append(target_checkpoint)
-
-    activity.checkpoints = checkpoints
+        activity.checkpoints = checkpoints
 
     return
 
