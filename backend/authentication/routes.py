@@ -1,12 +1,10 @@
 from flask import (Blueprint, jsonify, request)
-from flask_jwt_extended import create_access_token, set_access_cookies
+from flask_jwt_extended import create_access_token, jwt_required, set_access_cookies, unset_jwt_cookies, \
+    get_jwt_identity
 from flask_restful import Resource
-from flask_praetorian import auth_required, roles_required
-from backend import api, db
-from backend.authentication.schemas import user_form_schema
+from backend import api, db, jwt
 from backend.authentication.utils import create_user
-from backend.authentication.decorators import user_exists
-from backend.authentication.validators import check_user_existence
+from backend.authentication.decorators import user_exists, valid_user_form, roles_required
 from backend.models import User
 
 # Blueprint for users
@@ -15,36 +13,20 @@ authentication_bp = Blueprint("authentication", __name__)
 
 # Class to create a user
 class UserCreate(Resource):
+    method_decorators = [valid_user_form]
+
     # Function to return data on a single user
     def post(self, user_type):
-        form_data = request.get_json()
-        errors = user_form_schema.validate(form_data)
-        # If form data is not validated by the user_form_schema, then return a 500 error
-        # else create the user and add it to the database
-        if errors:
-            return {
-                       "message": "Missing or sending incorrect data to create a " + user_type + ". Double check the JSON data that it has everything needed to create a " + user_type + "."
-                   }, 500
+        if user_type == "Student" or user_type == "Teacher" or user_type == "Admin":
+            form_data = request.get_json()
+            user = create_user(user_type, form_data)
+
+            db.session.add(user)
+            db.session.commit()
         else:
-            user_already_exist = check_user_existence(form_data["username"])
-
-            # If user exist in the database, then return an error message to
-            # tell the user to choose a different email
-            if user_already_exist:
-                return {
-                           "message": "Email already exists. Please choose another one."
-                       }, 500
-            else:
-                user = create_user(user_type, form_data)
-
-                # If the user_type is invalid then do not create the user
-                if not user:
-                    return {
-                               "message": "Type of user does not exist."
-                           }, 500
-
-                db.session.add(user)
-                db.session.commit()
+            return {
+                "message": "User type does not exist"
+            }
 
         return {"message": user_type + " successfully created"}, 202
 
@@ -57,8 +39,7 @@ class UserLoginHandler(Resource):
     def post(self):
         form_data = request.get_json()
         username = form_data["username"]
-        password = form_data["password"]
-        user = User.query.filter_by(username=username, password=password).first()
+        user = User.query.filter_by(username=username).first()
 
         # Create the tokens we will be sending back to the user
         access_token = create_access_token(identity=username)
@@ -72,17 +53,20 @@ class UserLoginHandler(Resource):
 
 # Class to logout a user
 class UserLogoutHandler(Resource):
-    # Function to invalidate the user's jwt token. This is used to log out the user
-    # Use this to invalidate the current user's access token
+    # This function works by deleting the jwt cookies associated with the user
     def delete(self):
-        return {"access_token": None}, 200
+        resp = jsonify({"logout": True})
+        unset_jwt_cookies(resp)
+
+        return resp
 
 
 class Protected(Resource):
-    method_decorators = [auth_required]
+    method_decorators = [jwt_required]
 
     # This route is to check if the user is authenticated with a jwt token
     def get(self):
+        username = get_jwt_identity()
         return jsonify({"message": "User is logged!"})
 
 
@@ -108,6 +92,15 @@ class UserIsTeacher(Resource):
     # This route is used to validate if the user is a Teacher
     def get(self):
         return jsonify({"message": "Teacher logged in!"})
+
+
+@jwt.user_claims_loader
+def add_claims_to_access_token(identity):
+    user = User.query.filter_by(username=identity).first()
+
+    return {
+        "roles": user.roles
+    }
 
 
 # Creates the routes for the classes
