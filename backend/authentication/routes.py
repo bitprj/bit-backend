@@ -1,11 +1,13 @@
 from flask import (Blueprint, jsonify, request)
+from flask_jwt_extended import create_access_token, set_access_cookies
 from flask_restful import Resource
 from flask_praetorian import auth_required, roles_required
-from backend import api, db, guard
-from backend.authentication.schemas import user_form_schema, user_login_schema
+from backend import api, db
+from backend.authentication.schemas import user_form_schema
 from backend.authentication.utils import create_user
+from backend.authentication.decorators import user_exists
 from backend.authentication.validators import check_user_existence
-from backend.general_utils import get_user_id_from_token
+from backend.models import User
 
 # Blueprint for users
 authentication_bp = Blueprint("authentication", __name__)
@@ -49,26 +51,23 @@ class UserCreate(Resource):
 
 # Class to login in a user
 class UserLoginHandler(Resource):
+    method_decorators = [user_exists]
+
     # Function to login a user through a jwt token
     def post(self):
         form_data = request.get_json()
-        errors = user_login_schema.validate(form_data)
+        username = form_data["username"]
+        password = form_data["password"]
+        user = User.query.filter_by(username=username, password=password).first()
 
-        # If form data is not validated by the user_form_schema, then return a 500 error
-        # else proceed to check if the user exists
-        if errors:
-            return {
-                       "message": "Missing or sending incorrect login data. Double check the JSON data that it has everything needed to login."
-                   }, 500
-        else:
-            username = form_data["username"]
-            password = form_data["password"]
-            user = guard.authenticate(username, password)
-            token = guard.encode_jwt_token(user)
+        # Create the tokens we will be sending back to the user
+        access_token = create_access_token(identity=username)
+        resp = jsonify({"username": username,
+                        "user_type": user.roles,
+                        "logged_in": True})
+        set_access_cookies(resp, access_token)
 
-        return {"message": "Successfully logged in!",
-                "access_token": token,
-                "user_type": user.roles}, 200
+        return resp
 
 
 # Class to logout a user

@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_jwt_extended import JWTManager
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from flask_praetorian import Praetorian
@@ -10,15 +11,20 @@ import pusher
 
 app = Flask(__name__)
 
-app.config['SECRET_KEY'] = SECRET_KEY
-app.config['JWT_ACCESS_LIFESPAN'] = {'minutes': 45}
-app.config['JWT_REFRESH_LIFESPAN'] = {'days': 1}
-app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
-app.config['SQLALCHEMY_POOL_SIZE'] = 60000
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config["SECRET_KEY"] = SECRET_KEY
+app.config["JWT_ACCESS_LIFESPAN"] = {"minutes": 45}
+app.config["JWT_REFRESH_LIFESPAN"] = {"days": 1}
+app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
+app.config["SQLALCHEMY_POOL_SIZE"] = 60000
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
+app.config["JWT_ACCESS_COOKIE_PATH"] = "/"
+app.config["JWT_COOKIE_CSRF_PROTECT"] = True
+app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
 
 api = Api(app)
 db = SQLAlchemy(app)
+jwt = JWTManager(app)
 guard = Praetorian()
 ma = Marshmallow()
 migrate = Migrate(app, db)
