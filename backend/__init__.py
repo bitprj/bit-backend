@@ -20,7 +20,8 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 app.config["JWT_ACCESS_COOKIE_PATH"] = "/"
 app.config["JWT_COOKIE_CSRF_PROTECT"] = True
-app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
+app.config['JWT_COOKIE_SECURE'] = False
+app.config["JWT_SECRET_KEY"] = SECRET_KEY
 
 api = Api(app)
 db = SQLAlchemy(app)
@@ -56,6 +57,7 @@ from backend.steps.routes import steps_bp
 from backend.students.routes import students_bp
 from backend.teachers.routes import teachers_bp
 from backend.topics.routes import topics_bp
+from backend.topic_progresses.routes import topic_progresses_bp
 from backend.tracks.routes import tracks_bp
 from backend.track_progresses.routes import track_progresses_bp
 
@@ -75,5 +77,6 @@ app.register_blueprint(steps_bp)
 app.register_blueprint(students_bp)
 app.register_blueprint(teachers_bp)
 app.register_blueprint(topics_bp)
+app.register_blueprint(topic_progresses_bp)
 app.register_blueprint(tracks_bp)
 app.register_blueprint(track_progresses_bp)

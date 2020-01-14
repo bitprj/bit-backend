@@ -59,13 +59,3 @@ def get_topic_progress(student_id, topic_id):
                        "incomplete_modules": incomplete_modules}
 
     return module_progress
-
-
-# Function to check if a topic exists in the database
-def validate_topic(track_id):
-    topic = Topic.query.get(track_id)
-
-    if not topic:
-        return True
-
-    return False
