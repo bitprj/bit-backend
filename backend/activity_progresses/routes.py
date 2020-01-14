@@ -1,7 +1,7 @@
 from flask import Blueprint
-from flask_praetorian.decorators import roles_accepted
 from flask_restful import Resource
 from backend import api, db
+from backend.authentication.decorators import roles_accepted
 from backend.activities.utils import validate_activity
 from backend.activity_progresses.schemas import activity_progress_schema
 from backend.activity_progresses.utils import create_progress, unlock_hint

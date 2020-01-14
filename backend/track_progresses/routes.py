@@ -1,7 +1,7 @@
 from flask import (Blueprint)
-from flask_praetorian.decorators import roles_accepted
 from flask_restful import Resource
 from backend import api, db
+from backend.authentication.decorators import roles_accepted
 from backend.general_utils import get_user_id_from_token
 from backend.models import Student, Topic
 from backend.topics.decorators import can_add_topic, can_complete_topic, has_completed_topic

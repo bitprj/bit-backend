@@ -1,5 +1,5 @@
 from flask import (Blueprint, request)
-from flask_praetorian import auth_required
+from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 from backend import api, db
 from backend.activities.decorators import activity_delete, activity_exists, activity_exists_in_contentful
@@ -55,7 +55,7 @@ class ActivityDelete(Resource):
 
 # Class to get all tracks
 class ActivityFetchAll(Resource):
-    method_decorators = [auth_required]
+    method_decorators = [jwt_required]
 
     # Function to get all activities
     def get(self):
@@ -66,7 +66,7 @@ class ActivityFetchAll(Resource):
 
 # This class is used to get a specific activity based on id
 class ActivityGetSpecific(Resource):
-    method_decorators = [auth_required, activity_exists]
+    method_decorators = [jwt_required, activity_exists]
 
     def get(self, activity_id):
         activity = Activity.query.get(activity_id)

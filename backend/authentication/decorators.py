@@ -7,6 +7,30 @@ from backend.authentication.validators import check_user_existence
 from functools import wraps
 
 
+# Took inspiration from flask praetorian roles accepted decorator
+# This is used to restrict a route to accept certain roles
+def roles_accepted(*accepted_rolenames):
+    def decorator(method):
+        @wraps(method)
+        def wrapper(*args, **kwargs):
+            role_set = set([str(n) for n in accepted_rolenames])
+            verify_jwt_in_request()
+            claims = get_jwt_claims()
+            user_roles = set(r.strip() for r in claims['roles'].split(','))
+
+            try:
+                MissingRoleError.require_condition(
+                    not user_roles.isdisjoint(role_set),
+                    "This endpoint requires one of the following roles: {}",
+                    [', '.join(role_set)],
+                )
+                return method(*args, **kwargs)
+            finally:
+                print("Role requirement complete")
+        return wrapper
+    return decorator
+
+
 # Took inspiration from flask praetorian roles required decorator
 # This is used to restrict routes to user roles
 def roles_required(*required_rolenames):

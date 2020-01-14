@@ -1,6 +1,5 @@
 from flask import (Blueprint, jsonify, request)
-from flask_jwt_extended import create_access_token, jwt_required, set_access_cookies, unset_jwt_cookies, \
-    get_jwt_identity
+from flask_jwt_extended import create_access_token, jwt_required, set_access_cookies, unset_jwt_cookies
 from flask_restful import Resource
 from backend import api, db, jwt
 from backend.authentication.utils import create_user
@@ -66,7 +65,6 @@ class Protected(Resource):
 
     # This route is to check if the user is authenticated with a jwt token
     def get(self):
-        username = get_jwt_identity()
         return jsonify({"message": "User is logged!"})
 
 
