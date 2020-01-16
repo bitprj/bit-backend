@@ -1,5 +1,5 @@
 from flask import (Blueprint)
-from flask_praetorian.decorators import auth_required
+from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 from backend import api, db
 from backend.tracks.decorators import *
@@ -52,7 +52,7 @@ class TrackDelete(Resource):
 
 # Class to get all tracks
 class TrackFetchAll(Resource):
-    method_decorators = [auth_required]
+    method_decorators = [jwt_required]
 
     # Function to get all tracks
     def get(self):

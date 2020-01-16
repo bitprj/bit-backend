@@ -1,14 +1,16 @@
 from flask import Blueprint
-from flask_praetorian.decorators import roles_accepted
+from flask_jwt_extended import get_jwt_identity
 from flask_restful import Resource
 from backend import api, db
-from backend.activities.utils import validate_activity
+from backend.authentication.decorators import roles_accepted
+from backend.activities.decorators import activity_exists
 from backend.activity_progresses.schemas import activity_progress_schema
 from backend.activity_progresses.utils import create_progress, unlock_hint
 from backend.cards.utils import get_cards_hints
 from backend.general_utils import get_user_id_from_token
+from backend.hints.decorators import hint_exists
 from backend.hints.utils import create_hint_status, validate_hint
-from backend.models import ActivityProgress, Hint
+from backend.models import ActivityProgress, Hint, Student
 
 # Blueprint for activity progresses
 activity_progresses_bp = Blueprint("activity_progresses", __name__)
@@ -16,24 +18,19 @@ activity_progresses_bp = Blueprint("activity_progresses", __name__)
 
 # Class to handle the activity progress model
 class ActivityProgressUpdate(Resource):
-    method_decorators = [roles_accepted("Student")]
+    method_decorators = [roles_accepted("Student"), activity_exists]
 
     # Function to return the last card completed on an activity
     def get(self, activity_id):
-        current_user_id = get_user_id_from_token()
-        activity_error = validate_activity(activity_id)
+        username = get_jwt_identity()
+        student = Student.query.filter_by(username=username).first()
 
-        if activity_error:
-            return {
-                       "message": "Activity does not exist"
-                   }, 404
-
-        student_activity_prog = ActivityProgress.query.filter_by(student_id=current_user_id,
+        student_activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
                                                                  activity_id=activity_id).first()
 
         if not student_activity_prog:
             # Create Activity Progress if it does not exist
-            activity_prog = create_progress(activity_id, current_user_id)
+            activity_prog = create_progress(activity_id, student.id)
             db.session.add(activity_prog)
             db.session.commit()
 
@@ -47,8 +44,9 @@ class ActivityProgressUpdate(Resource):
             return activity_progress_schema.dump(student_activity_prog)
 
     def delete(self, activity_id):
-        current_user_id = get_user_id_from_token()
-        student_activity_prog = ActivityProgress.query.filter_by(student_id=current_user_id,
+        username = get_jwt_identity()
+        student = Student.query.filter_by(username=username).first()
+        student_activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
                                                                  activity_id=activity_id).first()
         if not student_activity_prog:
             return {
@@ -65,41 +63,27 @@ class ActivityProgressUpdate(Resource):
 
 # Class to handle the activity progress' hints
 class ActivityProgressHints(Resource):
-    method_decorators = [roles_accepted("Student")]
+    method_decorators = [roles_accepted("Student"), activity_exists, hint_exists]
 
     # Function to unlock a hint by its hint_id
     def put(self, activity_id, hint_id):
-        current_user_id = get_user_id_from_token()
-        activity_error = validate_activity(activity_id)
+        username = get_jwt_identity()
+        student = Student.query.filter_by(username=username).first()
+        student_activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
+                                                                 activity_id=activity_id).first()
 
-        if activity_error:
+        if not student_activity_prog:
             return {
-                       "message": "Activity does not exist"
+                       "message": "Activity progress does not exist"
                    }, 404
         else:
-            student_activity_prog = ActivityProgress.query.filter_by(student_id=current_user_id,
-                                                                     activity_id=activity_id).first()
-            if not student_activity_prog:
-                return {
-                    "message": "Activity progress does not exist"
-                }, 404
-            else:
+            hint = Hint.query.get(hint_id)
+            unlock_message = unlock_hint(student_activity_prog, hint)
+            db.session.commit()
 
-                hint_error = validate_hint(hint_id)
-
-                if not hint_error:
-                    return {
-                               "message": "Hint does not exist"
-                           }, 404
-                else:
-                    hint = Hint.query.get(hint_id)
-
-                    unlock_message = unlock_hint(student_activity_prog, hint)
-                    db.session.commit()
-
-                    return {
-                               "message": unlock_message
-                           }, 200
+            return {
+                       "message": unlock_message
+                   }, 200
 
 
 # Creates the routes for the classes

@@ -1,7 +1,8 @@
 from flask import (Blueprint, request)
-from flask_praetorian.decorators import auth_required, roles_accepted
+from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 from backend import api, db
+from backend.authentication.decorators import roles_required 
 from backend.general_utils import get_user_id_from_token
 from backend.modules.decorators import module_delete, module_exists, module_exists_in_contentful
 from backend.modules.schemas import module_schema, module_progress_schema
@@ -54,7 +55,7 @@ class ModuleDelete(Resource):
 
 # Function to get a specific Module based on module id
 class ModuleGetSpecific(Resource):
-    method_decorators = [auth_required, module_exists]
+    method_decorators = [jwt_required, module_exists]
 
     def get(self, module_id):
         module = Module.query.get(module_id)
@@ -64,7 +65,7 @@ class ModuleGetSpecific(Resource):
 
 # Class for module progress
 class ModuleProgress(Resource):
-    method_decorators = [roles_accepted("Student")]
+    method_decorators = [roles_required("Student")]
 
     # Function to display a student's module progress
     def get(self, module_id):
@@ -77,7 +78,6 @@ class ModuleProgress(Resource):
                    }, 500
         else:
             module_progress = get_module_progress(current_user_id, module_id)
-
             return module_progress_schema.dump(module_progress)
 
     # Function to update a student's completed_modules

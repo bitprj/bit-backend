@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_jwt_extended import JWTManager
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from flask_praetorian import Praetorian
@@ -10,15 +11,21 @@ import pusher
 
 app = Flask(__name__)
 
-app.config['SECRET_KEY'] = SECRET_KEY
-app.config['JWT_ACCESS_LIFESPAN'] = {'minutes': 45}
-app.config['JWT_REFRESH_LIFESPAN'] = {'days': 1}
-app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
-app.config['SQLALCHEMY_POOL_SIZE'] = 60000
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config["SECRET_KEY"] = SECRET_KEY
+app.config["JWT_ACCESS_LIFESPAN"] = {"minutes": 45}
+app.config["JWT_REFRESH_LIFESPAN"] = {"days": 1}
+app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
+app.config["SQLALCHEMY_POOL_SIZE"] = 60000
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
+app.config["JWT_ACCESS_COOKIE_PATH"] = "/"
+app.config["JWT_COOKIE_CSRF_PROTECT"] = True
+app.config['JWT_COOKIE_SECURE'] = False
+app.config["JWT_SECRET_KEY"] = SECRET_KEY
 
 api = Api(app)
 db = SQLAlchemy(app)
+jwt = JWTManager(app)
 guard = Praetorian()
 ma = Marshmallow()
 migrate = Migrate(app, db)
@@ -50,6 +57,7 @@ from backend.steps.routes import steps_bp
 from backend.students.routes import students_bp
 from backend.teachers.routes import teachers_bp
 from backend.topics.routes import topics_bp
+from backend.topic_progresses.routes import topic_progresses_bp
 from backend.tracks.routes import tracks_bp
 from backend.track_progresses.routes import track_progresses_bp
 
@@ -69,5 +77,6 @@ app.register_blueprint(steps_bp)
 app.register_blueprint(students_bp)
 app.register_blueprint(teachers_bp)
 app.register_blueprint(topics_bp)
+app.register_blueprint(topic_progresses_bp)
 app.register_blueprint(tracks_bp)
 app.register_blueprint(track_progresses_bp)

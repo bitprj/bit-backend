@@ -29,8 +29,6 @@ def activity_exists_in_contentful(f):
         content_type = data["contentType"]["sys"]["id"]
         activity = Activity.query.filter_by(contentful_id=data["entityId"]).first()
         contentful_activity = contentful_client.entries(SPACE_ID, 'master').find(data["entityId"])
-        print(data)
-        print(activity)
         # Checks if the activity exists in contentful and if its a activity
         # Checks if the activity exists in the db for put request
         if contentful_activity and content_type == "activity" or activity:
