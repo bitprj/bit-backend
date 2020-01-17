@@ -1,5 +1,5 @@
 from flask import (Blueprint, request)
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource
 from backend import api, db
 from backend.authentication.decorators import roles_accepted
@@ -7,9 +7,8 @@ from backend.activity_progresses.utils import unlock_card
 from backend.cards.decorators import card_delete, card_exists, card_exists_in_contentful
 from backend.cards.schemas import card_schema
 from backend.cards.utils import create_card, delete_card, edit_card
-from backend.general_utils import get_user_id_from_token
 from backend.hints.schemas import hint_status_schemas
-from backend.models import ActivityProgress, Card
+from backend.models import ActivityProgress, Card, Student
 
 # Blueprint for cards
 cards_bp = Blueprint("cards", __name__)
@@ -73,17 +72,18 @@ class CardGetHints(Resource):
 
     # Function to return data on a single card
     def get(self, activity_id, card_id):
-        current_user_id = get_user_id_from_token()
+        username = get_jwt_identity()
+        student = Student.query.filter_by(username=username).first()
         card = Card.query.get(card_id)
 
-        student_activity_prog = ActivityProgress.query.filter_by(student_id=current_user_id,
+        student_activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
                                                                  activity_id=activity_id).first()
         if card in student_activity_prog.activity.cards:
             if card in student_activity_prog.cards_locked:
                 unlock_card(student_activity_prog, card)
                 db.session.commit()
 
-            student_activity_prog.last_card_completed = card.id
+            student_activity_prog.lawhst_card_completed = card.id
 
             return hint_status_schemas.dump(student_activity_prog.hints)
         return {
