@@ -43,9 +43,8 @@ class StepDelete(Resource):
     # Function to delete a step!!
     def post(self):
         contentful_data = request.get_json()
-        print(contentful_data)
         step = Step.query.filter_by(contentful_id=contentful_data["entityId"]).first()
-        print(step)
+
         db.session.delete(step)
         db.session.commit()
 
