@@ -45,7 +45,9 @@ class ActivityDelete(Resource):
         contentful_data = request.get_json()
         activity = Activity.query.filter_by(contentful_id=contentful_data["entityId"]).first()
         delete_cards(activity.cards)
-        delete_checkpoints(activity.checkpoints)
+
+        if activity.checkpoints:
+            delete_checkpoints(activity.checkpoints)
 
         db.session.delete(activity)
         db.session.commit()
