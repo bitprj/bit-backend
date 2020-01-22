@@ -1,4 +1,5 @@
 from backend import contentful_client
+from backend.cards.utils import delete_card
 from backend.config import SPACE_ID
 from backend.models import Activity, Card, Checkpoint
 
@@ -45,6 +46,8 @@ def create_activity(contentful_data):
 # Function to delete an activity's cards
 def delete_cards(cards):
     for card in cards:
+        delete_card(card, card.checkpoint)
+
         # Unpublishes the card first then deletes the card in contentful
         card_entry = contentful_client.entries(SPACE_ID, 'master').find(card.contentful_id)
         card_entry.unpublish()

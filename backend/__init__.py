@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
@@ -29,6 +30,7 @@ jwt = JWTManager(app)
 guard = Praetorian()
 ma = Marshmallow()
 migrate = Migrate(app, db)
+CORS(app)
 contentful_client = Client(CONTENT_MANGEMENT_API_KEY)
 pusher_client = pusher.Pusher(
     app_id=PUSHER_APP_ID,

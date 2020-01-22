@@ -1,6 +1,7 @@
 from backend import contentful_client
-from backend.models import Card
+from backend.checkpoints.utils import delete_checkpoint
 from backend.config import SPACE_ID
+from backend.models import Card, Checkpoint
 from backend.prereqs.fetch import get_concepts, get_hints
 
 
@@ -13,8 +14,11 @@ def create_card(contentful_data):
 
 
 # Function to delete a card's relationships
-def delete_card(card):
+def delete_card(card, checkpoint):
     card.concepts = []
+
+    if checkpoint:
+        delete_checkpoint(checkpoint)
 
     # This is used to delete all the hints in a card in contentful
     for hint in card.hints:
@@ -30,6 +34,11 @@ def delete_card(card):
 def edit_card(card, contentful_data):
     card.name = contentful_data["parameters"]["name"]["en-US"]
     card.order = contentful_data["parameters"]["order"]["en-US"]
+
+    if "checkpoint" in contentful_data["parameters"]:
+        checkpoint = Checkpoint.query.filter_by(
+            contentful_id=contentful_data["parameters"]["checkpoint"]["en-US"]["sys"]["id"]).first()
+        card.checkpoint_id = checkpoint.id
 
     if "concepts" in contentful_data["parameters"]:
         card.concepts = get_concepts(contentful_data["parameters"]["concepts"]["en-US"])

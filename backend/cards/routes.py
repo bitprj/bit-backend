@@ -8,7 +8,7 @@ from backend.cards.decorators import card_delete, card_exists, card_exists_in_co
 from backend.cards.schemas import card_schema
 from backend.cards.utils import create_card, delete_card, edit_card
 from backend.hints.schemas import hint_status_schemas
-from backend.models import ActivityProgress, Card, Student
+from backend.models import ActivityProgress, Card, Checkpoint, Student
 
 # Blueprint for cards
 cards_bp = Blueprint("cards", __name__)
@@ -47,9 +47,11 @@ class CardDelete(Resource):
     def post(self):
         contentful_data = request.get_json()
         card = Card.query.filter_by(contentful_id=contentful_data["entityId"]).first()
-        delete_card(card)
+        checkpoint = Checkpoint.query.filter_by(contentful_id=card.checkpoint.contentful_id).first()
+        delete_card(card, checkpoint)
 
         db.session.delete(card)
+        db.session.delete(checkpoint)
         db.session.commit()
 
         return {"message": "Card successfully deleted"}, 200

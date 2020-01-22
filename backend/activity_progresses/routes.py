@@ -7,9 +7,8 @@ from backend.activities.decorators import activity_exists
 from backend.activity_progresses.schemas import activity_progress_schema
 from backend.activity_progresses.utils import create_progress, unlock_hint
 from backend.cards.utils import get_cards_hints
-from backend.general_utils import get_user_id_from_token
 from backend.hints.decorators import hint_exists
-from backend.hints.utils import create_hint_status, validate_hint
+from backend.hints.utils import create_hint_status
 from backend.models import ActivityProgress, Hint, Student
 
 # Blueprint for activity progresses
