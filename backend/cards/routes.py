@@ -25,6 +25,7 @@ class CardCRUD(Resource):
 
         db.session.add(card)
         db.session.commit()
+        print(card.id)
 
         return {"message": "Card successfully created"}, 201
 

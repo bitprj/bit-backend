@@ -197,6 +197,8 @@ class Card(db.Model):
     # activity_id and activity keeps track of which lab the card is owned by
     activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"))
     activity = db.relationship("Activity", back_populates="cards")
+    checkpoint_id = db.Column(db.Integer, db.ForeignKey("checkpoint.id"))
+    checkpoint = db.relationship("Checkpoint", back_populates="cards")
     # concepts keeps track of which concepts that the card owns
     concepts = db.relationship("Concept", secondary="card_concept_rel", back_populates="cards")
     # hints keep track of the hints that a card owns
@@ -222,6 +224,7 @@ class Checkpoint(db.Model):
     checkpoint_type = db.Column(db.Text, nullable=True)
     activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"))
     activity = db.relationship("Activity", back_populates="checkpoints")
+    cards = db.relationship("Card", back_populates="checkpoint")
     activity_progresses = db.relationship("CheckpointProgress", back_populates="checkpoint")
 
     def __init__(self, contentful_id):

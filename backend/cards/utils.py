@@ -1,5 +1,5 @@
 from backend import contentful_client
-from backend.models import Card
+from backend.models import Card, Checkpoint
 from backend.config import SPACE_ID
 from backend.prereqs.fetch import get_concepts, get_hints
 
@@ -30,6 +30,9 @@ def delete_card(card):
 def edit_card(card, contentful_data):
     card.name = contentful_data["parameters"]["name"]["en-US"]
     card.order = contentful_data["parameters"]["order"]["en-US"]
+    checkpoint = Checkpoint.query.filter_by(
+        contentful_id=contentful_data["parameters"]["checkpoint"]["en-US"]["sys"]["id"]).first()
+    card.checkpoint_id = checkpoint.id
 
     if "concepts" in contentful_data["parameters"]:
         card.concepts = get_concepts(contentful_data["parameters"]["concepts"]["en-US"])
