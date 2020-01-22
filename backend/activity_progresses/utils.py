@@ -8,7 +8,7 @@ def create_progress(activity_id, current_user_id):
                                      activity_id=activity_id)
 
     activity = Activity.query.get(activity_id)
-    activity_prog.checkpoints = create_checkpoint_progresses(activity.checkpoints, current_user_id)
+    activity_prog.checkpoints = create_checkpoint_progresses(activity.cards, current_user_id)
     activity.cards.sort(key=lambda x: x.order)
     next_card = activity.cards[0]
     activity_prog.cards_locked = activity.cards

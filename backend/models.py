@@ -15,7 +15,7 @@ activity_progress_checkpoint_failed_rel = db.Table("activity_progress_checkpoint
                                                              db.ForeignKey("checkpoint_progress.id"))
                                                    )
 
-# This many to many relationship keeps track of the activity progress' failed checkpoints
+# This many to many relationship keeps track of the activity progress' passed checkpoints
 activity_progress_checkpoint_passed_rel = db.Table("activity_progress_checkpoint_passed_rel",
                                                    db.Column("activity_progress_id", db.Integer,
                                                              db.ForeignKey("activity_progress.id")),
@@ -142,8 +142,6 @@ class Activity(db.Model):
     name = db.Column(db.Text, nullable=True)
     # cards keeps track of all the cards that is owned by an Activity
     cards = db.relationship("Card", cascade="all,delete", back_populates="activity")
-    # checkpoints keep track of all the checkpoints that are owned by an activity
-    checkpoints = db.relationship("Checkpoint", cascade="all,delete", back_populates="activity")
     # modules keeps track of all of the modules that an activity belongs to
     modules = db.relationship("Module", secondary="activity_module_rel", back_populates="activities")
     # badge_prereqs keeps track of all the badge xp that are required to an activity
@@ -222,8 +220,6 @@ class Checkpoint(db.Model):
     contentful_id = db.Column(db.Text, nullable=False)
     name = db.Column(db.Text, nullable=True)
     checkpoint_type = db.Column(db.Text, nullable=True)
-    activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"))
-    activity = db.relationship("Activity", back_populates="checkpoints")
     cards = db.relationship("Card", back_populates="checkpoint")
     activity_progresses = db.relationship("CheckpointProgress", back_populates="checkpoint")
 

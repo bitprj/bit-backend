@@ -11,15 +11,15 @@ def create_checkpoint(contentful_data):
 
 
 # Function to create CheckpointProgresses
-def create_checkpoint_progresses(checkpoints, student_id):
+def create_checkpoint_progresses(cards, student_id):
     checkpoint_progresses = []
-
-    for checkpoint in checkpoints:
-        checkpoint_prog = CheckpointProgress(checkpoint_id=checkpoint.id,
-                                             contentful_id=checkpoint.contentful_id,
-                                             student_id=student_id
-                                             )
-        checkpoint_progresses.append(checkpoint_prog)
+    for card in cards:
+        if card.checkpoint:
+            checkpoint_prog = CheckpointProgress(checkpoint_id=card.checkpoint.id,
+                                                 contentful_id=card.checkpoint.contentful_id,
+                                                 student_id=student_id
+                                                 )
+            checkpoint_progresses.append(checkpoint_prog)
 
     return checkpoint_progresses
 
