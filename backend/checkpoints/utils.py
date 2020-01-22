@@ -1,3 +1,5 @@
+from backend import contentful_client
+from backend.config import SPACE_ID
 from backend.models import Checkpoint, CheckpointProgress
 
 
@@ -20,6 +22,15 @@ def create_checkpoint_progresses(checkpoints, student_id):
         checkpoint_progresses.append(checkpoint_prog)
 
     return checkpoint_progresses
+
+
+# Function to delete a checkpoint from contentful
+def delete_checkpoint(checkpoint):
+    checkpoint_entry = contentful_client.entries(SPACE_ID, 'master').find(checkpoint.contentful_id)
+    checkpoint_entry.unpublish()
+    contentful_client.entries(SPACE_ID, 'master').delete(checkpoint.contentful_id)
+
+    return
 
 
 # Function to edit a checkpoint
