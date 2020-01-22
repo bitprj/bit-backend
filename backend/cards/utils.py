@@ -16,7 +16,9 @@ def create_card(contentful_data):
 # Function to delete a card's relationships
 def delete_card(card, checkpoint):
     card.concepts = []
-    delete_checkpoint(checkpoint)
+
+    if checkpoint:
+        delete_checkpoint(checkpoint)
 
     # This is used to delete all the hints in a card in contentful
     for hint in card.hints:
@@ -32,9 +34,11 @@ def delete_card(card, checkpoint):
 def edit_card(card, contentful_data):
     card.name = contentful_data["parameters"]["name"]["en-US"]
     card.order = contentful_data["parameters"]["order"]["en-US"]
-    checkpoint = Checkpoint.query.filter_by(
-        contentful_id=contentful_data["parameters"]["checkpoint"]["en-US"]["sys"]["id"]).first()
-    card.checkpoint_id = checkpoint.id
+
+    if "checkpoint" in contentful_data["parameters"]:
+        checkpoint = Checkpoint.query.filter_by(
+            contentful_id=contentful_data["parameters"]["checkpoint"]["en-US"]["sys"]["id"]).first()
+        card.checkpoint_id = checkpoint.id
 
     if "concepts" in contentful_data["parameters"]:
         card.concepts = get_concepts(contentful_data["parameters"]["concepts"]["en-US"])
