@@ -1,3 +1,4 @@
+from flask_jwt_extended import get_jwt_identity
 from backend.models import Classroom, Teacher
 import random
 import string
@@ -27,8 +28,9 @@ def edit_classroom(classroom, form_data):
 
 
 # Function to see if the teacher owns this classroom
-def owns_classroom(classroom_id, teacher_id):
-    teacher = Teacher.query.get(teacher_id)
+def owns_classroom(classroom_id):
+    username = get_jwt_identity()
+    teacher = Teacher.query.filter_by(username=username).first()
     classroom = Classroom.query.get(classroom_id)
 
     if classroom.teacher_id == teacher.id:
