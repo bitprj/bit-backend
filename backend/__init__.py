@@ -30,7 +30,7 @@ jwt = JWTManager(app)
 guard = Praetorian()
 ma = Marshmallow()
 migrate = Migrate(app, db)
-CORS(app)
+CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["http://localhost:3000"]}})
 contentful_client = Client(CONTENT_MANGEMENT_API_KEY)
 pusher_client = pusher.Pusher(
     app_id=PUSHER_APP_ID,

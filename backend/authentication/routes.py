@@ -43,8 +43,8 @@ class UserLoginHandler(Resource):
         # Create the tokens we will be sending back to the user
         access_token = create_access_token(identity=username)
         resp = jsonify({"username": username,
-                        "user_type": user.roles,
-                        "logged_in": True})
+                        "user_type": user.roles
+                        })
         set_access_cookies(resp, access_token)
 
         return resp
