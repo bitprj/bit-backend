@@ -8,10 +8,11 @@ class CheckpointSchema(ma.ModelSchema):
     contentful_id = fields.Str(required=True)
     name = fields.Str(required=True)
     checkpoint_type = fields.Str(required=True)
+    mc_question = fields.Nested("MCQuestionSchema", required=False, many=False)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "contentful_id", "name", "checkpoint_type")
+        fields = ("id", "contentful_id", "name", "checkpoint_type", "mc_question")
         ordered = True
 
 

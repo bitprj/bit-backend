@@ -13,6 +13,8 @@ mc_choices_bp = Blueprint("mc_choices", __name__)
 
 # Class for mc_choice CRUD routes
 class MCChoiceCRUD(Resource):
+    method_decorators = [mc_choice_exists_in_contentful]
+
     # Function to create a mc_choice
     def post(self):
         contentful_data = request.get_json()
@@ -24,7 +26,6 @@ class MCChoiceCRUD(Resource):
         return {"message": "MCChoice successfully created"}, 201
 
     # Function to edit an mc_choice
-    @mc_choice_exists_in_contentful
     def put(self):
         contentful_data = request.get_json()
         mc_choice = MCChoice.query.filter_by(contentful_id=contentful_data["entityId"]).first()

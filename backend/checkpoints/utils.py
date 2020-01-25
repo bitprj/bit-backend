@@ -1,6 +1,6 @@
 from backend import contentful_client
 from backend.config import SPACE_ID
-from backend.models import Checkpoint, CheckpointProgress
+from backend.models import Checkpoint, CheckpointProgress, MCQuestion
 
 
 # Function to choose which checkpoint to create based on type
@@ -37,5 +37,10 @@ def delete_checkpoint(checkpoint):
 def edit_checkpoint(checkpoint, contentful_data):
     checkpoint.name = contentful_data["parameters"]["name"]["en-US"]
     checkpoint.checkpoint_type = contentful_data["parameters"]["checkpointType"]["en-US"]
+
+    if checkpoint.checkpoint_type == "Multiple Choice" and "mc_question" in contentful_data["parameters"]:
+        mc_question = MCQuestion.query.filter_by(
+            contentful_id=contentful_data["parameters"]["mc_question"]["en-US"]["sys"]["id"]).first()
+        checkpoint.mc_question = mc_question
 
     return

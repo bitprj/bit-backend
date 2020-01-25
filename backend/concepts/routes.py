@@ -13,6 +13,7 @@ concepts_bp = Blueprint("concepts", __name__)
 
 # Class for concept CRUD routes
 class ConceptCRUD(Resource):
+    method_decorators = [concept_exists_in_contentful]
 
     # Function to create a concept
     def post(self):
@@ -25,7 +26,6 @@ class ConceptCRUD(Resource):
         return {"message": "Concept successfully created"}, 201
 
     # Function to edit an concept
-    @concept_exists_in_contentful
     def put(self):
         contentful_data = request.get_json()
         concept = Concept.query.filter_by(contentful_id=contentful_data["entityId"]).first()

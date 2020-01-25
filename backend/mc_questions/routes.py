@@ -13,6 +13,7 @@ mc_questions_bp = Blueprint("mc_questions", __name__)
 
 # Class to Read, Create, and Update
 class MCQuestionCRUD(Resource):
+    method_decorators = [mc_question_exists_in_contentful]
 
     # Function to create a mc_question
     def post(self):
@@ -25,7 +26,6 @@ class MCQuestionCRUD(Resource):
         return {"message": "MCQuestion successfully created"}, 201
 
     # Function to edit a mc_question
-    @mc_question_exists_in_contentful
     def put(self):
         contentful_data = request.get_json()
         mc_question = MCQuestion.query.filter_by(contentful_id=contentful_data["entityId"]).first()

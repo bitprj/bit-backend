@@ -31,7 +31,7 @@ def mc_question_exists_in_contentful(f):
         contentful_mc_question = contentful_client.entries(SPACE_ID, 'master').find(data["entityId"])
         # Checks if the mc_question exists in contentful and if its a mc_question
         # Checks if the mc_question exists in the db for put request
-        if contentful_mc_question and content_type == "mc_question" or mc_question:
+        if contentful_mc_question and content_type == "multipleChoiceQuestion" or mc_question:
             return f(*args, **kwargs)
         else:
             return {

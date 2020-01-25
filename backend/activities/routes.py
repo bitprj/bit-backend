@@ -13,6 +13,7 @@ activities_bp = Blueprint("activities", __name__)
 
 # Class for activity CRUD routes
 class ActivityCRUD(Resource):
+    method_decorators = [activity_exists_in_contentful]
 
     # Function to create a activity
     def post(self):
@@ -25,7 +26,6 @@ class ActivityCRUD(Resource):
         return {"message": "Activity successfully created"}, 201
 
     # Function to edit an activity
-    @activity_exists_in_contentful
     def put(self):
         contentful_data = request.get_json()
         activity = Activity.query.filter_by(contentful_id=contentful_data["entityId"]).first()
