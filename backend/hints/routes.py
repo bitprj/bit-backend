@@ -13,7 +13,6 @@ hints_bp = Blueprint("hints", __name__)
 
 # Class for hint CRUD routes
 class HintCRUD(Resource):
-    method_decorators = [hint_exists_in_contentful]
 
     # Function to create a hint
     def post(self):
@@ -26,6 +25,7 @@ class HintCRUD(Resource):
         return {"message": "Hint successfully created"}, 201
 
     # Function to edit an hint
+    @hint_exists_in_contentful
     def put(self):
         contentful_data = request.get_json()
         hint = Hint.query.filter_by(contentful_id=contentful_data["entityId"]).first()

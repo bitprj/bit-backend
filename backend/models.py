@@ -328,6 +328,43 @@ class Module(db.Model):
         return f"Module('{self.name}')"
 
 
+class MCChoice(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    contentful_id = db.Column(db.Text, nullable=False)
+    content = db.Column(db.Text, nullable=True)
+    # mc_question is the mc_question that a MCChoice belongs to
+    mc_question_id = db.Column(db.Integer, db.ForeignKey("mc_question.id"))
+    mc_question = db.relationship("MCQuestion", back_populates="choices", foreign_keys=[mc_question_id])
+    # correct_question is the mc_question that a MCChoice belongs to and its the right answer
+    correct_question_id = db.Column(db.Integer, db.ForeignKey("mc_question.id"))
+    correct_question = db.relationship("MCQuestion", back_populates="correct_choice",
+                                       foreign_keys=[correct_question_id])
+
+    def __init__(self, contentful_id):
+        self.contentful_id = contentful_id
+
+    def __repr__(self):
+        return f"MCChoice('{self.id}')"
+
+
+class MCQuestion(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    contentful_id = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    # Choices are the choices selected from a MCQuestion
+    choices = db.relationship("MCChoice", cascade="all,delete", back_populates="mc_question",
+                              foreign_keys="MCChoice.mc_question_id")
+    # Correct_choice is the correct choice for the MCQuestion
+    correct_choice = db.relationship("MCChoice", uselist=False, cascade="all,delete", back_populates="correct_question",
+                                     foreign_keys="MCChoice.correct_question_id")
+
+    def __init__(self, contentful_id):
+        self.contentful_id = contentful_id
+
+    def __repr__(self):
+        return f"MCQuestion('{self.id}')"
+
+
 class Step(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     contentful_id = db.Column(db.Text, nullable=False)
@@ -537,6 +574,9 @@ class CheckpointProgress(db.Model):
     video_to_receive = db.Column(db.Text, nullable=True)
     test_cases_failed = db.Column(db.Integer, nullable=True)
     test_cases_passed = db.Column(db.Integer, nullable=True)
+    short_answer_response = db.Column(db.Text, nullable=True)
+    multiple_choice_answer = db.Column(db.String(10), nullable=True)
+    multiple_choice_is_correct = db.Column(db.Boolean, nullable=True, default=False)
     comment = db.Column(db.Text, nullable=True)
     is_completed = db.Column(db.Boolean, nullable=False, default=False)
     checkpoint = db.relationship("Checkpoint", back_populates="activity_progresses")

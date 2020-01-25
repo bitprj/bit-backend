@@ -16,7 +16,6 @@ cards_bp = Blueprint("cards", __name__)
 
 # Class to Read, Create, and Update
 class CardCRUD(Resource):
-    method_decorators = [card_exists_in_contentful]
 
     # Function to create a card
     def post(self):
@@ -29,6 +28,7 @@ class CardCRUD(Resource):
         return {"message": "Card successfully created"}, 201
 
     # Function to edit a card
+    @card_exists_in_contentful
     def put(self):
         contentful_data = request.get_json()
         card = Card.query.filter_by(contentful_id=contentful_data["entityId"]).first()

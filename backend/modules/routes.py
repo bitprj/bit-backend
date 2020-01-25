@@ -15,7 +15,6 @@ modules_bp = Blueprint("modules", __name__)
 
 # Class for module CRUD routes
 class ModuleCRUD(Resource):
-    method_decorators = [module_exists_in_contentful]
 
     # Function to create a module
     def post(self):
@@ -28,6 +27,7 @@ class ModuleCRUD(Resource):
         return {"message": "Module successfully created"}, 201
 
     # Function to edit an module
+    @module_exists_in_contentful
     def put(self):
         contentful_data = request.get_json()
         module = Module.query.filter_by(contentful_id=contentful_data["entityId"]).first()

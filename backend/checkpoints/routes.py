@@ -13,7 +13,6 @@ checkpoints_bp = Blueprint("checkpoints", __name__)
 
 # Class to Read, Create, and Update
 class CheckpointCRUD(Resource):
-    method_decorators = [checkpoint_exists_in_contentful]
 
     # Function to create a checkpoint
     def post(self):
@@ -26,6 +25,7 @@ class CheckpointCRUD(Resource):
         return {"message": "Checkpoint successfully created"}, 201
 
     # Function to edit a checkpoint
+    @checkpoint_exists_in_contentful
     def put(self):
         contentful_data = request.get_json()
         checkpoint = Checkpoint.query.filter_by(contentful_id=contentful_data["entityId"]).first()

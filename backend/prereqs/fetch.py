@@ -1,4 +1,4 @@
-from backend.models import Activity, Card, Concept, Hint, Module, Step, Topic
+from backend.models import Activity, Card, Concept, Hint, MCChoice, Module, Step, Topic
 
 
 # Function to return a list of activities based on a list of activity ids
@@ -21,6 +21,17 @@ def get_cards(card_ids):
         cards.append(card)
 
     return cards
+
+
+# Function to return a list of mc_choices from a list of mc_choice ids
+def get_mc_choices(mc_choice_list):
+    mc_choices = []
+
+    for mc_choice_id in mc_choice_list:
+        mc_choice = MCChoice.query.filter_by(contentful_id=mc_choice_id["sys"]["id"]).first()
+        mc_choices.append(mc_choice)
+
+    return mc_choices
 
 
 # Function to return a list of concepts from a list of concept ids

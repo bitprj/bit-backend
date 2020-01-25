@@ -13,7 +13,6 @@ steps_bp = Blueprint("steps", __name__)
 
 # Class for step CRUD routes
 class StepCRUD(Resource):
-    method_decorators = [step_exists_in_contentful]
 
     # Function to create a step
     def post(self):
@@ -26,6 +25,7 @@ class StepCRUD(Resource):
         return {"message": "Step successfully created"}, 201
 
     # Function to edit an step
+    @step_exists_in_contentful
     def put(self):
         contentful_data = request.get_json()
         step = Step.query.filter_by(contentful_id=contentful_data["entityId"]).first()

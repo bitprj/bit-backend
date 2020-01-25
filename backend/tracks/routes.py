@@ -12,7 +12,6 @@ tracks_bp = Blueprint("tracks", __name__)
 
 # Class for track CRUD routes
 class TrackCRUD(Resource):
-    method_decorators = [track_exists_in_contentful]
 
     # Function to create a track
     def post(self):
@@ -25,6 +24,7 @@ class TrackCRUD(Resource):
         return {"message": "Track successfully created"}, 201
 
     # Function to edit an track
+    @track_exists_in_contentful
     def put(self):
         contentful_data = request.get_json()
         track = Track.query.filter_by(contentful_id=contentful_data["entityId"]).first()

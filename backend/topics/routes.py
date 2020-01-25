@@ -13,7 +13,6 @@ topics_bp = Blueprint("topics", __name__)
 
 # Class for topic CRUD routes
 class TopicCRUD(Resource):
-    method_decorators = [topic_exists_in_contentful]
 
     # Function to create a topic
     def post(self):
@@ -26,6 +25,7 @@ class TopicCRUD(Resource):
         return {"message": "Topic successfully created"}, 201
 
     # Function to edit an topic
+    @topic_exists_in_contentful
     def put(self):
         contentful_data = request.get_json()
         topic = Topic.query.filter_by(contentful_id=contentful_data["entityId"]).first()
