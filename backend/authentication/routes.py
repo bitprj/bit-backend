@@ -5,6 +5,7 @@ from backend import api, db, jwt
 from backend.authentication.utils import create_user
 from backend.authentication.decorators import user_exists, valid_user_form, roles_required
 from backend.models import User
+import requests
 
 # Blueprint for users
 authentication_bp = Blueprint("authentication", __name__)
@@ -39,12 +40,12 @@ class UserLoginHandler(Resource):
         form_data = request.get_json()
         username = form_data["username"]
         user = User.query.filter_by(username=username).first()
-
+        # log = requests.post("http://3902a27f.ngrok.io/login", json=form_data)
         # Create the tokens we will be sending back to the user
         access_token = create_access_token(identity=username)
         resp = jsonify({"username": username,
-                        "user_type": user.roles,
-                        "logged_in": True})
+                        "user_type": user.roles
+                        })
         set_access_cookies(resp, access_token)
 
         return resp

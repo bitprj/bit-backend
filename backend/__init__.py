@@ -16,7 +16,7 @@ app.config["SECRET_KEY"] = SECRET_KEY
 app.config["JWT_ACCESS_LIFESPAN"] = {"minutes": 45}
 app.config["JWT_REFRESH_LIFESPAN"] = {"days": 1}
 app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
-app.config["SQLALCHEMY_POOL_SIZE"] = 60000
+app.config["SQLALCHEMY_POOL_SIZE"] = 70000
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 app.config["JWT_ACCESS_COOKIE_PATH"] = "/"
@@ -30,7 +30,7 @@ jwt = JWTManager(app)
 guard = Praetorian()
 ma = Marshmallow()
 migrate = Migrate(app, db)
-CORS(app)
+CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["http://localhost:3000"]}})
 contentful_client = Client(CONTENT_MANGEMENT_API_KEY)
 pusher_client = pusher.Pusher(
     app_id=PUSHER_APP_ID,
@@ -54,6 +54,8 @@ from backend.classrooms.routes import classrooms_bp
 from backend.concepts.routes import concepts_bp
 from backend.gems.routes import gems_bp
 from backend.hints.routes import hints_bp
+from backend.mc_choices.routes import mc_choices_bp
+from backend.mc_questions.routes import mc_questions_bp
 from backend.modules.routes import modules_bp
 from backend.steps.routes import steps_bp
 from backend.students.routes import students_bp
@@ -74,6 +76,8 @@ app.register_blueprint(classrooms_bp)
 app.register_blueprint(concepts_bp)
 app.register_blueprint(gems_bp)
 app.register_blueprint(hints_bp)
+app.register_blueprint(mc_questions_bp)
+app.register_blueprint(mc_choices_bp)
 app.register_blueprint(modules_bp)
 app.register_blueprint(steps_bp)
 app.register_blueprint(students_bp)
