@@ -1,7 +1,8 @@
 from flask import request
+from flask_jwt_extended import get_jwt_identity
 from backend import contentful_client
 from backend.config import SPACE_ID
-from backend.models import Checkpoint
+from backend.models import Checkpoint, CheckpointProgress, Student
 from functools import wraps
 
 
@@ -53,6 +54,24 @@ def checkpoint_delete(f):
         else:
             return {
                        "message": "Checkpoint does not exist"
+                   }, 404
+
+    return wrap
+
+
+# Decorator to check if the checkpoint progress exist
+def checkpoint_progress_exist(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        username = get_jwt_identity()
+        student = Student.query.filter_by(username=username).first()
+        checkpoint_prog = CheckpointProgress.query.filter_by(checkpoint_id=kwargs['checkpoint_id'],
+                                                             student_id=student.id).first()
+        if checkpoint_prog:
+            return f(*args, **kwargs)
+        else:
+            return {
+                       "message": "Checkpoint progress does not exist"
                    }, 404
 
     return wrap
