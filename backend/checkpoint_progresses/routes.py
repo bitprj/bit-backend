@@ -23,14 +23,12 @@ class CheckpointProgressSubmit(Resource):
         student = Student.query.filter_by(username=username).first()
         checkpoint_prog = CheckpointProgress.query.filter_by(checkpoint_id=checkpoint_id,
                                                              student_id=student.id).first()
-        print(checkpoint_prog.checkpoint.checkpoint_type)
         if checkpoint_prog:
             fill_in_checkpoint_progress(data, checkpoint_prog)
-            checkpoint_prog.is_completed = True
-            print(checkpoint_prog.short_answer_response)
-            # db.session.commit()
-            # is_activity_completed(checkpoint_prog.activity_progress_id, student_id=checkpoint_prog.student_id)
-            # db.session.commit()
+
+            db.session.commit()
+            is_activity_completed(checkpoint_prog.activity_progress_id, student_id=checkpoint_prog.student_id)
+            db.session.commit()
         else:
             return {
                        "message": "Checkpoint does not exist or you do not own this checkpoint"

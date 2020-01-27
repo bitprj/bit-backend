@@ -1,6 +1,4 @@
 from flask import request
-from backend import contentful_client
-from backend.config import SPACE_ID
 from backend.general_utils import add_file
 
 
@@ -20,10 +18,13 @@ def fill_in_checkpoint_progress(data, checkpoint_prog):
         checkpoint_prog.short_answer_response = data["short_answer_response"]
     elif checkpoint.checkpoint_type == "Multiple Choice":
         checkpoint_prog.multiple_choice_answer = data["multiple_choice_answer"]
-        # checkpoint_contentful_id = checkpoint_prog.checkpoint.contentful_id
-        # contentful_checkpoint = contentful_client.entries(SPACE_ID, 'master').find(checkpoint_contentful_id)
-        # correct_answer_id = contentful_checkpoint.fields()["mc_correct_answer"].to_json()["sys"]
-        # print(contentful_checkpoint.fields())
+        correct_answer = checkpoint_prog.checkpoint.mc_question.correct_choice.content
+
+        if data["multiple_choice_answer"] == correct_answer:
+            checkpoint_prog.multiple_choice_is_correct = True
+        else:
+            checkpoint_prog.multiple_choice_is_correct = False
+
     checkpoint_prog.is_completed = True
 
     return
