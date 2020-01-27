@@ -57,6 +57,7 @@ from backend.hints.routes import hints_bp
 from backend.mc_choices.routes import mc_choices_bp
 from backend.mc_questions.routes import mc_questions_bp
 from backend.modules.routes import modules_bp
+from backend.module_progresses.routes import  module_progresses_bp
 from backend.steps.routes import steps_bp
 from backend.students.routes import students_bp
 from backend.teachers.routes import teachers_bp
@@ -79,6 +80,7 @@ app.register_blueprint(hints_bp)
 app.register_blueprint(mc_questions_bp)
 app.register_blueprint(mc_choices_bp)
 app.register_blueprint(modules_bp)
+app.register_blueprint(module_progresses_bp)
 app.register_blueprint(steps_bp)
 app.register_blueprint(students_bp)
 app.register_blueprint(teachers_bp)
