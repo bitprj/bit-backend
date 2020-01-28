@@ -1,6 +1,7 @@
 from flask import request
+from flask_jwt_extended import get_jwt_identity
 from backend.classrooms.schemas import classroom_form_schema
-from backend.models import Classroom
+from backend.models import Classroom, Teacher
 from functools import wraps
 
 
@@ -16,6 +17,24 @@ def classroom_exists(f):
             return {
                        "message": "Classroom does not exist"
                    }, 404
+
+    return wrap
+
+
+# Decorator to check if a teacher owns a classrooms
+def owns_classroom(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        classroom = Classroom.query.get(kwargs['classroom_id'])
+        username = get_jwt_identity()
+        teacher = Teacher.query.filter_by(username=username).first()
+
+        if classroom.teacher_id == teacher.id:
+            return f(*args, **kwargs)
+        else:
+            return {
+                       "message": "You do not own this classroom"
+                   }, 203
 
     return wrap
 
