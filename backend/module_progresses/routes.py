@@ -25,7 +25,7 @@ class ModuleProgress(Resource):
 
         return module_progress_schema.dump(module_progress)
 
-    # Function to update a student's completed_modules
+    # Function to update a student's completed activities
     @activity_exists_in_student_prog
     def put(self):
         activity_completed = request.get_json()
