@@ -91,6 +91,12 @@ student_module_completed_rel = db.Table("student_module_completed_rel",
                                         db.Column("module_id", db.Integer, db.ForeignKey("module.id"))
                                         )
 
+# This many to many relationship is used to keep track of all of the modules that a student has inprogress
+student_module_inprogress_rel = db.Table("student_module_inprogress_rel",
+                                         db.Column("student_id", db.Integer, db.ForeignKey("student.id")),
+                                         db.Column("module_id", db.Integer, db.ForeignKey("module.id"))
+                                         )
+
 # This many to many relationship is used to keep track of all of the modules that a student has not completed
 student_module_incomplete_rel = db.Table("student_module_incomplete_rel",
                                          db.Column("student_id", db.Integer, db.ForeignKey("student.id")),
@@ -319,6 +325,9 @@ class Module(db.Model):
     # students_completed keeps track of which students have completed a module
     students_completed = db.relationship("Student", secondary="student_module_completed_rel",
                                          back_populates="completed_modules")
+    # students_inprogress keeps track of which students have inprogress a module
+    students_inprogress = db.relationship("Student", secondary="student_module_inprogress_rel",
+                                          back_populates="inprogress_modules")
     # students_incomplete keeps track of the students who have not completed a module
     students_incomplete = db.relationship("Student", secondary="student_module_incomplete_rel",
                                           back_populates="incomplete_modules")
@@ -497,6 +506,9 @@ class Student(User):
     # incomplete_topics keeps track of all the modules that a student has not completed
     incomplete_modules = db.relationship("Module", secondary="student_module_incomplete_rel",
                                          back_populates="students_incomplete")
+    # inprogress_modules keeps track of all modules that a student has inprogress
+    inprogress_modules = db.relationship("Module", secondary="student_module_inprogress_rel",
+                                         back_populates="students_inprogress")
     # completed_topics keeps track of all the topics that a student has completed
     completed_topics = db.relationship("Topic", secondary="student_topic_completed_rel",
                                        back_populates="students_completed")

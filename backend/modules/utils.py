@@ -25,9 +25,7 @@ def edit_module(module, contentful_data):
 
 
 # Function to return a student's current module progress based on the module id
-def get_module_progress(student_id, module_id):
-    student = Student.query.get(student_id)
-
+def get_module_progress(student, module_id):
     activities = set(Activity.query.filter(Activity.modules.any(id=module_id)).all())
     completed_activities = set(student.completed_activities).intersection(activities)
     incomplete_activities = set(student.incomplete_activities).intersection(activities)
@@ -37,13 +35,3 @@ def get_module_progress(student_id, module_id):
                          }
 
     return activity_progress
-
-
-# Function to check if a module exists in the database
-def validate_module(module_id):
-    module = Module.query.get(module_id)
-
-    if not module:
-        return True
-
-    return False

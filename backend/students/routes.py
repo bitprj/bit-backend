@@ -1,8 +1,8 @@
 from flask import Blueprint
-from flask_praetorian.decorators import roles_accepted
+from flask_jwt_extended import get_jwt_identity
 from flask_restful import Resource
 from backend import api
-from backend.general_utils import get_user_id_from_token
+from backend.authentication.decorators import roles_accepted
 from backend.models import Student
 from backend.students.schemas import student_schema
 
@@ -16,8 +16,8 @@ class StudentInfo(Resource):
 
     # Function to display student data
     def get(self):
-        current_user_id = get_user_id_from_token()
-        student = Student.query.get(current_user_id)
+        username = get_jwt_identity()
+        student = Student.query.filter_by(username=username).first()
 
         return student_schema.dump(student)
 
