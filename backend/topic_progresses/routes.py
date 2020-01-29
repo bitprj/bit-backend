@@ -37,7 +37,7 @@ class TopicProgressAdd(Resource):
         student = Student.query.filter_by(username=username).first()
         module = Module.query.get(module_id)
         student.inprogress_modules.append(module)
-        student.inprogress_modules.remove(module)
+        student.incomplete_modules.remove(module)
 
         db.session.commit()
 
