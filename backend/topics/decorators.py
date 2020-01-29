@@ -63,6 +63,23 @@ def has_completed_topic(f):
     return wrap
 
 
+# Decorator to check if the topic can be deleted
+def topic_delete(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        data = request.get_json()
+        topic = Topic.query.filter_by(contentful_id=data["entityId"]).first()
+
+        if topic:
+            return f(*args, **kwargs)
+        else:
+            return {
+                       "message": "Topic does not exist"
+                   }, 404
+
+    return wrap
+
+
 # Decorator to check if a topic exists
 def topic_exists(f):
     @wraps(f)
@@ -100,18 +117,19 @@ def topic_exists_in_contentful(f):
     return wrap
 
 
-# Decorator to check if the topic can be deleted
-def topic_delete(f):
+# Decorator to check if a topic is in the incomplete column
+def topic_is_incomplete(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        data = request.get_json()
-        topic = Topic.query.filter_by(contentful_id=data["entityId"]).first()
+        username = get_jwt_identity()
+        student = Student.query.filter_by(username=username).first()
+        topic = Topic.query.get(kwargs["topic_id"])
 
-        if topic:
+        if topic in student.incomplete_topics:
             return f(*args, **kwargs)
         else:
             return {
-                       "message": "Topic does not exist"
-                   }, 404
+                       "message": "Topic has already been added!"
+                   }, 500
 
     return wrap

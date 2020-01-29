@@ -4,7 +4,7 @@ from flask_restful import Resource
 from backend import api, db
 from backend.authentication.decorators import roles_accepted
 from backend.models import Student, Topic
-from backend.topics.decorators import can_add_topic, can_complete_topic, has_completed_topic, topic_exists
+from backend.topics.decorators import can_add_topic, can_complete_topic, has_completed_topic, topic_exists, topic_is_incomplete
 from backend.tracks.decorators import *
 from backend.tracks.schemas import track_progress_schema
 from backend.tracks.utils import get_track_progress
@@ -32,14 +32,13 @@ class TrackProgressAdd(Resource):
 
     # Function to add a topic to a student's inprogress_topics
     @can_add_topic
+    @topic_is_incomplete
     def put(self, topic_id):
         username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()
         topic = Topic.query.get(topic_id)
         student.inprogress_topics.append(topic)
-
-        if topic in student.incomplete_topics:
-            student.inprogress_topics.remove(topic)
+        student.incomplete_topics.remove(topic)
 
         db.session.commit()
 
