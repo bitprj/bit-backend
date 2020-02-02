@@ -1,32 +1,50 @@
 from flask import (Blueprint, jsonify, request)
 from flask_jwt_extended import create_access_token, jwt_required, set_access_cookies, unset_jwt_cookies
 from flask_restful import Resource
-from backend import api, db, jwt
-from backend.authentication.utils import create_user
-from backend.authentication.decorators import user_exists, valid_user_form, roles_required
+from backend import api, db, jwt, safe_url
+from backend.authentication.utils import create_user, send_verification_email
+from backend.authentication.decorators import roles_required, user_exists, user_is_active, valid_user_form, valid_user_type
 from backend.models import User
-import requests
+from itsdangerous import SignatureExpired
 
 # Blueprint for users
 authentication_bp = Blueprint("authentication", __name__)
 
 
+class UserAuthorize(Resource):
+    # Route to confirm that the email is real
+    def put(self, token):
+        email = None
+
+        try:
+            email = safe_url.loads(token, salt='email-confirm', max_age=3600)
+        except SignatureExpired:
+            return {
+                "message": "Your email token has expired. Go send a new one."
+            }, 500
+
+        user = User.query.filter_by(username=email).first()
+        user.is_active = True
+        db.session.commit()
+
+        return {
+            "message": "Your email has been verified. You can login now."
+        }, 200
+
+
 # Class to create a user
 class UserCreate(Resource):
-    method_decorators = [valid_user_form]
+    method_decorators = [valid_user_form, valid_user_type]
 
     # Function to return data on a single user
     def post(self, user_type):
-        if user_type == "Student" or user_type == "Teacher" or user_type == "Admin":
-            form_data = request.get_json()
-            user = create_user(user_type, form_data)
+        form_data = request.get_json()
+        user = create_user(user_type, form_data)
 
-            db.session.add(user)
-            db.session.commit()
-        else:
-            return {
-                "message": "User type does not exist"
-            }
+        db.session.add(user)
+        db.session.commit()
+
+        send_verification_email(user.username)
 
         return {"message": user_type + " successfully created"}, 202
 
@@ -36,6 +54,7 @@ class UserLoginHandler(Resource):
     method_decorators = [user_exists]
 
     # Function to login a user through a jwt token
+    @user_is_active
     def post(self):
         form_data = request.get_json()
         username = form_data["username"]
@@ -103,6 +122,7 @@ def add_claims_to_access_token(identity):
 
 
 # Creates the routes for the classes
+api.add_resource(UserAuthorize, "/confirm_email/<string:token>")
 api.add_resource(UserCreate, "/users/<string:user_type>/create")
 api.add_resource(UserLoginHandler, "/user/login")
 api.add_resource(UserLogoutHandler, "/user/logout")

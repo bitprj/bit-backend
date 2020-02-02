@@ -1,6 +1,8 @@
-from backend import guard
+from backend import guard, mail, safe_url
 from backend.models import Admin, Classroom, Student, Teacher, Track
 from backend.prereqs.utils import assign_incomcomplete_activities, assign_incomplete_modules
+from flask_mail import Message
+from flask import url_for
 
 
 # Function to create an Admin
@@ -71,3 +73,14 @@ def create_user(user_type, form_data):
         user = create_student(form_data)
 
     return user
+
+
+# Function to send an email verification email
+def send_verification_email(email):
+    token = safe_url.dumps(email, salt='email-confirm')
+    msg = Message('Bit Project Email Confirmation', sender='info@bitproject.org', recipients=[email])
+    link = url_for('userauthorize', token=token, _external=True)
+    msg.body = "Click the following link to activate your account {}".format(link)
+    mail.send(msg)
+
+    return
