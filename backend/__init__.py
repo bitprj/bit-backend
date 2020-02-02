@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from flask_mail import Mail
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from flask_praetorian import Praetorian
@@ -8,6 +9,7 @@ from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 from backend.config import *
 from contentful_management import Client
+from itsdangerous import URLSafeTimedSerializer
 import pusher
 
 app = Flask(__name__)
@@ -15,6 +17,11 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = SECRET_KEY
 app.config["JWT_ACCESS_LIFESPAN"] = {"minutes": 45}
 app.config["JWT_REFRESH_LIFESPAN"] = {"days": 1}
+app.config['MAIL_SERVER'] = MAIL_SERVER
+app.config['MAIL_USERNAME'] = MAIL_USERNAME
+app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
+app.config['MAIL_PORT'] = MAIL_PORT
+app.config['MAIL_USE_TLS'] = MAIL_USE_TLS
 app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
 app.config["SQLALCHEMY_POOL_SIZE"] = 70000
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -28,6 +35,8 @@ api = Api(app)
 db = SQLAlchemy(app)
 jwt = JWTManager(app)
 guard = Praetorian()
+mail = Mail(app)
+safe_url = URLSafeTimedSerializer(SECRET_KEY)
 ma = Marshmallow()
 migrate = Migrate(app, db)
 CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["http://localhost:3000"]}})

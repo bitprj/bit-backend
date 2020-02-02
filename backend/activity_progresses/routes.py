@@ -41,7 +41,7 @@ class ActivityProgressUpdate(Resource):
         card = Card.query.get(student_activity_prog.last_card_completed)
         progress = activity_progress_schema.dump(student_activity_prog)
         progress["card_contentful_id"] = card.contentful_id
-        
+
         return progress
 
     @activity_prog_exists

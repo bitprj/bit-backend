@@ -11,6 +11,7 @@ def create_admin(form_data):
                   username=form_data["username"],
                   password=hashed_password,
                   roles="Admin",
+                  is_active=False,
                   location=form_data["location"],
                   image=form_data["image"]
                   )
@@ -27,6 +28,7 @@ def create_student(form_data):
                       password=hashed_password,
                       roles="Student",
                       location=form_data["location"],
+                      is_active=False,
                       image=form_data["image"],
                       current_track_id=form_data["track_id"]
                       )
@@ -49,6 +51,7 @@ def create_teacher(form_data):
                       username=form_data["username"],
                       password=hashed_password,
                       roles="Teacher",
+                      is_active=False,
                       location=form_data["location"],
                       image=form_data["image"]
                       )
