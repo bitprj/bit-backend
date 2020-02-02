@@ -85,7 +85,7 @@ class CardGetHints(Resource):
                 unlock_card(student_activity_prog, card)
                 db.session.commit()
 
-            student_activity_prog.lawhst_card_completed = card.id
+            student_activity_prog.last_card_completed = card.id
 
             return hint_status_schemas.dump(student_activity_prog.hints)
         return {

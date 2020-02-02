@@ -57,7 +57,7 @@ from backend.hints.routes import hints_bp
 from backend.mc_choices.routes import mc_choices_bp
 from backend.mc_questions.routes import mc_questions_bp
 from backend.modules.routes import modules_bp
-from backend.module_progresses.routes import  module_progresses_bp
+from backend.module_progresses.routes import module_progresses_bp
 from backend.steps.routes import steps_bp
 from backend.students.routes import students_bp
 from backend.teachers.routes import teachers_bp
