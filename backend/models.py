@@ -456,6 +456,7 @@ class User(db.Model):
     password = db.Column(db.Text, unique=True, nullable=False)
     # Roles are Admin, Teacher, or Student
     roles = db.Column(db.Text, nullable=False)
+    is_active = db.Column(db.Boolean, default=False, nullable=False)
     location = db.Column(db.Text, nullable=False)
     image = db.Column(db.Text, nullable=True)
 

@@ -2,6 +2,7 @@ from flask import Blueprint, request
 from flask_restful import Resource
 from backend import api, db
 from backend.authentication.decorators import roles_accepted
+from backend.authentication.utils import send_graded_activity_email
 from backend.activity_progresses.decorators import activity_prog_grading_format, submitted_activity_prog_exist
 from backend.activity_progresses.schemas import activity_progress_submission_schema
 from backend.classrooms.decorators import classroom_exists, owns_classroom
@@ -49,6 +50,8 @@ class TeacherAssignments(Resource):
         activity_progress.date_graded = datetime.now().date()
         db.session.commit()
 
+        # send_graded_activity_email(activity_progress.student.username)
+        send_graded_activity_email("bmwong@ucdavis.edu")
         pusher_activity(activity_progress)
 
         return {

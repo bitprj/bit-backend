@@ -10,7 +10,7 @@ from backend.activity_progresses.utils import create_progress, unlock_hint
 from backend.cards.utils import get_cards_hints
 from backend.hints.decorators import hint_exists
 from backend.hints.utils import create_hint_status
-from backend.models import ActivityProgress, Hint, Student
+from backend.models import ActivityProgress, Card, Hint, Student
 
 # Blueprint for activity progresses
 activity_progresses_bp = Blueprint("activity_progresses", __name__)
@@ -24,24 +24,25 @@ class ActivityProgressUpdate(Resource):
     def get(self, activity_id):
         username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()
-
         student_activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
                                                                  activity_id=activity_id).first()
 
         if not student_activity_prog:
             # Create Activity Progress if it does not exist
-            activity_prog = create_progress(activity_id, student.id)
-            db.session.add(activity_prog)
+            student_activity_prog = create_progress(activity_id, student.id)
+            db.session.add(student_activity_prog)
             db.session.commit()
 
             # Fills in the hints and cards as locked in the activity progress
-            hints = get_cards_hints(activity_prog.activity.cards)
-            create_hint_status(activity_prog, hints)
+            hints = get_cards_hints(student_activity_prog.activity.cards)
+            create_hint_status(student_activity_prog, hints)
             db.session.commit()
 
-            return activity_progress_schema.dump(activity_prog)
-        else:
-            return activity_progress_schema.dump(student_activity_prog)
+        card = Card.query.get(student_activity_prog.last_card_completed)
+        progress = activity_progress_schema.dump(student_activity_prog)
+        progress["card_contentful_id"] = card.contentful_id
+
+        return progress
 
     @activity_prog_exists
     def delete(self, activity_id):
