@@ -1,5 +1,5 @@
 from backend import ma
-from backend.models import Card
+from backend.checkpoint_progresses.schemas import CheckpointProgressSchema
 from marshmallow import fields
 
 

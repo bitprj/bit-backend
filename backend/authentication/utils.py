@@ -84,3 +84,15 @@ def send_verification_email(email):
     mail.send(msg)
 
     return
+
+
+# Function to send an email verification email
+def send_graded_activity_email(email):
+    msg = Message('Your Activity has been graded', sender='info@bitproject.org',
+                  recipients=[email])
+    # CHANGE THIS TO POINT TO THE STUDENT PORTAL IN THE FRONTEND
+    link = url_for('studentinfo', _external=True)
+    msg.body = "Please go visit your student portal to see your grade {}".format(link)
+    mail.send(msg)
+
+    return
