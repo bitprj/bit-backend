@@ -51,15 +51,6 @@ class UserLoginHandler(Resource):
         return resp
 
 
-# Class to logout a user
-class UserLogoutHandler(Resource):
-    # This function works by deleting the jwt cookies associated with the user
-    def delete(self):
-        resp = jsonify({"logout": True})
-        unset_jwt_cookies(resp)
-
-        return resp
-
 
 class Protected(Resource):
     method_decorators = [jwt_required]
