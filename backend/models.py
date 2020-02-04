@@ -196,6 +196,7 @@ class Card(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     contentful_id = db.Column(db.Text(), nullable=False)
     name = db.Column(db.Text, nullable=True)
+    gems = db.Column(db.Integer, nullable=False)
     # order is a number to keep track of the order in which this card will be displayed
     order = db.Column(db.Integer, nullable=True)
     # activity_id and activity keeps track of which lab the card is owned by
@@ -560,7 +561,7 @@ class ActivityProgress(db.Model):
     # last_card_completed is last card completed from an activity
     last_card_completed = db.Column(db.Integer, nullable=True)
     date_graded = db.Column(db.Date, nullable=True)
-
+    accumulated_gems = db.Column(db.Integer, nullable=False)
     # cards_locked keeps track os the progresses' locked cards
     cards_locked = db.relationship("Card", secondary="activity_progress_locked_cards_rel",
                                    back_populates="activity_locked_cards")

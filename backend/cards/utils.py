@@ -34,6 +34,7 @@ def delete_card(card, checkpoint):
 def edit_card(card, contentful_data):
     card.name = contentful_data["parameters"]["name"]["en-US"]
     card.order = contentful_data["parameters"]["order"]["en-US"]
+    card.gems = contentful_data["parameters"]["gems"]["en-US"]
 
     if "checkpoint" in contentful_data["parameters"]:
         checkpoint = Checkpoint.query.filter_by(
