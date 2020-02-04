@@ -69,9 +69,9 @@ class ActivityProgressHints(Resource):
         student = Student.query.filter_by(username=username).first()
         student_activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
                                                                  activity_id=activity_id).first()
-
         hint = Hint.query.get(hint_id)
         unlock_message = unlock_hint(student_activity_prog, hint)
+
         db.session.commit()
 
         return {

@@ -196,7 +196,7 @@ class Card(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     contentful_id = db.Column(db.Text(), nullable=False)
     name = db.Column(db.Text, nullable=True)
-    gems = db.Column(db.Integer, nullable=False)
+    gems = db.Column(db.Integer, nullable=True)
     # order is a number to keep track of the order in which this card will be displayed
     order = db.Column(db.Integer, nullable=True)
     # activity_id and activity keeps track of which lab the card is owned by
@@ -293,6 +293,7 @@ class Hint(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     contentful_id = db.Column(db.Text, nullable=False)
     name = db.Column(db.Text, nullable=True)
+    gems = db.Column(db.Integer, nullable=True)
     card_id = db.Column(db.Integer, db.ForeignKey("card.id"))
     card = db.relationship("Card", back_populates="hints")
     parent_hint_id = db.Column(db.Integer, db.ForeignKey("hint.id"), nullable=True)

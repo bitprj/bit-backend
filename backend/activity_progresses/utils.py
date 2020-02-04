@@ -57,5 +57,6 @@ def unlock_hint(student_activity_prog, hint):
         return "Hint already unlocked"
 
     hint_status.is_unlocked = True
+    student_activity_prog.accumulated_gems -= hint.gems
 
     return "Hint unlocked!"
