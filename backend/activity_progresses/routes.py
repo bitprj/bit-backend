@@ -30,6 +30,11 @@ class ActivityProgressUpdate(Resource):
         if not student_activity_prog:
             # Create Activity Progress if it does not exist
             student_activity_prog = create_progress(activity_id, student.id)
+            student.current_activities.append(student_activity_prog.activity)
+
+            if student_activity_prog.activity in student.incomplete_activities:
+                student.incomplete_activities.remove(student_activity_prog.activity)
+
             db.session.add(student_activity_prog)
             db.session.commit()
 

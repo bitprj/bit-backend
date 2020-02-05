@@ -53,7 +53,7 @@ def activity_exists_in_student_prog(f):
         activity = Activity.query.get(activity_id)
 
         if activity:
-            if activity in student.incomplete_activities:
+            if activity in student.current_activities:
                 return f(*args, **kwargs)
             else:
                 return {
