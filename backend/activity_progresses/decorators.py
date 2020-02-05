@@ -41,6 +41,23 @@ def activity_prog_grading_format(f):
     return wrap
 
 
+# Function to check if an activity has been graded
+def is_activity_graded(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        form_data = request.get_json()
+        activity_progress = ActivityProgress.query.get(form_data["activity_progress_id"])
+
+        if not activity_progress.is_graded:
+            return f(*args, **kwargs)
+        else:
+            return {
+                       "message": "Activity has already been graded."
+                   }, 500
+
+    return wrap
+
+
 # Decorator to check if assignment exists and can be graded
 def submitted_activity_prog_exist(f):
     @wraps(f)

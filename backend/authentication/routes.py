@@ -3,8 +3,10 @@ from flask_jwt_extended import create_access_token, jwt_required, set_access_coo
 from flask_restful import Resource
 from backend import api, db, jwt, safe_url
 from backend.authentication.utils import create_user, send_verification_email
+from backend.badges.utils import create_student_badges
 from backend.authentication.decorators import roles_required, user_exists, user_is_active, valid_user_form, valid_user_type
-from backend.models import User
+from backend.models import Badge, User
+from backend.modules.utils import create_module_progresses
 from itsdangerous import SignatureExpired
 
 # Blueprint for users
@@ -44,7 +46,12 @@ class UserCreate(Resource):
         db.session.add(user)
         db.session.commit()
 
-        send_verification_email(user.username)
+        if user_type == "Student":
+            badges = Badge.query.all()
+            create_module_progresses(user.incomplete_modules, user)
+            create_student_badges(badges, user)
+            db.session.commit()
+        # send_verification_email(user.username)
 
         return {"message": user_type + " successfully created"}, 202
 

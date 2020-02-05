@@ -19,5 +19,16 @@ class BadgeRequirementSchema(ma.ModelSchema):
     xp = fields.Int(required=False)
 
 
+# This schema is used to display the data in a module's badge_weights
+class ModuleBadgeWeightSchema(ma.ModelSchema):
+    badge_id = fields.Int(required=True)
+    weight = fields.Float(required=True)
+
+    class Meta:
+        # Fields to show when sending data
+        fields = ("id", "badge_id", "weight")
+        ordered = True
+
+
 badge_schema = BadgeSchema()
 badges_schema = BadgeSchema(many=True)

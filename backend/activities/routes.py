@@ -4,7 +4,7 @@ from flask_restful import Resource
 from backend import api, db
 from backend.activities.decorators import activity_delete, activity_exists, activity_exists_in_contentful
 from backend.activities.schemas import activity_schema, activities_schema
-from backend.activities.utils import create_activity, delete_cards, delete_checkpoints, edit_activity
+from backend.activities.utils import create_activity, delete_cards, edit_activity
 from backend.models import Activity
 
 # Blueprint for activities
@@ -45,9 +45,6 @@ class ActivityDelete(Resource):
         contentful_data = request.get_json()
         activity = Activity.query.filter_by(contentful_id=contentful_data["entityId"]).first()
         delete_cards(activity.cards)
-
-        if activity.checkpoints:
-            delete_checkpoints(activity.checkpoints)
 
         db.session.delete(activity)
         db.session.commit()

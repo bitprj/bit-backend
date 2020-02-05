@@ -57,6 +57,7 @@ def delete_hint(hint):
 def edit_hint(hint, contentful_data):
     hint.name = contentful_data["parameters"]["name"]["en-US"]
     hint.steps = get_steps(contentful_data["parameters"]["steps"]["en-US"])
+    hint.gems = contentful_data["parameters"]["gems"]["en-US"]
 
     if "children_hints" in contentful_data["parameters"]:
         hint.hint_children = assign_hints_to_parent_hint(contentful_data["parameters"]["children_hints"]["en-US"])

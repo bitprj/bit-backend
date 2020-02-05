@@ -30,6 +30,11 @@ class ActivityProgressUpdate(Resource):
         if not student_activity_prog:
             # Create Activity Progress if it does not exist
             student_activity_prog = create_progress(activity_id, student.id)
+            student.current_activities.append(student_activity_prog.activity)
+
+            if student_activity_prog.activity in student.incomplete_activities:
+                student.incomplete_activities.remove(student_activity_prog.activity)
+
             db.session.add(student_activity_prog)
             db.session.commit()
 
@@ -69,9 +74,9 @@ class ActivityProgressHints(Resource):
         student = Student.query.filter_by(username=username).first()
         student_activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
                                                                  activity_id=activity_id).first()
-
         hint = Hint.query.get(hint_id)
         unlock_message = unlock_hint(student_activity_prog, hint)
+
         db.session.commit()
 
         return {

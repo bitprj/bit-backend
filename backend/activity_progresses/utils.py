@@ -5,8 +5,8 @@ from backend.models import Activity, ActivityProgress, CheckpointProgress, HintS
 # Function to create an ActivityProgress
 def create_progress(activity_id, current_user_id):
     activity_prog = ActivityProgress(student_id=current_user_id,
-                                     activity_id=activity_id)
-
+                                     activity_id=activity_id,
+                                     accumulated_gems=0)
     activity = Activity.query.get(activity_id)
     activity_prog.checkpoints = create_checkpoint_progresses(activity.cards, current_user_id)
     activity.cards.sort(key=lambda x: x.order)
@@ -15,6 +15,7 @@ def create_progress(activity_id, current_user_id):
     activity_prog.cards_locked.pop(0)
     activity_prog.cards_unlocked.append(next_card)
     activity_prog.last_card_completed = next_card.id
+    activity_prog.accumulated_gems += next_card.gems
 
     return activity_prog
 
@@ -42,6 +43,7 @@ def unlock_card(student_activity_prog, next_card):
     locked_cards.sort(key=lambda x: x.order)
     locked_cards.remove(next_card)
     student_activity_prog.cards_unlocked.append(next_card)
+    student_activity_prog.accumulated_gems += next_card.gems
 
     return
 
@@ -54,5 +56,6 @@ def unlock_hint(student_activity_prog, hint):
         return "Hint already unlocked"
 
     hint_status.is_unlocked = True
+    student_activity_prog.accumulated_gems -= hint.gems
 
     return "Hint unlocked!"
