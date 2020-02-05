@@ -337,6 +337,7 @@ class Module(db.Model):
     # students_incomplete keeps track of the students who have not completed a module
     students_incomplete = db.relationship("Student", secondary="student_module_incomplete_rel",
                                           back_populates="incomplete_modules")
+    students = db.relationship("ModuleProgress", cascade="all,delete", back_populates="module")
 
     def __init__(self, contentful_id):
         self.contentful_id = contentful_id
@@ -530,6 +531,7 @@ class Student(User):
     current_track = db.relationship("Track", back_populates="students")
     # activity_progresses keeps track of all the progresses that a student has made on their activities
     activity_progresses = db.relationship("ActivityProgress", cascade="all,delete", back_populates="student")
+    module_progresses = db.relationship("ModuleProgress", cascade="all,delete", back_populates="student")
     # classes keeps track of all the student's classes
     classes = db.relationship("Classroom", secondary=students_classes_rel, back_populates="students")
     badges = db.relationship("StudentBadges", cascade="all,delete", back_populates="student")
@@ -646,6 +648,16 @@ class ModuleBadgeWeights(db.Model):
 
     module = db.relationship("Module", back_populates="badge_weights")
     badge = db.relationship("Badge", back_populates="module_badge_weights")
+
+
+# Association object for modules and students. Used to keep track of the gems that user has accumulated for each module
+class ModuleProgress(db.Model):
+    module_id = db.Column(db.Integer, db.ForeignKey('module.id'), primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'), primary_key=True)
+    gems = db.Column(db.Integer, nullable=False)
+
+    module = db.relationship("Module", back_populates="students")
+    student = db.relationship("Student", back_populates="module_progresses")
 
 
 # Association object to keep track of the student's badge progress

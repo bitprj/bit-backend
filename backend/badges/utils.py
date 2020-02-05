@@ -27,18 +27,16 @@ def create_badge(contentful_data):
 
 
 # Function to create StudentBadges
-def create_student_badges(badges, student_id):
-    badge_progresses = []
-
+def create_student_badges(badges, student):
     for badge in badges:
-        if badge.badge:
-            badge_prog = StudentBadges(badge_id=badge.badge.id,
-                                       contentful_id=badge.badge.contentful_id,
-                                       student_id=student_id
-                                       )
-            badge_progresses.append(badge_prog)
+        badge_prog = StudentBadges(badge_id=badge.id,
+                                   contentful_id=badge.contentful_id,
+                                   student_id=student.id,
+                                   xp=0
+                                   )
+        student.badges.append(badge_prog)
 
-    return badge_progresses
+    return
 
 
 # Function to edit a badge

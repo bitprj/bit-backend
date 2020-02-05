@@ -1,6 +1,6 @@
 from backend import db
 from backend.badges.utils import add_badge_weights
-from backend.models import Activity, Module
+from backend.models import Activity, Module, ModuleProgress
 from backend.prereqs.fetch import get_activities
 from backend.prereqs.utils import assign_badge_prereqs, delete_badge_prereqs
 
@@ -11,6 +11,17 @@ def create_module(contentful_data):
                     )
 
     return module
+
+
+# Function to create module progresses
+def create_module_progresses(modules, student):
+    for module in modules:
+        module_prog = ModuleProgress(module_id=module.id,
+                                     student_id=student.id,
+                                     gems=0)
+        student.module_progresses.append(module_prog)
+
+    return
 
 
 # Function to delete badge_weights
