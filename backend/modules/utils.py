@@ -23,6 +23,7 @@ def add_gems_to_module_progress(student, activity_progress):
                                                          student_id=activity_progress.student_id).first()
             if module_prog:
                 module_prog.gems += activity_progress.accumulated_gems
+                # If the module progress has satisfied the gem requirement added it to the completed module list
                 if module_prog.gems >= module_prog.module.gems_needed:
                     modules_completed.append(module_prog)
 
@@ -31,12 +32,15 @@ def add_gems_to_module_progress(student, activity_progress):
 
 # Function to complete modules. Converts gems from module_progresses to badge xp by weight
 def complete_modules(module_progs):
+    # Look through each ModuleProgress object
     for prog in module_progs:
         student = prog.student
+        # Implements the badge weight and gems to convert to xp
         for badge_prog in prog.module.badge_weights:
             student_badge = StudentBadges.query.filter_by(student_id=prog.student_id,
                                                           badge_id=badge_prog.badge_id).first()
             student_badge.xp += prog.gems * badge_prog.weight
+        # Adds module to student's completed list
         student.inprogress_modules.remove(prog.module)
         student.completed_modules.append(prog.module)
 
