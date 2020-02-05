@@ -316,6 +316,8 @@ class Module(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     contentful_id = db.Column(db.Text(), nullable=False)
     name = db.Column(db.Text, nullable=True)
+    # gems_needed represents the number of gems in order to pass a module
+    gems_needed = db.Column(db.Integer, nullable=False)
     # activities keeps track of all of the activities that belongs to a module
     activities = db.relationship("Activity", secondary="activity_module_rel", back_populates="modules")
     # topics keep track of all of the topics that a module belongs to

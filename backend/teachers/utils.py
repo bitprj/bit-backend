@@ -1,5 +1,7 @@
 from backend import pusher_client
 from backend.models import ActivityProgress, CheckpointProgress
+from backend.modules.utils import add_gems_to_module_progress
+from datetime import datetime
 
 
 # Loops through the checkpoint progresses, finds the checkpoint progress and assigns the comment
@@ -24,6 +26,30 @@ def get_activities(classroom):
     return ungraded_activities
 
 
+# Function to grade a student's activity
+# If the user completes the gems requirement for the module, return it
+def grade_activity(activity_progress, form_data):
+    modules_prog_completed = []
+    student = activity_progress.student
+    assign_comments(form_data["checkpoints_failed"])
+    assign_comments(form_data["checkpoints_passed"])
+
+    if form_data["checkpoints_failed"]:
+        activity_progress.is_passed = False
+    else:
+        activity_progress.is_passed = True
+        modules_prog_completed = add_gems_to_module_progress(student, activity_progress)
+
+        if activity_progress.activity in student.current_activities:
+            student.current_activities.remove(activity_progress.activity)
+            student.completed_activities.append(activity_progress.activity)
+
+    activity_progress.is_graded = True
+    activity_progress.date_graded = datetime.now().date()
+
+    return modules_prog_completed
+
+
 # Function to notify a student that their activity has been graded
 def pusher_activity(activity_progress):
     data = {
@@ -32,7 +58,6 @@ def pusher_activity(activity_progress):
         "date_graded": activity_progress.date_graded.strftime('%m/%d/%Y')
     }
 
-    print(data)
     channel_name = activity_progress.student.username + "_activity_feed"
     pusher_client.trigger(channel_name, 'new-record', {'data': data})
 
