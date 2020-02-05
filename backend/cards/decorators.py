@@ -1,8 +1,7 @@
 from flask import request
 from backend import contentful_client
 from backend.config import SPACE_ID
-from backend.general_utils import get_user_id_from_token
-from backend.models import Student, Card
+from backend.models import Card
 from functools import wraps
 
 
