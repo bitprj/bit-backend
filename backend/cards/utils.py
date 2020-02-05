@@ -5,6 +5,20 @@ from backend.models import Card, Checkpoint
 from backend.prereqs.fetch import get_concepts, get_hints
 
 
+# Function to add cards to activities
+def add_cards(contentful_data):
+    card_list = contentful_data["parameters"]["cards"]["en-US"]
+    cards = []
+
+    if card_list:
+        for card in card_list:
+            contentful_id = card["sys"]["id"]
+            target_card = Card.query.filter_by(contentful_id=contentful_id).first()
+            cards.append(target_card)
+
+    return cards
+
+
 # Function to create a card
 def create_card(contentful_data):
     card = Card(contentful_id=contentful_data["entityId"]

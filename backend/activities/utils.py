@@ -1,38 +1,8 @@
 from backend import contentful_client
-from backend.cards.utils import delete_card
+from backend.badges.utils import add_badges
+from backend.cards.utils import add_cards, delete_card
 from backend.config import SPACE_ID
-from backend.models import Activity, Card, Checkpoint
-
-
-# Function to add cards to activities
-def add_cards(activity, contentful_data):
-    card_list = contentful_data["parameters"]["cards"]["en-US"]
-    cards = []
-
-    if card_list:
-        for card in card_list:
-            contentful_id = card["sys"]["id"]
-            target_card = Card.query.filter_by(contentful_id=contentful_id).first()
-            cards.append(target_card)
-
-    activity.cards = cards
-
-    return
-
-
-# Function to add checkpoints to activities
-def add_checkpoints(activity, contentful_data):
-    if "checkpoints" in contentful_data["parameters"]:
-        checkpoint_list = contentful_data["parameters"]["checkpoints"]["en-US"]
-        checkpoints = []
-
-        for checkpoint in checkpoint_list:
-            contentful_id = checkpoint["sys"]["id"]
-            target_checkpoint = Checkpoint.query.filter_by(contentful_id=contentful_id).first()
-            checkpoints.append(target_checkpoint)
-        activity.checkpoints = checkpoints
-
-    return
+from backend.models import Activity
 
 
 # Function to create a activity
@@ -56,22 +26,10 @@ def delete_cards(cards):
     return
 
 
-# Function to delete an activity's checkpoints
-def delete_checkpoints(checkpoints):
-    for checkpoint in checkpoints:
-        # Unpublishes the checkpoint first then deletes the checkpoint in contentful
-        checkpoint_entry = contentful_client.entries(SPACE_ID, 'master').find(checkpoint.contentful_id)
-        checkpoint_entry.unpublish()
-        contentful_client.entries(SPACE_ID, 'master').delete(checkpoint.contentful_id)
-
-    return
-
-
 # Function to edit an activity
 def edit_activity(activity, contentful_data):
     activity.name = contentful_data["parameters"]["name"]["en-US"]
-    add_cards(activity, contentful_data)
-    add_checkpoints(activity, contentful_data)
+    activity.cards = add_cards(contentful_data)
 
     return
 

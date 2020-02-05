@@ -1,3 +1,4 @@
+from backend.badges.utils import create_student_badges
 from backend.checkpoints.utils import create_checkpoint_progresses
 from backend.models import Activity, ActivityProgress, CheckpointProgress, HintStatus
 
@@ -10,6 +11,7 @@ def create_progress(activity_id, current_user_id):
 
     activity = Activity.query.get(activity_id)
     activity_prog.checkpoints = create_checkpoint_progresses(activity.cards, current_user_id)
+    activity_prog.badges = create_student_badges(activity.badges, current_user_id)
     activity.cards.sort(key=lambda x: x.order)
     next_card = activity.cards[0]
     activity_prog.cards_locked = activity.cards
