@@ -184,6 +184,8 @@ class Badge(db.Model):
     # modules keep track of all the modules that are related to a badge
     modules = db.relationship("ModuleBadgePrereqs", cascade="all,delete", back_populates="badge")
     topics = db.relationship("TopicBadgePrereqs", back_populates="badge")
+    students = db.relationship("StudentBadges", cascade="all,delete", back_populates="badge")
+    module_badge_weights = db.relationship("ModuleBadgeWeights", back_populates="badge")
 
     def __init__(self, contentful_id):
         self.contentful_id = contentful_id
@@ -322,6 +324,8 @@ class Module(db.Model):
     activity_prereqs = db.relationship("Activity", secondary="activity_module_prereqs", back_populates="module_prereqs")
     # badges is used to keep track of the badge xp perquisite to access the Module
     badge_prereqs = db.relationship("ModuleBadgePrereqs", cascade="all,delete", back_populates="module")
+    # badge_weights is used to keep track of the badge xp weights
+    badge_weights = db.relationship("ModuleBadgeWeights", cascade="all,delete", back_populates="module")
     # topic_prereqs is used to keep track of modules that need to be completed before accessing a topic
     topic_prereqs = db.relationship("Topic", secondary="topic_module_prereqs", back_populates="module_prereqs")
     # students_completed keeps track of which students have completed a module
@@ -528,6 +532,7 @@ class Student(User):
     activity_progresses = db.relationship("ActivityProgress", cascade="all,delete", back_populates="student")
     # classes keeps track of all the student's classes
     classes = db.relationship("Classroom", secondary=students_classes_rel, back_populates="students")
+    badges = db.relationship("StudentBadges", cascade="all,delete", back_populates="student")
 
     def __repr__(self):
         return f"Student('{self.id}')"
@@ -631,6 +636,28 @@ class ModuleBadgePrereqs(db.Model):
     xp = db.Column(db.Integer, nullable=False)
     module = db.relationship("Module", back_populates="badge_prereqs")
     badge = db.relationship("Badge", back_populates="modules")
+
+
+# Association object for modules and badges. This is for prerequisites
+class ModuleBadgeWeights(db.Model):
+    module_id = db.Column(db.Integer, db.ForeignKey('module.id'), primary_key=True)
+    badge_id = db.Column(db.Integer, db.ForeignKey('badge.id'), primary_key=True)
+    weight = db.Column(db.Float, nullable=False)
+
+    module = db.relationship("Module", back_populates="badge_weights")
+    badge = db.relationship("Badge", back_populates="module_badge_weights")
+
+
+# Association object to keep track of the student's badge progress
+class StudentBadges(db.Model):
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'), primary_key=True)
+    badge_id = db.Column(db.Integer, db.ForeignKey('badge.id'), primary_key=True)
+    # This contentful_id refers to the contentful id of the badge
+    contentful_id = db.Column(db.Text, nullable=False)
+    xp = db.Column(db.Integer, nullable=False)
+
+    student = db.relationship("Student", back_populates="badges")
+    badge = db.relationship("Badge", back_populates="students")
 
 
 # Association object for topics and badges. This is for prerequisites

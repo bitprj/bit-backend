@@ -1,20 +1,23 @@
-from backend.models import Badge, StudentBadges
+from backend import contentful_client
+from backend.config import SPACE_ID
+from backend.models import Badge, ModuleBadgeWeights, StudentBadges
 
 
 # Function to make a list of badges based on contentful_ids
-def add_badges(contentful_data):
-    badge_list = contentful_data["parameters"]["badges"]["en-US"]
-    badges = []
+def add_badge_weights(badges, module_id):
+    badge_list = []
 
-    if badge_list:
-        for badge in badge_list:
-            contentful_id = badge["sys"]["id"]
-            target_badge = Badge.query.filter_by(contentful_id=contentful_id).first()
-            badges.append(target_badge)
+    for badge in badges:
+        badge_entry = contentful_client.entries(SPACE_ID, 'master').find(badge["sys"]["id"]).fields()
+        target_badge = Badge.query.filter_by(name=badge_entry["badge_name"]).first()
+        badge_weight = ModuleBadgeWeights(badge_id=target_badge.id,
+                                          module_id=module_id,
+                                          weight=badge_entry["weight"])
+        badge_list.append(badge_weight)
 
-    return badges
+    return badge_list
 
-    
+
 # Function to create a badge
 def create_badge(contentful_data):
     badge = Badge(contentful_id=contentful_data["entityId"]

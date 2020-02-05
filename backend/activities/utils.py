@@ -1,5 +1,4 @@
 from backend import contentful_client
-from backend.badges.utils import add_badges
 from backend.cards.utils import add_cards, delete_card
 from backend.config import SPACE_ID
 from backend.models import Activity

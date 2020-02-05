@@ -1,4 +1,6 @@
-from backend.models import Activity, Module, Student
+from backend import db
+from backend.badges.utils import add_badge_weights
+from backend.models import Activity, Module
 from backend.prereqs.fetch import get_activities
 from backend.prereqs.utils import assign_badge_prereqs, delete_badge_prereqs
 
@@ -11,10 +13,22 @@ def create_module(contentful_data):
     return module
 
 
+# Function to delete badge_weights
+def delete_badge_weights(badges):
+    for badge in badges:
+        db.session.delete(badge)
+
+    db.session.commit()
+
+    return
+
+
 # Function to edit a module
 def edit_module(module, contentful_data):
     module.name = contentful_data["parameters"]["name"]["en-US"]
     module.activities = get_activities(contentful_data["parameters"]["activities"]["en-US"])
+    delete_badge_weights(module.badge_weights)
+    module.badge_weights = add_badge_weights(contentful_data["parameters"]["badge_weights"]["en-US"], module.id)
     delete_badge_prereqs(module)
     assign_badge_prereqs(contentful_data, module, "Module")
 
