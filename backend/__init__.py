@@ -15,8 +15,10 @@ import pusher
 app = Flask(__name__)
 
 app.config["SECRET_KEY"] = SECRET_KEY
-app.config["JWT_ACCESS_LIFESPAN"] = {"minutes": 45}
-app.config["JWT_REFRESH_LIFESPAN"] = {"days": 1}
+# app.config["JWT_ACCESS_LIFESPAN"] = {"minutes": 45}
+# app.config["JWT_REFRESH_LIFESPAN"] = {"days": 1}
+# Change token expires later to some time
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = False
 app.config['MAIL_SERVER'] = MAIL_SERVER
 app.config['MAIL_USERNAME'] = MAIL_USERNAME
 app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
