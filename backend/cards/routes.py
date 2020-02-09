@@ -4,11 +4,12 @@ from flask_restful import Resource
 from backend import api, db
 from backend.authentication.decorators import roles_accepted
 from backend.activity_progresses.utils import unlock_card
-from backend.cards.decorators import card_delete, card_exists, card_exists_in_contentful
+from backend.cards.decorators import card_delete, card_exists, card_exists_in_activity, card_exists_in_contentful, \
+    card_is_unlockable
 from backend.cards.schemas import card_schema
 from backend.cards.utils import create_card, delete_card, edit_card
 from backend.hints.schemas import hint_status_schemas
-from backend.models import ActivityProgress, Card, Checkpoint, Student
+from backend.models import ActivityProgress, Card, Checkpoint, HintStatus, Student
 
 # Blueprint for cards
 cards_bp = Blueprint("cards", __name__)
@@ -70,31 +71,36 @@ class CardGetSpecific(Resource):
 
 # This class is used to return data on the locked and unlocked hints for a card on a user
 class CardGetHints(Resource):
-    method_decorators = [roles_accepted("Student"), card_exists]
+    method_decorators = [roles_accepted("Student"), card_exists, card_exists_in_activity]
 
-    # Function to return data on a single card
+    # Function to return data on the HintStatus
     def get(self, activity_id, card_id):
         username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()
-        card = Card.query.get(card_id)
-
         student_activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
                                                                  activity_id=activity_id).first()
-        if card in student_activity_prog.activity.cards:
-            if card in student_activity_prog.cards_locked:
-                unlock_card(student_activity_prog, card)
-                db.session.commit()
 
-            student_activity_prog.last_card_completed = card.id
+        return hint_status_schemas.dump(student_activity_prog.hints)
 
-            return hint_status_schemas.dump(student_activity_prog.hints)
+    # Function to unlock the next card
+    @card_is_unlockable
+    def put(self, activity_id, card_id):
+        username = get_jwt_identity()
+        student = Student.query.filter_by(username=username).first()
+        card = Card.query.get(card_id)
+        student_activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
+                                                                 activity_id=activity_id).first()
+        unlock_card(student_activity_prog, card)
+        student_activity_prog.last_card_unlocked = card.id
+        db.session.commit()
+
         return {
-                   "message": "Card does not belong in activity"
-               }, 500
+                   "message": "Card successfully updated"
+               }, 202
 
 
 # Creates the routes for the classes
 api.add_resource(CardCRUD, "/cards")
 api.add_resource(CardDelete, "/cards/delete")
 api.add_resource(CardGetSpecific, "/cards/<int:card_id>")
-api.add_resource(CardGetHints, "/activities/<int:activity_id>/cards/<int:card_id>/fetch")
+api.add_resource(CardGetHints, "/activities/<int:activity_id>/cards/<int:card_id>")

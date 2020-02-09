@@ -14,7 +14,7 @@ def create_progress(activity_id, current_user_id):
     activity_prog.cards_locked = activity.cards
     activity_prog.cards_locked.pop(0)
     activity_prog.cards_unlocked.append(next_card)
-    activity_prog.last_card_completed = next_card.id
+    activity_prog.last_card_unlocked = next_card.id
     activity_prog.accumulated_gems += next_card.gems
 
     return activity_prog
