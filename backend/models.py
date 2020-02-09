@@ -569,7 +569,7 @@ class ActivityProgress(db.Model):
     is_graded = db.Column(db.Boolean, nullable=False, default=False)
     is_passed = db.Column(db.Boolean, nullable=False, default=False)
     # last_card_completed is last card completed from an activity
-    last_card_completed = db.Column(db.Integer, nullable=True)
+    last_card_unlocked = db.Column(db.Integer, nullable=True)
     date_graded = db.Column(db.Date, nullable=True)
     accumulated_gems = db.Column(db.Integer, nullable=False)
     # cards_locked keeps track os the progresses' locked cards
