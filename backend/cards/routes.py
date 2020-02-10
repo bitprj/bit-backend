@@ -79,8 +79,9 @@ class CardGetHints(Resource):
         student = Student.query.filter_by(username=username).first()
         student_activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
                                                                  activity_id=activity_id).first()
+        hints = HintStatus.query.filter_by(activity_progress_id=student_activity_prog.id, card_id=card_id).all()
 
-        return hint_status_schemas.dump(student_activity_prog.hints)
+        return hint_status_schemas.dump(hints)
 
     # Function to unlock the next card
     @card_is_unlockable

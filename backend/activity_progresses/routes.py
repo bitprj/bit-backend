@@ -38,7 +38,7 @@ class ActivityProgressUpdate(Resource):
 
             db.session.add(student_activity_prog)
             db.session.commit()
-
+            print("created AP")
             # Fills in the hints and cards as locked in the activity progress
             hints = get_cards_hints(student_activity_prog.activity.cards)
             create_hint_status(student_activity_prog, hints)

@@ -27,7 +27,8 @@ def create_hint(contentful_data):
 def create_hint_status(activity_prog, hints):
     for hint in hints:
         hint_status = HintStatus(activity_progress_id=activity_prog.id,
-                                 is_unlocked=False)
+                                 is_unlocked=False,
+                                 card_id=hint.card_id)
         hint_status.hint = hint
 
         db.session.commit()
