@@ -623,6 +623,7 @@ class HintStatus(db.Model):
     id = db.Column('id', db.Integer, primary_key=True)
     activity_progress_id = db.Column(db.Integer, db.ForeignKey("activity_progress.id"))
     hint_id = db.Column(db.Integer, db.ForeignKey('hint.id'))
+    card_id = db.Column(db.Integer, nullable=True)
     is_unlocked = db.Column(db.Boolean, nullable=False, default=False)
 
     # hint children and parent_hint_id allows a one to many relationship on itself

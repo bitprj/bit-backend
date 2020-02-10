@@ -4,7 +4,7 @@ from flask_restful import Resource
 from backend import api, db
 from backend.authentication.decorators import roles_accepted
 from backend.activities.decorators import activity_exists
-from backend.activity_progresses.decorators import activity_prog_exists
+from backend.activity_progresses.decorators import activity_prog_exists, cards_exist_in_activity
 from backend.activity_progresses.schemas import activity_progress_schema
 from backend.activity_progresses.utils import create_progress, unlock_hint
 from backend.cards.utils import get_cards_hints
@@ -21,6 +21,7 @@ class ActivityProgressUpdate(Resource):
     method_decorators = [roles_accepted("Student"), activity_exists]
 
     # Function to return the last card completed on an activity
+    @cards_exist_in_activity
     def get(self, activity_id):
         username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()
@@ -37,7 +38,7 @@ class ActivityProgressUpdate(Resource):
 
             db.session.add(student_activity_prog)
             db.session.commit()
-
+            print("created AP")
             # Fills in the hints and cards as locked in the activity progress
             hints = get_cards_hints(student_activity_prog.activity.cards)
             create_hint_status(student_activity_prog, hints)

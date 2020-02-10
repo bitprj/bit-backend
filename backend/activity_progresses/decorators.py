@@ -1,7 +1,7 @@
 from flask import request
 from flask_jwt_extended import get_jwt_identity
 from backend.activity_progresses.schemas import activity_progress_grading_schema
-from backend.models import ActivityProgress, Student
+from backend.models import Activity, ActivityProgress, Student
 from functools import wraps
 
 
@@ -36,6 +36,23 @@ def activity_prog_grading_format(f):
         else:
             return {
                        "message": "Assignments are in the wrong format."
+                   }, 500
+
+    return wrap
+
+
+# Decorator to check if an activity has cards
+# Activity Progress would fail to be created if cards do not exist
+def cards_exist_in_activity(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        activity = Activity.query.get(kwargs["activity_id"])
+
+        if len(activity.cards) > 0:
+            return f(*args, **kwargs)
+        else:
+            return {
+                       "message": "Activity has no cards. ActivityProgress could not be created"
                    }, 500
 
     return wrap
