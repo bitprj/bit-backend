@@ -1,8 +1,32 @@
 from flask import request
 from flask_jwt_extended import get_jwt_identity
+from backend import safe_url
 from backend.organizations.schemas import organization_file_schema, organization_form_schema
 from backend.models import Organization, User
 from functools import wraps
+
+
+# Decorator to check if a user is in the organization
+def is_in_organization(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        data = safe_url.loads(kwargs["token"], salt="owner_invite", max_age=3600)
+        email = data["email"]
+        organization_id = data["organization_id"]
+        user = User.query.filter_by(username=email).first()
+        organization = Organization.query.get(organization_id)
+
+        if not organization:
+            return {
+                       "message": "Organization does not exist"
+                   }, 404
+
+        if user not in organization.active_users or user not in organization.inactive_users:
+            return {
+                       "message": "The user does not belong in the organization. They have to join the organization first before becoming an owner."
+                   }, 500
+        return f(*args, **kwargs)
+    return wrap
 
 
 # Decorator to check if a organization exists
