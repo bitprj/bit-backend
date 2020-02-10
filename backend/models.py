@@ -121,6 +121,18 @@ user_organization_rel = db.Table("user_organization_rel",
                                  db.Column("organization", db.Integer, db.ForeignKey("organization.id"))
                                  )
 
+# This many to many relationship is used to keep track of which users are a active in an organization
+user_organization_active_rel = db.Table("user_organization_active_rel",
+                                        db.Column("user", db.Integer, db.ForeignKey("user.id")),
+                                        db.Column("organization", db.Integer, db.ForeignKey("organization.id"))
+                                        )
+
+# This many to many relationship is used to keep track of which users are a inactive in an organization
+user_organization_inactive_rel = db.Table("user_organization_inactive_rel",
+                                          db.Column("user", db.Integer, db.ForeignKey("user.id")),
+                                          db.Column("organization", db.Integer, db.ForeignKey("organization.id"))
+                                          )
+
 # PREREQUISITE The tables below are used to keep track of which model is a prerequisite to another model
 # This many to many relationship is used to keep track of the activities need to access a module
 activity_module_prereqs = db.Table("activity_module_prereqs",
@@ -401,6 +413,12 @@ class Organization(db.Model):
     background_image = db.Column(db.Text, nullable=False)
     is_active = db.Column(db.Boolean, nullable=False)
     owners = db.relationship("User", secondary="user_organization_rel", back_populates="organizations")
+    # active_users are used to keep track of which users are active in an organization
+    active_users = db.relationship("User", secondary="user_organization_active_rel",
+                                   back_populates="organizations_active")
+    # inactive_users are used to keep track of which users are not active in an organization
+    inactive_users = db.relationship("User", secondary="user_organization_inactive_rel",
+                                     back_populates="organizations_inactive")
 
     def __init__(self, name, image, background_image, is_active):
         self.name = name
@@ -493,6 +511,10 @@ class User(db.Model):
     location = db.Column(db.Text, nullable=False)
     image = db.Column(db.Text, nullable=True)
     organizations = db.relationship("Organization", secondary="user_organization_rel", back_populates="owners")
+    organizations_active = db.relationship("Organization", secondary="user_organization_active_rel",
+                                           back_populates="active_users")
+    organizations_inactive = db.relationship("Organization", secondary="user_organization_inactive_rel",
+                                             back_populates="inactive_users")
 
     @property
     def rolenames(self):
