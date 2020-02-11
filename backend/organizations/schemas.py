@@ -28,10 +28,13 @@ class OrganizationSchema(ma.Schema):
     name = fields.Str(required=True)
     image = fields.Str(required=True)
     background_image = fields.Str(required=True)
+    owners = fields.Nested("UserSchema", only=("username",), many=True)
+    active_users = fields.Nested("UserSchema", only=("username",), many=True)
+    inactive_users = fields.Nested("UserSchema", only=("username",), many=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("name", "image", "background_image")
+        fields = ("name", "image", "background_image", "owners", "active_users", "inactive_users")
         ordered = True
 
 

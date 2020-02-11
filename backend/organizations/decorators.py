@@ -7,6 +7,7 @@ from functools import wraps
 
 
 # Decorator to check if a user is in the organization
+# This is used when sending invites to users to join an organization
 def is_in_organization(f):
     @wraps(f)
     def wrap(*args, **kwargs):
@@ -26,6 +27,49 @@ def is_in_organization(f):
                        "message": "The user does not belong in the organization. They have to join the organization first before becoming an owner."
                    }, 500
         return f(*args, **kwargs)
+    return wrap
+
+
+# Function to check if a user exists in the
+def exist_in_organization(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        user = None
+        data = request.get_json()
+
+        if data:
+            user = User.query.filter_by(username=data["username"]).first()
+        else:
+            username = get_jwt_identity()
+            user = User.query.filter_by(username=username).first()
+        organization = Organization.query.get(kwargs['organization_id'])
+
+        if user in organization.active_users or user in organization.inactive_users:
+            return f(*args, **kwargs)
+        else:
+            return {
+                "message": "User does not belong in the organization"
+            }, 500
+
+    return wrap
+
+
+# Function to check if a user has already joined the organization or not
+# This is to prevent people from constantly rejoining
+def has_joined_already(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        username = get_jwt_identity()
+        user = User.query.filter_by(username=username).first()
+        organization = Organization.query.get(kwargs['organization_id'])
+
+        if user in organization.active_users or user in organization.inactive_users:
+            return {
+                       "message": "You already joined the organization"
+                   }, 500
+        else:
+            return f(*args, **kwargs)
+
     return wrap
 
 
