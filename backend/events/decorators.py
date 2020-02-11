@@ -5,24 +5,6 @@ from backend.models import Event, User
 from functools import wraps
 
 
-# Decorator to check if a user has rsvp'd for an event
-def has_rsvp(f):
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        event = Event.query.get(kwargs['event_id'])
-        username = get_jwt_identity()
-        user = User.query.filter_by(username=username).first()
-
-        if user in event.rsvp_list:
-            return {
-                       "message": "You already RSVP'd for this event"
-                   }, 404
-        else:
-            return f(*args, **kwargs)
-
-    return wrap
-
-
 # Decorator to check if a event exists
 def event_exists(f):
     @wraps(f)
@@ -35,6 +17,43 @@ def event_exists(f):
             return {
                        "message": "Event does not exist"
                    }, 404
+
+    return wrap
+
+
+# Decorator to check if a user has rsvp'd for an event
+# This is used to prevent users from spamming the rsvp button forever....
+def has_rsvp(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        event = Event.query.get(kwargs['event_id'])
+        username = get_jwt_identity()
+        user = User.query.filter_by(username=username).first()
+
+        if user in event.rsvp_list:
+            return {
+                       "message": "You already RSVP'd for this event"
+                   }, 406
+        else:
+            return f(*args, **kwargs)
+
+    return wrap
+
+
+# Function to check if a user in the rsvp list.
+# If they are then they can be safely removed from the rsvp list
+def in_rsvp(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        event = Event.query.get(kwargs['event_id'])
+        username = get_jwt_identity()
+        user = User.query.filter_by(username=username).first()
+        if user in event.rsvp_list:
+            return f(*args, **kwargs)
+        else:
+            return {
+                       "message": "You can't leave an RSVP if you were not in it in the first place."
+                   }, 406
 
     return wrap
 

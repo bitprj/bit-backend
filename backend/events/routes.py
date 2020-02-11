@@ -2,7 +2,7 @@ from flask import (Blueprint, request)
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource
 from backend import api, db
-from backend.events.decorators import event_exists, has_rsvp, owns_event, valid_event_form
+from backend.events.decorators import event_exists, has_rsvp, in_rsvp, owns_event, valid_event_form
 from backend.events.schemas import event_schema
 from backend.events.utils import create_event, edit_event
 from backend.models import Event, User
@@ -67,6 +67,7 @@ class EventCreate(Resource):
 class EventJoin(Resource):
     method_decorators = [jwt_required, event_exists]
 
+    # Function to let a user rsvp for an event
     @has_rsvp
     def put(self, event_id):
         event = Event.query.get(event_id)
@@ -76,8 +77,21 @@ class EventJoin(Resource):
         db.session.commit()
 
         return {
-            "message": user.name + " has RSVP'd for " + event.name
-        }, 201
+                   "message": user.name + " has RSVP'd for " + event.name
+               }, 201
+
+    # Function to let a user leave an event
+    @in_rsvp
+    def delete(self, event_id):
+        event = Event.query.get(event_id)
+        username = get_jwt_identity()
+        user = User.query.filter_by(username=username).first()
+        event.rsvp_list.remove(user)
+        db.session.commit()
+
+        return {
+                   "message": "Successfully left the RSVP list"
+               }, 200
 
 
 # Creates the routes for the classes
