@@ -15,7 +15,7 @@ authentication_bp = Blueprint("authentication", __name__)
 
 class UserAuthorize(Resource):
     # Route to confirm that the email is real
-    def put(self, token):
+    def get(self, token):
         email = None
 
         try:
@@ -51,7 +51,7 @@ class UserCreate(Resource):
             create_module_progresses(user.incomplete_modules, user)
             create_student_badges(badges, user)
             db.session.commit()
-        # send_verification_email(user.username)
+        send_verification_email(user.username)
 
         return {"message": user_type + " successfully created"}, 202
 

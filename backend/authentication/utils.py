@@ -77,9 +77,9 @@ def create_user(user_type, form_data):
 
 # Function to send an email verification email
 def send_verification_email(email):
-    token = safe_url.dumps(email, salt='email-confirm')
-    msg = Message('Bit Project Email Confirmation', sender='info@bitproject.org', recipients=[email])
-    link = url_for('userauthorize', token=token, _external=True)
+    token = safe_url.dumps(email, salt="email-confirm")
+    msg = Message("Bit Project Email Confirmation", sender="info@bitproject.org", recipients=[email])
+    link = url_for("userauthorize", token=token, _external=True)
     msg.body = "Click the following link to activate your account {}".format(link)
     mail.send(msg)
 
@@ -88,10 +88,10 @@ def send_verification_email(email):
 
 # Function to send an email verification email
 def send_graded_activity_email(email):
-    msg = Message('Your Activity has been graded', sender='info@bitproject.org',
+    msg = Message("Your Activity has been graded", sender="info@bitproject.org",
                   recipients=[email])
     # CHANGE THIS TO POINT TO THE STUDENT PORTAL IN THE FRONTEND
-    link = url_for('studentinfo', _external=True)
+    link = url_for("studentinfo", _external=True)
     msg.body = "Please go visit your student portal to see your grade {}".format(link)
     mail.send(msg)
 
