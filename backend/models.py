@@ -427,7 +427,7 @@ class Organization(db.Model):
         self.is_active = is_active
 
     def __repr__(self):
-        return f"Organization('{self.id}')"
+        return f"Organization('{self.name}')"
 
 
 class Step(db.Model):

@@ -2,8 +2,8 @@ from flask import (Blueprint, request)
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource
 from backend import api, db, safe_url
-from backend.organizations.decorators import is_in_organization, organization_exists, owns_organization, \
-    valid_organization_form
+from backend.organizations.decorators import is_in_organization, exist_in_organization, has_joined_already, \
+    organization_exists, owns_organization, valid_organization_form
 from backend.organizations.schemas import organization_schema
 from backend.organizations.utils import create_organization, edit_organization, remove_user, send_invites
 from backend.models import Organization, User
@@ -85,7 +85,7 @@ class OrganizationInviteConfirm(Resource):
         organization = Organization.query.get(organization_id)
         organization.owners.append(user)
         db.session.commit()
-
+        # TODO replace this to redirect to Bryan Z's frontend route
         return {
                    "message": "Your are now an owner of the organization"
                }, 200
@@ -104,18 +104,18 @@ class OrganizationInviteOwners(Resource):
         send_invites(data["people"], organization)
 
         return {
-            "message": "Invites have been sent"
-        }
+                   "message": "Invites have been sent"
+               }, 200
 
 
 # This class is used to allow people to join an organization
-class OrganizationJoin(Resource):
+class OrganizationMembership(Resource):
     method_decorators = [jwt_required, organization_exists]
 
     # Function to let a user join an organization
+    @has_joined_already
     def put(self, organization_id):
-        data = request.get_json()
-        username = data["username"]
+        username = get_jwt_identity()
         user = User.query.filter_by(username=username).first()
         organization = Organization.query.get(organization_id)
         organization.active_users.append(user)
@@ -125,14 +125,29 @@ class OrganizationJoin(Resource):
                    "message": user.name + " has joined " + organization.name
                }, 200
 
+    # Function to let a user leave an organization
+    @exist_in_organization
+    def delete(self, organization_id):
+        username = get_jwt_identity()
+        user = User.query.filter_by(username=username).first()
+        organization = Organization.query.get(organization_id)
+        remove_user(organization, user)
+        db.session.commit()
+
+        return {
+                   "message": "You successfully left " + organization.name
+               }, 200
+
 
 # This class is used to allow owners of an organization to kick people out of their organization
 class OrganizationRemove(Resource):
     method_decorators = [jwt_required, organization_exists]
 
     # Function to remove a user from an organization
+    # Only owners can kick people out
     @owns_organization
-    def put(self, organization_id):
+    @exist_in_organization
+    def delete(self, organization_id):
         data = request.get_json()
         username = data["username"]
         user = User.query.filter_by(username=username).first()
@@ -151,3 +166,5 @@ api.add_resource(OrganizationCRUD, "/organizations/<int:organization_id>")
 api.add_resource(OrganizationCreate, "/organizations/create")
 api.add_resource(OrganizationInviteOwners, "/organizations/<int:organization_id>/invite")
 api.add_resource(OrganizationInviteConfirm, "/organizations/<string:token>")
+api.add_resource(OrganizationMembership, "/organizations/<int:organization_id>/membership")
+api.add_resource(OrganizationRemove, "/organizations/<int:organization_id>/remove")
