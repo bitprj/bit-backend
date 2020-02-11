@@ -1,11 +1,11 @@
 from flask import (Blueprint, request)
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource
 from backend import api, db
-from backend.events.decorators import event_exists, owns_event, valid_event_form
+from backend.events.decorators import event_exists, has_rsvp, owns_event, valid_event_form
 from backend.events.schemas import event_schema
 from backend.events.utils import create_event, edit_event
-from backend.models import Event
+from backend.models import Event, User
 from backend.organizations.decorators import organization_exists
 
 # Blueprint for events
@@ -63,6 +63,24 @@ class EventCreate(Resource):
                }, 202
 
 
+# Class to control when a user RSVPs for an event
+class EventJoin(Resource):
+    method_decorators = [jwt_required, event_exists]
+
+    @has_rsvp
+    def put(self, event_id):
+        event = Event.query.get(event_id)
+        username = get_jwt_identity()
+        user = User.query.filter_by(username=username).first()
+        event.rsvp_list.append(user)
+        db.session.commit()
+
+        return {
+            "message": user.name + " has RSVP'd for " + event.name
+        }, 201
+
+
 # Creates the routes for the classes
 api.add_resource(EventCRUD, "/events/<int:event_id>")
 api.add_resource(EventCreate, "/organizations/<int:organization_id>/events/create")
+api.add_resource(EventJoin, "/events/<int:event_id>/rsvp")

@@ -5,6 +5,24 @@ from backend.models import Event, User
 from functools import wraps
 
 
+# Decorator to check if a user has rsvp'd for an event
+def has_rsvp(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        event = Event.query.get(kwargs['event_id'])
+        username = get_jwt_identity()
+        user = User.query.filter_by(username=username).first()
+
+        if user in event.rsvp_list:
+            return {
+                       "message": "You already RSVP'd for this event"
+                   }, 404
+        else:
+            return f(*args, **kwargs)
+
+    return wrap
+
+
 # Decorator to check if a event exists
 def event_exists(f):
     @wraps(f)
