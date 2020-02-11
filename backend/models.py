@@ -321,11 +321,12 @@ class Event(db.Model):
     # rsvp_list keeps track of the users that are going to an event
     rsvp_list = db.relationship("User", secondary="user_event_rel", back_populates="rsvp_events")
 
-    def __init__(self, name, date, summary, location):
+    def __init__(self, name, date, summary, location, organization_id):
         self.name = name
         self.date = date
         self.summary = summary
         self.location = location
+        self.organization_id = organization_id
 
     def __repr__(self):
         return f"Event('{self.name}')"

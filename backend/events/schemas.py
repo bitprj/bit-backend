@@ -5,24 +5,26 @@ from marshmallow import fields, validate
 # This schema is used to validate the badge form data
 class EventFormSchema(ma.Schema):
     name = fields.Str(required=True)
+    date = fields.DateTime(required=True, format="%Y-%m-%dT%H:%M:%S%z")
     summary = fields.Str(required=True)
     location = fields.Str(required=True, validate=[validate.Length(max=50)])
+    presenters = fields.List(fields.Str, required=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("name", "summary", "location")
+        fields = ("name", "date", "summary", "location", "presenters")
         ordered = True
 
 
 # This schema is used to display the event data
 class EventSchema(ma.Schema):
     name = fields.Str(required=True)
-    date = fields.DateTime(required=True)
+    date = fields.Date(required=True)
     summary = fields.Str(required=True)
     location = fields.Str(required=True, validate=[validate.Length(max=50)])
-    organization = fields.Nested("OrganizationSchema", only=("id", "name"), many=False)
-    presenters = fields.Nested("UserSchema", only=("id", "username"), many=True)
-    rsvp_list = fields.Nested("UserSchema", only=("id", "username"), many=True)
+    organization = fields.Nested("OrganizationSchema", only=("id", "name"))
+    presenters = fields.Nested("UserSchema", only=("username",), many=True)
+    rsvp_list = fields.Nested("UserSchema", only=("username",), many=True)
 
     class Meta:
         # Fields to show when sending data
