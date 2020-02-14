@@ -25,6 +25,7 @@ class OrganizationFileSchema(ma.Schema):
 
 # This schema is used to display the organization data
 class OrganizationSchema(ma.Schema):
+    id = fields.Int(required=True)
     name = fields.Str(required=True)
     image = fields.Str(required=True)
     background_image = fields.Str(required=True)
@@ -34,7 +35,7 @@ class OrganizationSchema(ma.Schema):
 
     class Meta:
         # Fields to show when sending data
-        fields = ("name", "image", "background_image", "owners", "active_users", "inactive_users")
+        fields = ("id", "name", "image", "background_image", "owners", "active_users", "inactive_users")
         ordered = True
 
 

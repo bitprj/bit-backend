@@ -30,7 +30,7 @@ def is_in_organization(f):
     return wrap
 
 
-# Function to check if a user exists in the
+# Function to check if a user exists in an organization
 def exist_in_organization(f):
     @wraps(f)
     def wrap(*args, **kwargs):

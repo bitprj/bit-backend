@@ -1,5 +1,5 @@
 from backend import guard, mail, safe_url
-from backend.models import Admin, Classroom, Student, Teacher, Track
+from backend.models import Admin, Classroom, Student, Teacher, Track, User
 from backend.prereqs.utils import assign_incomcomplete_activities, assign_incomplete_modules
 from flask_mail import Message
 from flask import url_for
@@ -73,6 +73,17 @@ def create_user(user_type, form_data):
         user = create_student(form_data)
 
     return user
+
+
+# Function to get a list of users based on the username
+def get_users(users):
+    user_list = []
+
+    for user in users:
+        target_user = User.query.filter_by(username=user).first()
+        user_list.append(target_user)
+
+    return user_list
 
 
 # Function to send an email verification email

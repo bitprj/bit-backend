@@ -115,6 +115,18 @@ track_topic_rel = db.Table("track_topic_rel",
                            db.Column("topic_id", db.Integer, db.ForeignKey("topic.id"))
                            )
 
+# This many to many relationship is used to keep track of which users belong to an event and vice versa
+user_event_rel = db.Table("user_event_rel",
+                          db.Column("user", db.Integer, db.ForeignKey("user.id")),
+                          db.Column("event", db.Integer, db.ForeignKey("event.id"))
+                          )
+
+# This many to many relationship is used to keep track of which users are presenters in an event
+user_presenter_event_rel = db.Table("user_presenter_event_rel",
+                                    db.Column("user", db.Integer, db.ForeignKey("user.id")),
+                                    db.Column("event", db.Integer, db.ForeignKey("event.id"))
+                                    )
+
 # This many to many relationship is used to keep track of which organizations belong to which user and vice versa
 user_organization_rel = db.Table("user_organization_rel",
                                  db.Column("user", db.Integer, db.ForeignKey("user.id")),
@@ -296,6 +308,30 @@ class Concept(db.Model):
         return f"Concept('{self.name}')"
 
 
+class Event(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Text, nullable=False)
+    date = db.Column(db.DateTime, nullable=False)
+    summary = db.Column(db.Text, nullable=False)
+    location = db.Column(db.String(50), nullable=False)
+    organization_id = db.Column(db.Integer, db.ForeignKey("organization.id"), nullable=False)
+    organization = db.relationship("Organization", back_populates="events")
+    # presenters keep track of the users that are presenting at an event
+    presenters = db.relationship("User", secondary="user_presenter_event_rel", back_populates="presenter_events")
+    # rsvp_list keeps track of the users that are going to an event
+    rsvp_list = db.relationship("User", secondary="user_event_rel", back_populates="rsvp_events")
+
+    def __init__(self, name, date, summary, location, organization_id):
+        self.name = name
+        self.date = date
+        self.summary = summary
+        self.location = location
+        self.organization_id = organization_id
+
+    def __repr__(self):
+        return f"Event('{self.name}')"
+
+
 class Gem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     amount = db.Column(db.Integer, nullable=False, default=0)
@@ -419,6 +455,7 @@ class Organization(db.Model):
     # inactive_users are used to keep track of which users are not active in an organization
     inactive_users = db.relationship("User", secondary="user_organization_inactive_rel",
                                      back_populates="organizations_inactive")
+    events = db.relationship("Event", cascade="all,delete", back_populates="organization")
 
     def __init__(self, name, image, background_image, is_active):
         self.name = name
@@ -515,6 +552,10 @@ class User(db.Model):
                                            back_populates="active_users")
     organizations_inactive = db.relationship("Organization", secondary="user_organization_inactive_rel",
                                              back_populates="inactive_users")
+    # presenter_events keep track of the events that a user is presenting at
+    presenter_events = db.relationship("Event", secondary="user_presenter_event_rel", back_populates="presenters")
+    # rsvp_events keeps track of the events that the user has rsvp to
+    rsvp_events = db.relationship("Event", secondary="user_event_rel", back_populates="rsvp_list")
 
     @property
     def rolenames(self):
