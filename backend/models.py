@@ -485,6 +485,20 @@ class Step(db.Model):
         return f"Step('{self.heading}')"
 
 
+class Submission(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    results = db.Column(db.JSON, nullable=False)
+    progress_id = db.Column(db.Integer, db.ForeignKey("checkpoint_progress.id"), nullable=False)
+    progress = db.relationship("CheckpointProgress", back_populates="submissions")
+
+    def __init__(self, results, progress_id):
+        self.results = results
+        self.progress_id = progress_id
+
+    def __repr__(self):
+        return f"Submission('{self.id}')"
+
+
 class Topic(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     contentful_id = db.Column(db.Text, nullable=False)
@@ -698,6 +712,7 @@ class CheckpointProgress(db.Model):
     is_completed = db.Column(db.Boolean, nullable=False, default=False)
     checkpoint = db.relationship("Checkpoint", back_populates="activity_progresses")
     activity_checkpoints_progress = db.relationship("ActivityProgress", back_populates="checkpoints")
+    submissions = db.relationship("Submission", cascade="all,delete", back_populates="progress")
     # activity_passed keeps track of a failed checkpoint progress
     activity_failed = db.relationship("ActivityProgress", secondary="activity_progress_checkpoint_failed_rel",
                                       back_populates="checkpoints_failed")
