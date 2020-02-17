@@ -487,12 +487,13 @@ class Step(db.Model):
 
 class Submission(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    result = db.Column(db.JSON, nullable=False)
-    progress_id = db.Column(db.Integer, db.ForeignKey("activity_progress.id"), nullable=False)
-    progress = db.relationship("ActivityProgress", back_populates="submissions")
+    results = db.Column(db.JSON, nullable=False)
+    progress_id = db.Column(db.Integer, db.ForeignKey("checkpoint_progress.id"), nullable=False)
+    progress = db.relationship("CheckpointProgress", back_populates="submissions")
 
-    def __init__(self, result):
-        self.result = result
+    def __init__(self, results, progress_id):
+        self.results = results
+        self.progress_id = progress_id
 
     def __repr__(self):
         return f"Submission('{self.id}')"
@@ -689,7 +690,6 @@ class ActivityProgress(db.Model):
     # checkpoints_passed keeps track of the checkpoint progresses where the student fulfilled the requirements
     checkpoints_passed = db.relationship("CheckpointProgress", secondary="activity_progress_checkpoint_passed_rel",
                                          back_populates="activity_passed")
-    submissions = db.relationship("Submission", cascade="all,delete", back_populates="progress")
     student = db.relationship("Student", back_populates="activity_progresses")
     activity = db.relationship("Activity", back_populates="students")
 
@@ -712,6 +712,7 @@ class CheckpointProgress(db.Model):
     is_completed = db.Column(db.Boolean, nullable=False, default=False)
     checkpoint = db.relationship("Checkpoint", back_populates="activity_progresses")
     activity_checkpoints_progress = db.relationship("ActivityProgress", back_populates="checkpoints")
+    submissions = db.relationship("Submission", cascade="all,delete", back_populates="progress")
     # activity_passed keeps track of a failed checkpoint progress
     activity_failed = db.relationship("ActivityProgress", secondary="activity_progress_checkpoint_failed_rel",
                                       back_populates="checkpoints_failed")
