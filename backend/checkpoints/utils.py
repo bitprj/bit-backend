@@ -1,6 +1,13 @@
 from backend import contentful_client
-from backend.config import SPACE_ID
+from backend.config import SPACE_ID, CONTENT_DELIVERY_API_KEY
 from backend.models import Checkpoint, CheckpointProgress, MCQuestion
+from contentful import Client
+
+client = Client(
+    SPACE_ID,
+    CONTENT_DELIVERY_API_KEY,
+    environment='master'
+)
 
 
 # Function to choose which checkpoint to create based on type
@@ -42,5 +49,10 @@ def edit_checkpoint(checkpoint, contentful_data):
         mc_question = MCQuestion.query.filter_by(
             contentful_id=contentful_data["parameters"]["mc_question"]["en-US"]["sys"]["id"]).first()
         checkpoint.mc_question = mc_question
+
+    if checkpoint.checkpoint_type == "Autograder" and "tests.zip" in contentful_data["parameters"]:
+        test_content_id = contentful_data["parameters"]["tests.zip"]["en-US"]["sys"]["id"]
+        tests = client.asset(test_content_id).fields()["file"]["url"]
+        checkpoint.tests_zip = tests[2:]
 
     return

@@ -259,6 +259,7 @@ class Checkpoint(db.Model):
     contentful_id = db.Column(db.Text, nullable=False)
     name = db.Column(db.Text, nullable=True)
     checkpoint_type = db.Column(db.Text, nullable=True)
+    tests_zip = db.Column(db.Text, nullable=True)
     cards = db.relationship("Card", back_populates="checkpoint")
     activity_progresses = db.relationship("CheckpointProgress", back_populates="checkpoint")
     # mc_question keeps track of mc_question that a checkpoint owns
