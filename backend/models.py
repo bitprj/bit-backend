@@ -557,6 +557,7 @@ class User(db.Model):
     # username is the email
     username = db.Column(db.Text, unique=True, nullable=False)
     password = db.Column(db.Text, unique=True, nullable=False)
+    token = db.Column(db.Text, unique=True, nullable=True)
     # Roles are Admin, Teacher, or Student
     roles = db.Column(db.Text, nullable=False)
     is_active = db.Column(db.Boolean, default=False, nullable=False)
