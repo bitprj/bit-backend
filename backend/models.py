@@ -259,6 +259,7 @@ class Checkpoint(db.Model):
     contentful_id = db.Column(db.Text, nullable=False)
     name = db.Column(db.Text, nullable=True)
     checkpoint_type = db.Column(db.Text, nullable=True)
+    tests_zip = db.Column(db.Text, nullable=True)
     cards = db.relationship("Card", back_populates="checkpoint")
     activity_progresses = db.relationship("CheckpointProgress", back_populates="checkpoint")
     # mc_question keeps track of mc_question that a checkpoint owns
@@ -556,6 +557,7 @@ class User(db.Model):
     # username is the email
     username = db.Column(db.Text, unique=True, nullable=False)
     password = db.Column(db.Text, unique=True, nullable=False)
+    token = db.Column(db.Text, unique=True, nullable=True)
     # Roles are Admin, Teacher, or Student
     roles = db.Column(db.Text, nullable=False)
     is_active = db.Column(db.Boolean, default=False, nullable=False)
