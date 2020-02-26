@@ -9,6 +9,7 @@ from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 from backend.config import *
 from contentful_management import Client
+from github import Github
 from itsdangerous import URLSafeTimedSerializer
 import pusher
 
@@ -43,6 +44,8 @@ ma = Marshmallow()
 migrate = Migrate(app, db)
 # CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["http://localhost:3000"]}})
 CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["*"]}})
+git = Github(GITHUB_ACCESS_TOKEN)
+repo = git.get_repo(GITHUB_REPO)
 contentful_client = Client(CONTENT_MANGEMENT_API_KEY)
 pusher_client = pusher.Pusher(
     app_id=PUSHER_APP_ID,
@@ -67,6 +70,7 @@ from backend.concepts.routes import concepts_bp
 from backend.events.routes import events_bp
 from backend.gems.routes import gems_bp
 from backend.hints.routes import hints_bp
+from backend.hooks.routes import hooks_bp
 from backend.mc_choices.routes import mc_choices_bp
 from backend.mc_questions.routes import mc_questions_bp
 from backend.modules.routes import modules_bp
@@ -92,6 +96,7 @@ app.register_blueprint(concepts_bp)
 app.register_blueprint(events_bp)
 app.register_blueprint(gems_bp)
 app.register_blueprint(hints_bp)
+app.register_blueprint(hooks_bp)
 app.register_blueprint(mc_questions_bp)
 app.register_blueprint(mc_choices_bp)
 app.register_blueprint(modules_bp)
