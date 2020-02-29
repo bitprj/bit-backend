@@ -1,8 +1,9 @@
-from flask import (Blueprint)
+from flask import Blueprint, request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 from backend import api, db
-from backend.tracks.decorators import *
+from backend.models import Track
+from backend.tracks.decorators import track_exists, track_exists_in_github, valid_track_form
 from backend.tracks.schemas import track_schema, tracks_schema
 from backend.tracks.utils import create_track, edit_track
 
@@ -12,12 +13,12 @@ tracks_bp = Blueprint("tracks", __name__)
 
 # Class for track CRUD routes
 class TrackCRUD(Resource):
-    method_decorators = [track_exists_in_contentful]
+    method_decorators = [valid_track_form]
 
     # Function to create a track
     def post(self):
-        contentful_data = request.get_json()
-        track = create_track(contentful_data)
+        data = request.get_json()
+        track = create_track(data)
 
         db.session.add(track)
         db.session.commit()
@@ -25,10 +26,11 @@ class TrackCRUD(Resource):
         return {"message": "Track successfully created"}, 201
 
     # Function to edit an track
+    @track_exists_in_github
     def put(self):
-        contentful_data = request.get_json()
-        track = Track.query.filter_by(contentful_id=contentful_data["entityId"]).first()
-        edit_track(track, contentful_data)
+        data = request.get_json()
+        track = Track.query.filter_by(github_id=data["github_id"]).first()
+        edit_track(data, track)
 
         db.session.commit()
 
@@ -37,12 +39,12 @@ class TrackCRUD(Resource):
 
 # This class is used to delete an track with a POST request
 class TrackDelete(Resource):
-    method_decorators = [track_delete]
+    method_decorators = [track_exists_in_github]
 
     # Function to delete a track!!
     def post(self):
-        contentful_data = request.get_json()
-        track = Track.query.filter_by(contentful_id=contentful_data["entityId"]).first()
+        data = request.get_json()
+        track = Track.query.filter_by(github_id=data["github_id"]).first()
 
         db.session.delete(track)
         db.session.commit()
