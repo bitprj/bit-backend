@@ -13,9 +13,8 @@ tracks_bp = Blueprint("tracks", __name__)
 
 # Class for track CRUD routes
 class TrackCRUD(Resource):
-    method_decorators = [valid_track_form]
-
     # Function to create a track
+    @valid_track_form
     def post(self):
         data = request.get_json()
         track = create_track(data)
@@ -27,6 +26,7 @@ class TrackCRUD(Resource):
 
     # Function to edit an track
     @track_exists_in_github
+    @valid_track_form
     def put(self):
         data = request.get_json()
         track = Track.query.filter_by(github_id=data["github_id"]).first()
@@ -36,13 +36,9 @@ class TrackCRUD(Resource):
 
         return {"message": "Track successfully updated"}, 200
 
-
-# This class is used to delete an track with a POST request
-class TrackDelete(Resource):
-    method_decorators = [track_exists_in_github]
-
     # Function to delete a track!!
-    def post(self):
+    @track_exists_in_github
+    def delete(self):
         data = request.get_json()
         track = Track.query.filter_by(github_id=data["github_id"]).first()
 
@@ -75,6 +71,5 @@ class TrackGetSpecific(Resource):
 
 # Creates the routes for the classes
 api.add_resource(TrackCRUD, "/tracks")
-api.add_resource(TrackDelete, "/tracks/delete")
 api.add_resource(TrackFetchAll, "/tracks/all")
 api.add_resource(TrackGetSpecific, "/tracks/<int:track_id>")

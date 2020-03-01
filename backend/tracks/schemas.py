@@ -2,7 +2,7 @@ from backend import ma
 from marshmallow import fields
 
 
-# This schema is used to display track data
+# This schema is used to validate form data
 class TrackFormSchema(ma.Schema):
     github_id = fields.Int(required=True)
     name = fields.Str(required=True)
@@ -24,7 +24,7 @@ class TrackSchema(ma.Schema):
     description = fields.Str(required=True)
     # We are referencing another Schema below. You do this in oder to avoid circular referencing
     # The only keyword is used to show the id of topics
-    topics = fields.Nested("TopicSchema", only=("id", "contentful_id"), many=True)
+    topics = fields.Nested("TopicSchema", only=("id", "github_id", "name"), many=True)
     # required_topics = fields.Nested("TopicSchema", only=("id", "contentful_id"), many=True)
 
     class Meta:

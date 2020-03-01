@@ -25,7 +25,7 @@ def track_exists_in_github(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         data = request.get_json()
-        track = Track.query.filter_by(github_id=data["github_id"])
+        track = Track.query.filter_by(github_id=data["github_id"]).first()
 
         if track:
             return f(*args, **kwargs)
