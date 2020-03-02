@@ -6,23 +6,6 @@ from backend.models import Module, Student
 from functools import wraps
 
 
-# Decorator to check if the module can be deleted
-def module_delete(f):
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        data = request.get_json()
-        module = Module.query.filter_by(contentful_id=data["entityId"]).first()
-
-        if module:
-            return f(*args, **kwargs)
-        else:
-            return {
-                       "message": "Module does not exist"
-                   }, 404
-
-    return wrap
-
-
 # Decorator to check if a module exists
 def module_exists(f):
     @wraps(f)
@@ -57,6 +40,9 @@ def module_exists_in_contentful(f):
                    }, 404
 
     return wrap
+
+
+# Function to check if a module exists in github
 
 
 # Decorator to check if a module is in the incomplete column

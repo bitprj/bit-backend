@@ -61,7 +61,7 @@ class TrackFetchAll(Resource):
 
 # Function to get a specific Track based on track id
 class TrackGetSpecific(Resource):
-    method_decorators = [track_exists]
+    method_decorators = [jwt_required, track_exists]
 
     def get(self, track_id):
         track = Track.query.get(track_id)

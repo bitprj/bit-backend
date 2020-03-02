@@ -2,7 +2,7 @@ from flask import (Blueprint, request)
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 from backend import api, db
-from backend.modules.decorators import module_delete, module_exists, module_exists_in_contentful
+from backend.modules.decorators import module_exists, module_exists_in_contentful
 from backend.modules.schemas import module_schema
 from backend.modules.utils import create_module, edit_module
 from backend.models import Module
@@ -35,11 +35,6 @@ class ModuleCRUD(Resource):
 
         return {"message": "Module successfully updated"}, 200
 
-
-# This class is used to delete an module with a POST request
-class ModuleDelete(Resource):
-    method_decorators = [module_delete]
-
     # Function to delete a module!!
     def post(self):
         contentful_data = request.get_json()
@@ -63,5 +58,4 @@ class ModuleGetSpecific(Resource):
 
 # Creates the routes for the classes
 api.add_resource(ModuleCRUD, "/modules")
-api.add_resource(ModuleDelete, "/modules/delete")
 api.add_resource(ModuleGetSpecific, "/modules/<int:module_id>")

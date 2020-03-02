@@ -35,3 +35,4 @@ SPACE_ID = os.environ.get("SPACE_ID")
 
 GITHUB_ACCESS_TOKEN = os.environ.get("GITHUB_ACCESS_TOKEN")
 GITHUB_REPO = os.environ.get("GITHUB_REPO")
+API = os.environ.get("API")
