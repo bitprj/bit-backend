@@ -21,6 +21,9 @@ def create_topic(form_data):
                   description=form_data["description"]
                   )
 
+    if "modules" in form_data:
+        topic.modules = get_modules(form_data["modules"])
+
     # if "module_prereqs" in contentful_data["parameters"]:
     #     topic.module_prereqs = get_modules(contentful_data["parameters"]["module_prereqs"]["en-US"])
     #
@@ -43,7 +46,9 @@ def delete_topic(topic):
 def edit_topic(topic, form_data):
     topic.name = form_data["name"]
     topic.description = form_data["description"]
-    # topic.modules = get_modules(contentful_data["parameters"]["modules"]["en-US"])
+
+    if "modules" in form_data:
+        topic.modules = get_modules(form_data["modules"])
 
     # delete_badge_prereqs(topic)
     # assign_badge_prereqs(contentful_data, topic, "Topic")

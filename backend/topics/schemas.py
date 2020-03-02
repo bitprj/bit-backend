@@ -7,10 +7,11 @@ class TopicFormSchema(ma.Schema):
     github_id = fields.Int(required=True)
     name = fields.Str(required=True)
     description = fields.Str(required=True)
+    modules = fields.List(fields.Int(), required=False)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("github_id", "name", "description")
+        fields = ("github_id", "name", "description", "modules")
         ordered = True
 
 
@@ -18,7 +19,6 @@ class TopicFormSchema(ma.Schema):
 class TopicSchema(ma.ModelSchema):
     id = fields.Int(required=True)
     github_id = fields.Int(required=True)
-    contentful_id = fields.Str(required=True)
     name = fields.Str(required=True)
     description = fields.Str(required=True)
 
@@ -26,13 +26,12 @@ class TopicSchema(ma.ModelSchema):
     # The only keyword is used to show the id of modules and badge requirements
     # activity_prereqs = fields.Nested("ActivitySchema", only=("id", "contentful_id"), many=True)
     # badge_prereqs = fields.Nested("BadgeRequirementSchema", many=True)
-    # modules = ma.Nested("ModuleSchema", only=("id", "contentful_id"), many=True)
+    modules = ma.Nested("ModuleSchema", only=("id", "name"), many=True)
     # module_prereqs = ma.Nested("ModuleSchema", only=("id", "contentful_id"), many=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "github_id", "name", "description",
-                  "contentful_id")  # , "activity_prereqs", "badge_prereqs", "modules", "module_prereqs")
+        fields = ("id", "github_id", "name", "description", "modules")
         ordered = True
 
 
