@@ -1,5 +1,6 @@
 from backend import repo
 from backend.config import API
+from backend.general_utils import create_image_obj
 from backend.models import Module, Topic, Track
 from backend.tracks.utils import create_tracks_dict
 import ast
@@ -111,12 +112,7 @@ def md_to_json(raw_url):
 def parse_module(file):
     raw_url = file.raw_url
     data = md_to_json(raw_url)
-
-    if "github_id" in data:
-        data["github_id"] = int(data["github_id"])
-
-    if "gems_needed" in data:
-        data["gems_needed"] = int(data["gems_needed"])
+    data = update_module_data(data)
     module = Module.query.filter_by(github_id=data["github_id"]).first()
 
     if module:
@@ -136,3 +132,16 @@ def parse_tracks(track_data, topic_data):
     delete_track_route(tracks)
 
     return
+
+
+# Function to type cast module fields and update image field
+def update_module_data(data):
+    data["image"] = create_image_obj(data)
+
+    if "github_id" in data:
+        data["github_id"] = int(data["github_id"])
+
+    if "gems_needed" in data:
+        data["gems_needed"] = int(data["gems_needed"])
+
+    return data
