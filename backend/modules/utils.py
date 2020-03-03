@@ -1,13 +1,17 @@
 from backend import db
-from backend.badges.utils import add_badge_weights
+# from backend.badges.utils import add_badge_weights
 from backend.models import Activity, Module, ModuleProgress, StudentBadges
-from backend.prereqs.fetch import get_activities
-from backend.prereqs.utils import assign_badge_prereqs, delete_badge_prereqs
+# from backend.prereqs.fetch import get_activities
+# from backend.prereqs.utils import assign_badge_prereqs, delete_badge_prereqs
 
 
 # Function to create a module
-def create_module(contentful_data):
-    module = Module(contentful_id=contentful_data["entityId"]
+def create_module(data):
+    module = Module(github_id=data["github_id"],
+                    name=data["name"],
+                    description=data["description"],
+                    gems_needed=data["gems_needed"],
+                    image=data["image"]
                     )
 
     return module
@@ -69,17 +73,21 @@ def delete_badge_weights(badges):
 
 
 # Function to edit a module
-def edit_module(module, contentful_data):
-    module.name = contentful_data["parameters"]["name"]["en-US"]
-    module.activities = get_activities(contentful_data["parameters"]["activities"]["en-US"])
-    module.gems_needed = contentful_data["parameters"]["gemsNeeded"]["en-US"]
-    delete_badge_weights(module.badge_weights)
-    module.badge_weights = add_badge_weights(contentful_data["parameters"]["badge_weights"]["en-US"], module.id)
-    delete_badge_prereqs(module)
-    assign_badge_prereqs(contentful_data, module, "Module")
+def edit_module(module, data):
+    module.github_id = data["github_id"]
+    module.name = data["name"]
+    module.description = data["description"]
+    module.gems_needed = data["gems_needed"]
+    module.image = data["image"]
 
-    if "activity_prereqs" in contentful_data["parameters"]:
-        module.activity_prereqs = get_activities(contentful_data["parameters"]["activity_prereqs"]["en-US"])
+    # module.activities = get_activities(data[
+    # delete_badge_weights(module.badge_weights)
+    # module.badge_weights = add_badge_weights(contentful_data["parameters"]["badge_weights"]["en-US"], module.id)
+    # delete_badge_prereqs(module)
+    # assign_badge_prereqs(contentful_data, module, "Module")
+
+    # if "activity_prereqs" in contentful_data["parameters"]:
+    #     module.activity_prereqs = get_activities(contentful_data["parameters"]["activity_prereqs"]["en-US"])
 
     return
 

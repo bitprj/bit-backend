@@ -2,7 +2,7 @@ from flask import (Blueprint, request)
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 from backend import api, db
-from backend.modules.decorators import module_exists, module_exists_in_contentful
+from backend.modules.decorators import module_exists, module_exists_in_github, valid_module_form
 from backend.modules.schemas import module_schema
 from backend.modules.utils import create_module, edit_module
 from backend.models import Module
@@ -13,12 +13,12 @@ modules_bp = Blueprint("modules", __name__)
 
 # Class for module CRUD routes
 class ModuleCRUD(Resource):
-    method_decorators = [module_exists_in_contentful]
 
     # Function to create a module
+    @valid_module_form
     def post(self):
-        contentful_data = request.get_json()
-        module = create_module(contentful_data)
+        data = request.get_json()
+        module = create_module(data)
 
         db.session.add(module)
         db.session.commit()
@@ -26,19 +26,22 @@ class ModuleCRUD(Resource):
         return {"message": "Module successfully created"}, 201
 
     # Function to edit an module
+    @valid_module_form
+    @module_exists_in_github
     def put(self):
-        contentful_data = request.get_json()
-        module = Module.query.filter_by(contentful_id=contentful_data["entityId"]).first()
-        edit_module(module, contentful_data)
+        data = request.get_json()
+        module = Module.query.filter_by(github_id=data["github_id"]).first()
+        edit_module(module, data)
 
         db.session.commit()
 
         return {"message": "Module successfully updated"}, 200
 
     # Function to delete a module!!
-    def post(self):
-        contentful_data = request.get_json()
-        module = Module.query.filter_by(contentful_id=contentful_data["entityId"]).first()
+    @module_exists_in_github
+    def delete(self):
+        data = request.get_json()
+        module = Module.query.filter_by(github_id=data["github_id"]).first()
 
         db.session.delete(module)
         db.session.commit()

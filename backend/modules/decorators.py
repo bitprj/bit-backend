@@ -1,8 +1,7 @@
 from flask import request
 from flask_jwt_extended import get_jwt_identity
-from backend import contentful_client
-from backend.config import SPACE_ID
 from backend.models import Module, Student
+from backend.modules.schemas import module_form_schema
 from functools import wraps
 
 
@@ -22,17 +21,14 @@ def module_exists(f):
     return wrap
 
 
-# Decorator to check if a module exists in contentful
-def module_exists_in_contentful(f):
+# Decorator to check if a module exists in github
+def module_exists_in_github(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         data = request.get_json()
-        content_type = data["contentType"]["sys"]["id"]
-        module = Module.query.filter_by(contentful_id=data["entityId"]).first()
-        contentful_module = contentful_client.entries(SPACE_ID, 'master').find(data["entityId"])
-        # Checks if the module exists in contentful and if its a module
-        # Checks if the module exists in the db for put request
-        if contentful_module and content_type == "module" or module:
+        module = Module.query.filter_by(github_id=data["github_id"]).first()
+
+        if module:
             return f(*args, **kwargs)
         else:
             return {
@@ -40,9 +36,6 @@ def module_exists_in_contentful(f):
                    }, 404
 
     return wrap
-
-
-# Function to check if a module exists in github
 
 
 # Decorator to check if a module is in the incomplete column
@@ -96,5 +89,22 @@ def module_is_complete(f):
                        }, 500
 
         return f(*args, **kwargs)
+
+    return wrap
+
+
+# Decorator to validate module form data
+def valid_module_form(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        data = request.get_json()
+        errors = module_form_schema.validate(data)
+
+        if errors:
+            return {
+                       "message": "Missing or sending incorrect data to create a module. Double check the JSON data that it has everything needed to create a module."
+                   }, 500
+        else:
+            return f(*args, **kwargs)
 
     return wrap
