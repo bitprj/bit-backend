@@ -1,5 +1,5 @@
 from flask import (Blueprint, jsonify, request)
-from flask_jwt_extended import create_access_token, jwt_required, set_access_cookies, unset_jwt_cookies
+from flask_jwt_extended import create_access_token, get_csrf_token, jwt_required, set_access_cookies, unset_jwt_cookies
 from flask_restful import Resource
 from backend import api, db, jwt, safe_url
 from backend.authentication.utils import create_user, send_verification_email
@@ -70,7 +70,8 @@ class UserLoginHandler(Resource):
         # Create the tokens we will be sending back to the user
         access_token = create_access_token(identity=username)
         resp = jsonify({"username": username,
-                        "user_type": user.roles
+                        "user_type": user.roles,
+                        "csrf_token": get_csrf_token(access_token),
                         })
         set_access_cookies(resp, access_token)
 
