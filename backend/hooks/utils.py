@@ -79,14 +79,16 @@ def edit_test_json(files):
 # Function to get files from all the commits
 def get_files(commits):
     files = {}
+    removed_files = []
 
     for commit in commits:
         change = repo.get_commit(sha=commit["id"])
+        removed_files += commit["removed"]
 
         for file in change.files:
             files[file.filename] = file
 
-    return files
+    return files, removed_files
 
 
 # Function to parse a markdown file to JSON data
@@ -109,12 +111,18 @@ def md_to_json(raw_url):
 def parse_module(file):
     raw_url = file.raw_url
     data = md_to_json(raw_url)
-    module = Module.query.filter_by(github_id=data["Github_id"])
+
+    if "github_id" in data:
+        data["github_id"] = int(data["github_id"])
+
+    if "gems_needed" in data:
+        data["gems_needed"] = int(data["gems_needed"])
+    module = Module.query.filter_by(github_id=data["github_id"]).first()
 
     if module:
-        requests.put(API + "/")
+        requests.put(API + "/modules", json=data)
     else:
-        requests.post(API + "/module")
+        requests.post(API + "/modules", json=data)
 
     return
 

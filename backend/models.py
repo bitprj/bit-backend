@@ -370,7 +370,7 @@ class Hint(db.Model):
 class Module(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     github_id = db.Column(db.Integer, nullable=False)
-    contentful_id = db.Column(db.Text(), nullable=False)
+    contentful_id = db.Column(db.Text(), nullable=True)
     name = db.Column(db.Text, nullable=False)
     description = db.Column(db.Text, nullable=False)
     # gems_needed represents the number of gems in order to pass a module
@@ -399,8 +399,12 @@ class Module(db.Model):
                                           back_populates="incomplete_modules")
     students = db.relationship("ModuleProgress", cascade="all,delete", back_populates="module")
 
-    def __init__(self, contentful_id):
-        self.contentful_id = contentful_id
+    def __init__(self, github_id, name, description, gems_needed, image):
+        self.github_id = github_id
+        self.name = name
+        self.description = description
+        self.gems_needed = gems_needed
+        self.image = image
 
     def __repr__(self):
         return f"Module('{self.name}')"

@@ -78,7 +78,7 @@ def topic_exists(f):
     return wrap
 
 
-# Decorator to check if a topic exists in contentful
+# Decorator to check if a topic exists in github
 def topic_exists_in_github(f):
     @wraps(f)
     def wrap(*args, **kwargs):
