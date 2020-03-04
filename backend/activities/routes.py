@@ -2,7 +2,7 @@ from flask import (Blueprint, request)
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 from backend import api, db
-from backend.activities.decorators import activity_delete, activity_exists, activity_exists_in_contentful
+from backend.activities.decorators import activity_exists, activity_exists_in_github, valid_activity_form
 from backend.activities.schemas import activity_schema, activities_schema
 from backend.activities.utils import create_activity, delete_cards, edit_activity
 from backend.models import Activity
@@ -13,12 +13,12 @@ activities_bp = Blueprint("activities", __name__)
 
 # Class for activity CRUD routes
 class ActivityCRUD(Resource):
-    method_decorators = [activity_exists_in_contentful]
 
     # Function to create a activity
+    @valid_activity_form
     def post(self):
-        contentful_data = request.get_json()
-        activity = create_activity(contentful_data)
+        data = request.get_json()
+        activity = create_activity(data)
 
         db.session.add(activity)
         db.session.commit()
@@ -26,25 +26,23 @@ class ActivityCRUD(Resource):
         return {"message": "Activity successfully created"}, 201
 
     # Function to edit an activity
+    @valid_activity_form
+    @activity_exists_in_github
     def put(self):
-        contentful_data = request.get_json()
-        activity = Activity.query.filter_by(contentful_id=contentful_data["entityId"]).first()
-        edit_activity(activity, contentful_data)
+        data = request.get_json()
+        activity = Activity.query.filter_by(github_id=data["github_id"]).first()
+        edit_activity(activity, data)
 
         db.session.commit()
 
         return {"message": "Activity successfully updated"}, 200
 
-
-# This class is used to delete an activity with a POST request
-class ActivityDelete(Resource):
-    method_decorators = [activity_delete]
-
     # Function to delete a activity!!
-    def post(self):
-        contentful_data = request.get_json()
-        activity = Activity.query.filter_by(contentful_id=contentful_data["entityId"]).first()
-        delete_cards(activity.cards)
+    @activity_exists_in_github
+    def delete(self):
+        data = request.get_json()
+        activity = Activity.query.filter_by(github_id=data["github_id"]).first()
+        # delete_cards(activity.cards)
 
         db.session.delete(activity)
         db.session.commit()
@@ -77,5 +75,4 @@ class ActivityGetSpecific(Resource):
 # Creates the routes for the classes
 api.add_resource(ActivityCRUD, "/activities")
 api.add_resource(ActivityFetchAll, "/activities/all")
-api.add_resource(ActivityDelete, "/activities/delete")
 api.add_resource(ActivityGetSpecific, "/activities/<int:activity_id>")

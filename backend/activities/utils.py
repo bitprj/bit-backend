@@ -5,9 +5,15 @@ from backend.models import Activity
 
 
 # Function to create a activity
-def create_activity(contentful_data):
-    activity = Activity(contentful_id=contentful_data["entityId"]
+def create_activity(data):
+    activity = Activity(github_id=data["github_id"],
+                        name=data["name"],
+                        description=data["description"],
+                        summary=data["summary"],
+                        difficulty=data["difficulty"],
+                        image=data["image"]
                         )
+    # activity.cards = add_cards(data)
 
     return activity
 
@@ -26,18 +32,13 @@ def delete_cards(cards):
 
 
 # Function to edit an activity
-def edit_activity(activity, contentful_data):
-    activity.name = contentful_data["parameters"]["name"]["en-US"]
-    activity.cards = add_cards(contentful_data)
+def edit_activity(activity, data):
+    activity.github_id = data["github_id"]
+    activity.name = data["name"]
+    activity.description = data["description"]
+    activity.summary = data["summary"]
+    activity.difficulty = data["difficulty"]
+    activity.image = data["image"]
+    # activity.cards = add_cards(data)
 
     return
-
-
-# Function to validate an activity
-def validate_activity(activity_id):
-    activity = Activity.query.get(activity_id)
-
-    if not activity:
-        return True
-
-    return False
