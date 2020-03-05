@@ -1,7 +1,6 @@
 from flask import request
 from flask_jwt_extended import get_jwt_identity
-from backend import contentful_client
-from backend.config import SPACE_ID
+from backend.cards.schemas import card_form_schema
 from backend.models import Activity, ActivityProgress, Card, Student
 from functools import wraps
 
@@ -22,33 +21,12 @@ def card_exists(f):
     return wrap
 
 
-# Decorator to check if a card exists in contentful
-def card_exists_in_contentful(f):
+# Decorator to check if a module exists in github
+def card_exists_in_github(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         data = request.get_json()
-        content_type = data["contentType"]["sys"]["id"]
-        card = Card.query.filter_by(contentful_id=data["entityId"]).first()
-        contentful_card = contentful_client.entries(SPACE_ID, 'master').find(data["entityId"])
-
-        # Checks if the card exists in contentful and if its a card
-        # Checks if the card exists in the db for put request
-        if contentful_card and content_type == "card" or card:
-            return f(*args, **kwargs)
-        else:
-            return {
-                       "message": "Card does not exist"
-                   }, 404
-
-    return wrap
-
-
-# Decorator to check if the card can be deleted
-def card_delete(f):
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        data = request.get_json()
-        card = Card.query.filter_by(contentful_id=data["entityId"]).first()
+        card = Card.query.filter_by(github_raw_data=data["github_raw_data"]).first()
 
         if card:
             return f(*args, **kwargs)
@@ -93,5 +71,22 @@ def card_is_unlockable(f):
             return {
                        "message": "Card already unlocked"
                    }, 404
+
+    return wrap
+
+
+# Decorator to validate card form data
+def valid_card_form(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        data = request.get_json()
+        errors = card_form_schema.validate(data)
+
+        if errors:
+            return {
+                       "message": "Missing or sending incorrect data to create a card. Double check the JSON data that it has everything needed to create a card."
+                   }, 500
+        else:
+            return f(*args, **kwargs)
 
     return wrap

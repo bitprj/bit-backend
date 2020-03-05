@@ -6,22 +6,22 @@ from backend.prereqs.fetch import get_concepts, get_hints
 
 
 # Function to add cards to activities
-def add_cards(contentful_data):
-    card_list = contentful_data["parameters"]["cards"]["en-US"]
+def add_cards(card_data):
     cards = []
 
-    if card_list:
-        for card in card_list:
-            contentful_id = card["sys"]["id"]
-            target_card = Card.query.filter_by(contentful_id=contentful_id).first()
-            cards.append(target_card)
+    for card_val in card_data.values():
+        card = Card.query.filter_by(github_raw_data=card_val["github_raw_data"]).first()
+        cards.append(card)
 
     return cards
 
 
 # Function to create a card
-def create_card(contentful_data):
-    card = Card(contentful_id=contentful_data["entityId"]
+def create_card(data):
+    card = Card(github_raw_data=data["github_raw_data"],
+                name=data["name"],
+                gems=data["gems"],
+                order=data["order"]
                 )
 
     return card
@@ -45,21 +45,22 @@ def delete_card(card, checkpoint):
 
 
 # Function to edit a card
-def edit_card(card, contentful_data):
-    card.name = contentful_data["parameters"]["name"]["en-US"]
-    card.order = contentful_data["parameters"]["order"]["en-US"]
-    card.gems = contentful_data["parameters"]["gems"]["en-US"]
+def edit_card(card, data):
+    card.github_raw_data = data["github_raw_data"]
+    card.name = data["name"]
+    card.order = data["order"]
+    card.gems = data["gems"]
 
-    if "checkpoint" in contentful_data["parameters"]:
-        checkpoint = Checkpoint.query.filter_by(
-            contentful_id=contentful_data["parameters"]["checkpoint"]["en-US"]["sys"]["id"]).first()
-        card.checkpoint_id = checkpoint.id
-
-    if "concepts" in contentful_data["parameters"]:
-        card.concepts = get_concepts(contentful_data["parameters"]["concepts"]["en-US"])
-
-    if "hints" in contentful_data["parameters"]:
-        card.hints = get_hints(contentful_data["parameters"]["hints"]["en-US"])
+    # if "checkpoint" in data["parameters"]:
+    #     checkpoint = Checkpoint.query.filter_by(
+    #         id=data["parameters"]["checkpoint"]["en-US"]["sys"]["id"]).first()
+    #     card.checkpoint_id = checkpoint.id
+    #
+    # if "concepts" in data["parameters"]:
+    #     card.concepts = get_concepts(data["parameters"]["concepts"]["en-US"])
+    #
+    # if "hints" in data["parameters"]:
+    #     card.hints = get_hints(data["parameters"]["hints"]["en-US"])
 
     return
 

@@ -2,6 +2,19 @@ from backend import ma
 from marshmallow import fields
 
 
+# This schema is used to validate the card form data
+class CardFormSchema(ma.ModelSchema):
+    name = fields.Str(required=True)
+    order = fields.Int(required=True)
+    gems = fields.Int(required=True)
+    github_raw_data = fields.Str(required=True)
+
+    class Meta:
+        # Fields to show when sending data
+        fields = ("name", "order", "gems", "github_raw_data")
+        ordered = True
+
+
 # This schema is used to keep track
 class CardSchema(ma.ModelSchema):
     id = fields.Int(required=True)
@@ -20,4 +33,5 @@ class CardSchema(ma.ModelSchema):
         ordered = True
 
 
+card_form_schema = CardFormSchema()
 card_schema = CardSchema()

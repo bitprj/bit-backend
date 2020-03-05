@@ -69,7 +69,8 @@ def valid_activity_form(f):
     def wrap(*args, **kwargs):
         data = request.get_json()
         errors = activity_form_schema.validate(data)
-        print(errors)
+        print(data["difficulty"])
+
         if errors:
             return {
                        "message": "Missing or sending incorrect data to create a activity. Double check the JSON data that it has everything needed to create a activity."
