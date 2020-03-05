@@ -1,7 +1,7 @@
 from backend import repo
 from backend.config import API
 from backend.general_utils import create_image_obj
-from backend.models import Module, Topic, Track
+from backend.models import Activity, Module, Topic, Track
 from backend.tracks.utils import create_tracks_dict
 import ast
 import os
@@ -103,12 +103,28 @@ def md_to_json(raw_url):
     cmd = "md_to_json parse.md"
     output = os.popen(cmd).read()
     result = ast.literal_eval(output)
+    print(result)
     os.remove("parse.md")
 
     return result
 
 
-# Function to to take data from a README.md to Create/Update a module
+# Function to take data from a README.md to Create/Update a module
+def parse_activity(file):
+    raw_url = file.raw_url
+    data = md_to_json(raw_url)
+    data["image"] = create_image_obj(data, "activities")
+    activity = Activity.query.filter_by(github_id=data["github_id"]).first()
+
+    if activity:
+        requests.put(API + "/activities", json=data)
+    else:
+        requests.post(API + "/activities", json=data)
+
+    return
+
+
+# Function to take data from a README.md to Create/Update a module
 def parse_module(file):
     raw_url = file.raw_url
     data = md_to_json(raw_url)
@@ -136,7 +152,7 @@ def parse_tracks(track_data, topic_data):
 
 # Function to type cast module fields and update image field
 def update_module_data(data):
-    data["image"] = create_image_obj(data)
+    data["image"] = create_image_obj(data, "modules")
 
     if "github_id" in data:
         data["github_id"] = int(data["github_id"])

@@ -174,8 +174,13 @@ topic_track_reqs = db.Table("track_topic_reqs",
 
 class Activity(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    contentful_id = db.Column(db.Text, nullable=False)
-    name = db.Column(db.Text, nullable=True)
+    github_id = db.Column(db.Integer, nullable=False)
+    contentful_id = db.Column(db.Text, nullable=True)
+    name = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    summary = db.Column(db.Text, nullable=False)
+    difficulty = db.Column(db.String(20), nullable=False)
+    image = db.Column(db.Text, nullable=False)
     # cards keeps track of all the cards that is owned by an Activity
     cards = db.relationship("Card", cascade="all,delete", back_populates="activity")
     # modules keeps track of all of the modules that an activity belongs to
@@ -198,8 +203,13 @@ class Activity(db.Model):
     # students keep track of the student's activity progress
     students = db.relationship("ActivityProgress", back_populates="activity")
 
-    def __init__(self, contentful_id):
-        self.contentful_id = contentful_id
+    def __init__(self, github_id, name, description, summary, difficulty, image):
+        self.github_id = github_id
+        self.name = name
+        self.description = description
+        self.summary = summary
+        self.difficulty = difficulty
+        self.image = image
 
     def __repr__(self):
         return f"Activity('{self.name}')"

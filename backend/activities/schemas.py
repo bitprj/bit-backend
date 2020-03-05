@@ -11,10 +11,11 @@ class ActivityFormSchema(ma.Schema):
     difficulty = fields.Str(required=True)
     image = fields.Str(required=True)
     image_folder = fields.Str(required=True)
+    folder_location = fields.Str(required=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("github_id", "name", "description", "summary", "difficulty", "image", "image_folder")
+        fields = ("github_id", "name", "description", "summary", "difficulty", "image", "image_folder", "folder_location")
         ordered = True
 
 

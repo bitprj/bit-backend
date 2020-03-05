@@ -1,4 +1,4 @@
-from backend import contentful_client
+from backend import contentful_client, repo
 from backend.cards.utils import add_cards, delete_card
 from backend.config import SPACE_ID
 from backend.models import Activity
@@ -13,6 +13,13 @@ def create_activity(data):
                         difficulty=data["difficulty"],
                         image=data["image"]
                         )
+    contents = repo.get_contents(path=data["folder_location"])
+
+    cards = {}
+    for content in contents:
+        card_name = content.path.split("/")[2]
+        cards[card_name] = content.download_url
+
     # activity.cards = add_cards(data)
 
     return activity

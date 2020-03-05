@@ -21,7 +21,7 @@ def add_file(image_bytes, folder, filename):
 
 
 # Function to create an image object
-def create_image_obj(data):
+def create_image_obj(data, folder):
     # Gets the image path
     regex = r'\(([^)]+)'
     image_name = re.search(regex, data["image"]).group(1)
@@ -34,4 +34,4 @@ def create_image_obj(data):
     image.save(image_bytes, format=image.format)
     image_bytes.seek(0)
 
-    return add_file(image_bytes, "modules", image_name[7:])
+    return add_file(image_bytes, folder, image_name[7:])
