@@ -11,7 +11,7 @@ class CardSchema(ma.ModelSchema):
     # activity is used to keep track of which activity that the card belongs to
     activity = ma.Nested("ActivitySchema", only=("id", "contentful_id"))
     concepts = ma.Nested("ConceptSchema", only=("id", "contentful_id"), many=True)
-    hints = ma.Nested("HintSchema", only=("id", "contentful_id", "hint_children"), many=True)
+    hints = ma.Nested("HintSchema", only=("id", "contentful_id", "hints"), many=True)
     checkpoint = ma.Nested("CheckpointSchema", only=("id", "contentful_id"))
 
     class Meta:

@@ -174,8 +174,13 @@ topic_track_reqs = db.Table("track_topic_reqs",
 
 class Activity(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    contentful_id = db.Column(db.Text, nullable=False)
-    name = db.Column(db.Text, nullable=True)
+    github_id = db.Column(db.Integer, nullable=False)
+    contentful_id = db.Column(db.Text, nullable=True)
+    name = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    summary = db.Column(db.Text, nullable=False)
+    difficulty = db.Column(db.String(20), nullable=False)
+    image = db.Column(db.Text, nullable=False)
     # cards keeps track of all the cards that is owned by an Activity
     cards = db.relationship("Card", cascade="all,delete", back_populates="activity")
     # modules keeps track of all of the modules that an activity belongs to
@@ -198,8 +203,13 @@ class Activity(db.Model):
     # students keep track of the student's activity progress
     students = db.relationship("ActivityProgress", back_populates="activity")
 
-    def __init__(self, contentful_id):
-        self.contentful_id = contentful_id
+    def __init__(self, github_id, name, description, summary, difficulty, image):
+        self.github_id = github_id
+        self.name = name
+        self.description = description
+        self.summary = summary
+        self.difficulty = difficulty
+        self.image = image
 
     def __repr__(self):
         return f"Activity('{self.name}')"
@@ -354,7 +364,7 @@ class Hint(db.Model):
     card_id = db.Column(db.Integer, db.ForeignKey("card.id"))
     card = db.relationship("Card", back_populates="hints")
     parent_hint_id = db.Column(db.Integer, db.ForeignKey("hint.id"), nullable=True)
-    hint_children = db.relationship("Hint", cascade="all,delete",
+    hints = db.relationship("Hint", cascade="all,delete",
                                     backref=db.backref('parent_hint', remote_side='Hint.id'))
     # steps keep track of which steps a hint owns
     steps = db.relationship("Step", cascade="all,delete", back_populates="hint")
@@ -369,10 +379,13 @@ class Hint(db.Model):
 
 class Module(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    contentful_id = db.Column(db.Text(), nullable=False)
-    name = db.Column(db.Text, nullable=True)
+    github_id = db.Column(db.Integer, nullable=False)
+    contentful_id = db.Column(db.Text(), nullable=True)
+    name = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text, nullable=False)
     # gems_needed represents the number of gems in order to pass a module
     gems_needed = db.Column(db.Integer, nullable=False)
+    image = db.Column(db.Text, nullable=False)
     # activities keeps track of all of the activities that belongs to a module
     activities = db.relationship("Activity", secondary="activity_module_rel", back_populates="modules")
     # topics keep track of all of the topics that a module belongs to
@@ -396,8 +409,12 @@ class Module(db.Model):
                                           back_populates="incomplete_modules")
     students = db.relationship("ModuleProgress", cascade="all,delete", back_populates="module")
 
-    def __init__(self, contentful_id):
-        self.contentful_id = contentful_id
+    def __init__(self, github_id, name, description, gems_needed, image):
+        self.github_id = github_id
+        self.name = name
+        self.description = description
+        self.gems_needed = gems_needed
+        self.image = image
 
     def __repr__(self):
         return f"Module('{self.name}')"
@@ -502,8 +519,10 @@ class Submission(db.Model):
 
 class Topic(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    contentful_id = db.Column(db.Text, nullable=False)
-    name = db.Column(db.Text, nullable=True)
+    github_id = db.Column(db.Integer, nullable=False)
+    contentful_id = db.Column(db.Text, nullable=True)
+    name = db.Column(db.Text, unique=True, nullable=True)
+    description = db.Column(db.Text, nullable=False)
     # modules keeps track of all of the modules that the belong to a topic
     modules = db.relationship("Module", secondary="topic_module_rel", back_populates="topics")
     # tracks keep track of all of the topics that belong to a track
@@ -526,8 +545,10 @@ class Topic(db.Model):
     students_inprogress = db.relationship("Student", secondary="student_topic_inprogress_rel",
                                           back_populates="inprogress_topics")
 
-    def __init__(self, contentful_id):
-        self.contentful_id = contentful_id
+    def __init__(self, github_id, name, description):
+        self.github_id = github_id
+        self.name = name
+        self.description = description
 
     def __repr__(self):
         return f"Topic('{self.name}')"
@@ -535,8 +556,10 @@ class Topic(db.Model):
 
 class Track(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    contentful_id = db.Column(db.Text, nullable=False)
-    name = db.Column(db.Text, nullable=True)
+    github_id = db.Column(db.Integer, nullable=False)
+    contentful_id = db.Column(db.Text, nullable=True)
+    name = db.Column(db.Text, unique=True, nullable=True)
+    description = db.Column(db.Text, nullable=False)
     # topics keep track of which topics belong to a track
     topics = db.relationship("Topic", secondary="track_topic_rel", back_populates="tracks")
     # required topics keep track of the required topics that need to be completed by the user
@@ -544,8 +567,10 @@ class Track(db.Model):
     # students keep track of which student is associated with a particular track
     students = db.relationship("Student", back_populates="current_track")
 
-    def __init__(self, contentful_id):
-        self.contentful_id = contentful_id
+    def __init__(self, github_id, name, description):
+        self.github_id = github_id
+        self.name = name
+        self.description = description
 
     def __repr__(self):
         return f"Track('{self.name}')"

@@ -10,11 +10,11 @@ class HintSchema(ma.ModelSchema):
     name = fields.Str(required=True)
     parent = fields.Int(missing=None, required=False)
     steps = fields.Nested(StepSchema, many=True)
-    hint_children = fields.Nested("HintSchema", only=("id", "contentful_id"), many=True)
+    hints = fields.Nested("HintSchema", only=("id", "contentful_id"), many=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "contentful_id", "name", "parent", "steps", "hint_children")
+        fields = ("id", "contentful_id", "name", "parent", "steps", "hints")
         ordered = True
 
 

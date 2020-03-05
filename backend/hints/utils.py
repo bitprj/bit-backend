@@ -33,7 +33,7 @@ def create_hint_status(activity_prog, hints):
 
         db.session.commit()
 
-        for children_hint in hint.hint_children:
+        for children_hint in hint.hints:
             child_hint_status = HintStatus(activity_progress_id=activity_prog.id,
                                            parent_hint_id=hint_status.id,
                                            is_unlocked=False)
@@ -61,7 +61,7 @@ def edit_hint(hint, contentful_data):
     hint.gems = contentful_data["parameters"]["gems"]["en-US"]
 
     if "children_hints" in contentful_data["parameters"]:
-        hint.hint_children = assign_hints_to_parent_hint(contentful_data["parameters"]["children_hints"]["en-US"])
+        hint.hints = assign_hints_to_parent_hint(contentful_data["parameters"]["children_hints"]["en-US"])
 
     return
 
