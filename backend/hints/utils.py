@@ -74,3 +74,25 @@ def validate_hint(hint_id):
         return False
 
     return True
+
+
+# Function to sort a cards hints
+def sort_hints(hints):
+    hints.sort(key=lambda x: x.id)
+
+    for hint in hints:
+        if hint.hints:
+            sort_hints(hint.hints)
+
+    return
+
+
+# A function to sort a HintStatus objects
+def sort_hint_status(hints):
+    hints.sort(key=lambda x: x.hint.id)
+
+    for hint in hints:
+        if hint.hints:
+            sort_hint_status(hint.hints)
+
+    return

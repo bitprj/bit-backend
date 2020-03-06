@@ -9,6 +9,7 @@ from backend.cards.decorators import card_delete, card_exists, card_exists_in_ac
 from backend.cards.schemas import card_schema
 from backend.cards.utils import create_card, delete_card, edit_card
 from backend.hints.schemas import hint_status_schemas
+from backend.hints.utils import sort_hint_status
 from backend.models import ActivityProgress, Card, Checkpoint, HintStatus, Student
 
 # Blueprint for cards
@@ -80,6 +81,7 @@ class CardGetHints(Resource):
         student_activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
                                                                  activity_id=activity_id).first()
         hints = HintStatus.query.filter_by(activity_progress_id=student_activity_prog.id, card_id=card_id).all()
+        sort_hint_status(hints)
 
         return hint_status_schemas.dump(hints)
 
