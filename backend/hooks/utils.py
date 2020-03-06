@@ -1,11 +1,35 @@
 from backend import repo
 from backend.config import API
 from backend.general_utils import create_image_obj
-from backend.models import Activity, Module, Topic, Track
+from backend.models import Activity, Card, Module, Topic, Track
 from backend.tracks.utils import create_tracks_dict
 import ast
 import os
 import requests
+
+
+# Function to call the Card's Create/Update route
+def call_card_routes(card_data, folder_path):
+    contents = repo.get_contents(path=folder_path)
+    cards = {}
+
+    for content in contents:
+        if "README.md" not in content.path and "images" not in content.path:
+            card_name = content.path.split("/")[2]
+            cards[card_name] = content.download_url
+
+    for card_name, raw_data in cards.items():
+        card = Card.query.filter_by(github_raw_data=raw_data).first()
+        card_data[card_name]["github_raw_data"] = raw_data
+        card_data[card_name]["gems"] = int(card_data[card_name]["gems"])
+        card_data[card_name]["order"] = int(card_data[card_name]["order"])
+
+        if card:
+            requests.put(API + "/cards", json=card_data[card_name])
+        else:
+            requests.post(API + "/cards", json=card_data[card_name])
+
+    return
 
 
 # Function to call the Topic's Create/Update route
@@ -103,7 +127,6 @@ def md_to_json(raw_url):
     cmd = "md_to_json parse.md"
     output = os.popen(cmd).read()
     result = ast.literal_eval(output)
-    print(result)
     os.remove("parse.md")
 
     return result
@@ -115,6 +138,7 @@ def parse_activity(file):
     data = md_to_json(raw_url)
     data["image"] = create_image_obj(data, "activities")
     activity = Activity.query.filter_by(github_id=data["github_id"]).first()
+    call_card_routes(data["cards"], data["folder_path"])
 
     if activity:
         requests.put(API + "/activities", json=data)

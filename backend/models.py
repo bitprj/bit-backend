@@ -236,7 +236,8 @@ class Badge(db.Model):
 
 class Card(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    contentful_id = db.Column(db.Text(), nullable=False)
+    contentful_id = db.Column(db.Text(), nullable=True)
+    github_raw_data = db.Column(db.Text, nullable=False)
     name = db.Column(db.Text, nullable=True)
     gems = db.Column(db.Integer, nullable=True)
     # order is a number to keep track of the order in which this card will be displayed
@@ -245,7 +246,7 @@ class Card(db.Model):
     activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"))
     activity = db.relationship("Activity", back_populates="cards")
     checkpoint_id = db.Column(db.Integer, db.ForeignKey("checkpoint.id"))
-    checkpoint = db.relationship("Checkpoint", back_populates="cards")
+    checkpoint = db.relationship("Checkpoint", cascade="all,delete", back_populates="cards")
     # concepts keeps track of which concepts that the card owns
     concepts = db.relationship("Concept", secondary="card_concept_rel", back_populates="cards")
     # hints keep track of the hints that a card owns
@@ -257,8 +258,11 @@ class Card(db.Model):
     activity_unlocked_cards = db.relationship("ActivityProgress", secondary="activity_progress_unlocked_cards_rel",
                                               back_populates="cards_unlocked")
 
-    def __init__(self, contentful_id):
-        self.contentful_id = contentful_id
+    def __init__(self, github_raw_data, name, gems, order):
+        self.github_raw_data = github_raw_data
+        self.name = name
+        self.gems = gems
+        self.order = order
 
     def __repr__(self):
         return f"Card('{self.name}')"
@@ -364,8 +368,8 @@ class Hint(db.Model):
     card_id = db.Column(db.Integer, db.ForeignKey("card.id"))
     card = db.relationship("Card", back_populates="hints")
     parent_hint_id = db.Column(db.Integer, db.ForeignKey("hint.id"), nullable=True)
-    hint_children = db.relationship("Hint", cascade="all,delete",
-                                    backref=db.backref('parent_hint', remote_side='Hint.id'))
+    hints = db.relationship("Hint", cascade="all,delete",
+                            backref=db.backref('parent_hint', remote_side='Hint.id'))
     # steps keep track of which steps a hint owns
     steps = db.relationship("Step", cascade="all,delete", back_populates="hint")
     activity_progresses = db.relationship("HintStatus", back_populates="hint")
