@@ -365,7 +365,7 @@ class Hint(db.Model):
     card = db.relationship("Card", back_populates="hints")
     parent_hint_id = db.Column(db.Integer, db.ForeignKey("hint.id"), nullable=True)
     hints = db.relationship("Hint", cascade="all,delete",
-                                    backref=db.backref('parent_hint', remote_side='Hint.id'))
+                            backref=db.backref('parent_hint', remote_side='Hint.id'))
     # steps keep track of which steps a hint owns
     steps = db.relationship("Step", cascade="all,delete", back_populates="hint")
     activity_progresses = db.relationship("HintStatus", back_populates="hint")
@@ -758,8 +758,8 @@ class HintStatus(db.Model):
 
     # hint children and parent_hint_id allows a one to many relationship on itself
     parent_hint_id = db.Column(db.Integer, db.ForeignKey("hint_status.id"), nullable=True)
-    hint_children = db.relationship("HintStatus", cascade="all,delete",
-                                    backref=db.backref('parent_hint', remote_side='HintStatus.id'))
+    hints = db.relationship("HintStatus", cascade="all,delete",
+                            backref=db.backref('parent_hint', remote_side='HintStatus.id'))
     hint = db.relationship("Hint", back_populates="activity_progresses")
     activity = db.relationship("ActivityProgress", back_populates="hints")
 
