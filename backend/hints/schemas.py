@@ -25,7 +25,7 @@ class HintStatusSchema(ma.ModelSchema):
 
     class Meta:
         # Fields to show when sending data
-        fields = ("hint", "hint_children", "is_unlocked")
+        fields = ("hint", "hints", "is_unlocked")
         ordered = True
 
 
