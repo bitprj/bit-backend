@@ -1,6 +1,6 @@
 from backend import contentful_client, db
 from backend.config import SPACE_ID
-from backend.models import Hint, HintStatus
+from backend.models import Card, Hint, HintStatus
 from backend.prereqs.fetch import get_steps
 
 
@@ -16,8 +16,11 @@ def assign_hints_to_parent_hint(children_hints):
 
 
 # Function to create a hint
-def create_hint(contentful_data):
-    hint = Hint(contentful_data["entityId"]
+def create_hint(data):
+    hint = Hint(name=data["name"],
+                gems=data["gems"],
+                order=data["order"],
+                github_raw_data=data["github_raw_data"]
                 )
 
     return hint
@@ -55,13 +58,23 @@ def delete_hint(hint):
 
 
 # Function to edit a hint
-def edit_hint(hint, contentful_data):
-    hint.name = contentful_data["parameters"]["name"]["en-US"]
-    hint.steps = get_steps(contentful_data["parameters"]["steps"]["en-US"])
-    hint.gems = contentful_data["parameters"]["gems"]["en-US"]
+def edit_hint(hint, data):
+    hint.name = data["name"]
+    hint.gems = data["gems"]
+    hint.order = data["order"]
+    hint.github_raw_data = data["github_raw_data"]
 
-    if "children_hints" in contentful_data["parameters"]:
-        hint.hint_children = assign_hints_to_parent_hint(contentful_data["parameters"]["children_hints"]["en-US"])
+    if data["is_card_hint"]:
+        parent = Card.query.filter_by(github_raw_data=data["parent"]).first()
+        hint.card_id = parent.id
+    else:
+        parent = Hint.query.filter_by(github_raw_data=data["parent"]).first()
+        parent.hints.append(hint)
+
+    # hint.steps = get_steps(contentful_data["parameters"]["steps"]["en-US"])
+
+    # if "children_hints" in contentful_data["parameters"]:
+    #     hint.hint_children = assign_hints_to_parent_hint(contentful_data["parameters"]["children_hints"]["en-US"])
 
     return
 

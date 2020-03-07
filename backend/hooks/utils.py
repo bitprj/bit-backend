@@ -1,7 +1,7 @@
 from backend import repo
 from backend.config import API
 from backend.general_utils import create_image_obj
-from backend.models import Activity, Card, Module, Topic, Track
+from backend.models import Activity, Card, Hint, Module, Topic, Track
 from backend.tracks.utils import create_tracks_dict
 import ast
 import os
@@ -10,24 +10,56 @@ import requests
 
 # Function to call the Card's Create/Update route
 def call_card_routes(card_data, folder_path):
+    print(card_data)
     contents = repo.get_contents(path=folder_path)
     cards = {}
 
     for content in contents:
         if "README.md" not in content.path and "images" not in content.path:
             card_name = content.path.split("/")[2]
+            card_name = card_name.split(".")[0]
             cards[card_name] = content.download_url
 
-    for card_name, raw_data in cards.items():
-        card = Card.query.filter_by(github_raw_data=raw_data).first()
-        card_data[card_name]["github_raw_data"] = raw_data
+    for card_name, raw_data in card_data.items():
+        # print(cards[card_name])
+        name_length = len(card_name) - 2
+        if name_length < 0:
+            print("card_name", card_name)
+            print("card_data", cards[card_name])
+        else:
+            parent_name = card_name[:name_length]
+            card_data[card_name]["parent"] = cards[parent_name]
+            print("card_name", card_name)
+            print("parent_name", parent_name)
+            print("card_data", cards[card_name])
+            print("parent_data", cards[parent_name])
+
+        card_data[card_name]["github_raw_data"] = cards[card_name]
         card_data[card_name]["gems"] = int(card_data[card_name]["gems"])
         card_data[card_name]["order"] = int(card_data[card_name]["order"])
+        name_length = len(card_name) - 2
 
-        if card:
-            requests.put(API + "/cards", json=card_data[card_name])
+        if name_length < 0:
+            card = Card.query.filter_by(github_raw_data=cards[card_name]).first()
+
+            if card:
+                requests.put(API + "/cards", json=card_data[card_name])
+            else:
+                requests.post(API + "/cards", json=card_data[card_name])
         else:
-            requests.post(API + "/cards", json=card_data[card_name])
+            hint = Hint.query.filter_by(github_raw_data=cards[card_name]).first()
+            parent_name = card_name[:name_length]
+            card_data[card_name]["parent"] = cards[parent_name]
+
+            if name_length == 1:
+                card_data[card_name]["is_card_hint"] = True
+            else:
+                card_data[card_name]["is_card_hint"] = False
+
+            if hint:
+                requests.put(API + "/hints", json=card_data[card_name])
+            else:
+                requests.post(API + "/hints", json=card_data[card_name])
 
     return
 

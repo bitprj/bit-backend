@@ -21,7 +21,7 @@ def card_exists(f):
     return wrap
 
 
-# Decorator to check if a module exists in github
+# Decorator to check if a card exists in github
 def card_exists_in_github(f):
     @wraps(f)
     def wrap(*args, **kwargs):

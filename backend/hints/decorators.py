@@ -1,6 +1,5 @@
 from flask import request
-from backend import contentful_client
-from backend.config import SPACE_ID
+from backend.hints.schemas import hint_form_schema
 from backend.models import Hint
 from functools import wraps
 
@@ -21,17 +20,14 @@ def hint_exists(f):
     return wrap
 
 
-# Decorator to check if a hint exists in contentful
-def hint_exists_in_contentful(f):
+# Decorator to check if a hint exists in github
+def hint_exists_in_github(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         data = request.get_json()
-        content_type = data["contentType"]["sys"]["id"]
-        hint = Hint.query.filter_by(contentful_id=data["entityId"]).first()
-        contentful_hint = contentful_client.entries(SPACE_ID, 'master').find(data["entityId"])
-        # Checks if the hint exists in contentful and if its a hint
-        # Checks if the hint exists in the db for put request
-        if contentful_hint and content_type == "hint" or hint:
+        hint = Hint.query.filter_by(github_raw_data=data["github_raw_data"]).first()
+
+        if hint:
             return f(*args, **kwargs)
         else:
             return {
@@ -41,18 +37,18 @@ def hint_exists_in_contentful(f):
     return wrap
 
 
-# Decorator to check if the hint can be deleted
-def hint_delete(f):
+# Decorator to validate hint form data
+def valid_hint_form(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         data = request.get_json()
-        hint = Hint.query.filter_by(contentful_id=data["entityId"]).first()
+        errors = hint_form_schema.validate(data)
 
-        if hint:
-            return f(*args, **kwargs)
-        else:
+        if errors:
             return {
-                       "message": "Hint does not exist"
-                   }, 404
+                       "message": "Missing or sending incorrect data to create a hint. Double check the JSON data that it has everything needed to create a hint."
+                   }, 500
+        else:
+            return f(*args, **kwargs)
 
     return wrap

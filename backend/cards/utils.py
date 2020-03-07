@@ -9,9 +9,10 @@ from backend.prereqs.fetch import get_concepts, get_hints
 def add_cards(card_data):
     cards = []
 
-    for card_val in card_data.values():
-        card = Card.query.filter_by(github_raw_data=card_val["github_raw_data"]).first()
-        cards.append(card)
+    for card_name, card_val in card_data.items():
+        if len(card_name) == 1:
+            card = Card.query.filter_by(github_raw_data=card_val["github_raw_data"]).first()
+            cards.append(card)
 
     return cards
 

@@ -35,8 +35,8 @@ class ReceiveMerge(Resource):
         for filename in files_to_delete.keys():
             files_to_change.pop(filename)
 
-        print(files_to_delete)
-        print(files_to_change)
+        # print(files_to_delete)
+        # print(files_to_change)
 
         for file in files_to_change.values():
             if "Module" in file.filename and "Activity" not in file.filename and "README.md" in file.filename:
