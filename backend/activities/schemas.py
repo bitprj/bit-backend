@@ -18,5 +18,20 @@ class ActivitySchema(ma.Schema):
         ordered = True
 
 
+# This schema is used to display data for all activities
+class ActivitiesSchema(ma.ModelSchema):
+    id = fields.Int(required=True)
+    contentful_id = fields.Str(required=True)
+    name = fields.Str(required=True)
+    description = fields.Str(required=True)
+    difficulty = fields.Str(required=True)
+    cards = fields.Nested("CardSchema", only=("name",), many=True)
+
+    class Meta:
+        # Fields to show when sending data
+        fields = ("id", "contentful_id", "name", "description", "difficulty", "cards")
+        ordered = True
+
+
 activity_schema = ActivitySchema()
-activities_schema = ActivitySchema(many=True)
+activities_schema = ActivitiesSchema(many=True)

@@ -23,7 +23,6 @@ def create_checkpoint_progresses(cards, student_id):
     for card in cards:
         if card.checkpoint:
             checkpoint_prog = CheckpointProgress(checkpoint_id=card.checkpoint.id,
-                                                 contentful_id=card.checkpoint.contentful_id,
                                                  student_id=student_id
                                                  )
             checkpoint_progresses.append(checkpoint_prog)
