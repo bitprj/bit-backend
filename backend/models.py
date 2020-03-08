@@ -236,7 +236,8 @@ class Badge(db.Model):
 
 class Card(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    contentful_id = db.Column(db.Text(), nullable=False)
+    contentful_id = db.Column(db.Text(), nullable=True)
+    github_raw_data = db.Column(db.Text, nullable=False)
     name = db.Column(db.Text, nullable=True)
     gems = db.Column(db.Integer, nullable=True)
     # order is a number to keep track of the order in which this card will be displayed
@@ -245,7 +246,7 @@ class Card(db.Model):
     activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"))
     activity = db.relationship("Activity", back_populates="cards")
     checkpoint_id = db.Column(db.Integer, db.ForeignKey("checkpoint.id"))
-    checkpoint = db.relationship("Checkpoint", back_populates="cards")
+    checkpoint = db.relationship("Checkpoint", cascade="all,delete", back_populates="cards")
     # concepts keeps track of which concepts that the card owns
     concepts = db.relationship("Concept", secondary="card_concept_rel", back_populates="cards")
     # hints keep track of the hints that a card owns
@@ -257,8 +258,11 @@ class Card(db.Model):
     activity_unlocked_cards = db.relationship("ActivityProgress", secondary="activity_progress_unlocked_cards_rel",
                                               back_populates="cards_unlocked")
 
-    def __init__(self, contentful_id):
-        self.contentful_id = contentful_id
+    def __init__(self, github_raw_data, name, gems, order):
+        self.github_raw_data = github_raw_data
+        self.name = name
+        self.gems = gems
+        self.order = order
 
     def __repr__(self):
         return f"Card('{self.name}')"
@@ -271,7 +275,7 @@ class Checkpoint(db.Model):
     checkpoint_type = db.Column(db.Text, nullable=True)
     tests_zip = db.Column(db.Text, nullable=True)
     cards = db.relationship("Card", back_populates="checkpoint")
-    activity_progresses = db.relationship("CheckpointProgress", back_populates="checkpoint")
+    checkpoint_progresses = db.relationship("CheckpointProgress", back_populates="checkpoint")
     # mc_question keeps track of mc_question that a checkpoint owns
     mc_question = db.relationship("MCQuestion", cascade="all,delete", uselist=False, back_populates="checkpoint")
 
@@ -358,9 +362,11 @@ class Gem(db.Model):
 
 class Hint(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    contentful_id = db.Column(db.Text, nullable=False)
-    name = db.Column(db.Text, nullable=True)
-    gems = db.Column(db.Integer, nullable=True)
+    contentful_id = db.Column(db.Text, nullable=True)
+    github_raw_data = db.Column(db.Text, nullable=False)
+    name = db.Column(db.Text, nullable=False)
+    gems = db.Column(db.Integer, nullable=False)
+    order = db.Column(db.Integer, nullable=False)
     card_id = db.Column(db.Integer, db.ForeignKey("card.id"))
     card = db.relationship("Card", back_populates="hints")
     parent_hint_id = db.Column(db.Integer, db.ForeignKey("hint.id"), nullable=True)
@@ -370,8 +376,11 @@ class Hint(db.Model):
     steps = db.relationship("Step", cascade="all,delete", back_populates="hint")
     activity_progresses = db.relationship("HintStatus", back_populates="hint")
 
-    def __init__(self, contentful_id):
-        self.contentful_id = contentful_id
+    def __init__(self, name, gems, order, github_raw_data):
+        self.name = name
+        self.gems = gems
+        self.order = order
+        self.github_raw_data = github_raw_data
 
     def __repr__(self):
         return f"Hint('{self.name}')"
@@ -726,18 +735,12 @@ class CheckpointProgress(db.Model):
     id = db.Column('id', db.Integer, primary_key=True)
     activity_progress_id = db.Column(db.Integer, db.ForeignKey("activity_progress.id"))
     checkpoint_id = db.Column(db.Integer, db.ForeignKey('checkpoint.id'))
-    contentful_id = db.Column(db.Text, nullable=False)
     student_id = db.Column(db.Integer, nullable=False)
-    image_to_receive = db.Column(db.Text, nullable=True)
-    video_to_receive = db.Column(db.Text, nullable=True)
-    test_cases_failed = db.Column(db.Integer, nullable=True)
-    test_cases_passed = db.Column(db.Integer, nullable=True)
-    short_answer_response = db.Column(db.Text, nullable=True)
-    multiple_choice_answer = db.Column(db.Text, nullable=True)
+    content = db.Column(db.Text, nullable=True)
     multiple_choice_is_correct = db.Column(db.Boolean, nullable=True, default=False)
     comment = db.Column(db.Text, nullable=True)
     is_completed = db.Column(db.Boolean, nullable=False, default=False)
-    checkpoint = db.relationship("Checkpoint", back_populates="activity_progresses")
+    checkpoint = db.relationship("Checkpoint", back_populates="checkpoint_progresses")
     activity_checkpoints_progress = db.relationship("ActivityProgress", back_populates="checkpoints")
     submissions = db.relationship("Submission", cascade="all,delete", back_populates="progress")
     # activity_passed keeps track of a failed checkpoint progress
