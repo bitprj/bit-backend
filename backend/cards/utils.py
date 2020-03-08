@@ -54,12 +54,18 @@ def edit_card(card, contentful_data):
         checkpoint = Checkpoint.query.filter_by(
             contentful_id=contentful_data["parameters"]["checkpoint"]["en-US"]["sys"]["id"]).first()
         card.checkpoint_id = checkpoint.id
+    else:
+        card.checkpoint = None
 
     if "concepts" in contentful_data["parameters"]:
         card.concepts = get_concepts(contentful_data["parameters"]["concepts"]["en-US"])
+    else:
+        card.concepts = []
 
     if "hints" in contentful_data["parameters"]:
         card.hints = get_hints(contentful_data["parameters"]["hints"]["en-US"])
+    else:
+        card.hints = []
 
     return
 
