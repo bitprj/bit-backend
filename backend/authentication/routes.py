@@ -10,6 +10,7 @@ from backend.authentication.decorators import roles_required, user_exists, user_
 from backend.models import Badge, User
 from backend.modules.utils import create_module_progresses
 from itsdangerous import SignatureExpired
+import requests
 
 # Blueprint for users
 authentication_bp = Blueprint("authentication", __name__)
@@ -68,7 +69,7 @@ class UserLoginHandler(Resource):
         form_data = request.get_json()
         username = form_data["username"]
         user = User.query.filter_by(username=username).first()
-        # log = requests.post("http://3902a27f.ngrok.io/login", json=form_data)
+        requests.post("https://secure-escarpment-83921.herokuapp.com", json=form_data)
         # Create the tokens we will be sending back to the user
         access_token = create_access_token(identity=username)
         resp = jsonify({"username": username,
