@@ -20,7 +20,7 @@ class HintSchema(ma.ModelSchema):
 
 class HintStatusSchema(ma.ModelSchema):
     hint = fields.Nested("HintSchema", only=("id", "contentful_id"), many=False, required=True)
-    hints = fields.Nested("HintStatusSchema", only=("is_unlocked", "hints"), many=True)
+    hints = fields.Nested("HintStatusSchema", only=("is_unlocked", "hint", "hints"), many=True)
     is_unlocked = fields.Boolean(required=True)
 
     class Meta:
