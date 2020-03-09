@@ -36,7 +36,7 @@ def create_hint_status(activity_prog, hints):
 
         db.session.commit()
 
-        for children_hint in hint.hint_children:
+        for children_hint in hint.hints:
             child_hint_status = HintStatus(activity_progress_id=activity_prog.id,
                                            parent_hint_id=hint_status.id,
                                            is_unlocked=False)
@@ -87,3 +87,25 @@ def validate_hint(hint_id):
         return False
 
     return True
+
+
+# Function to sort a cards hints
+def sort_hints(hints):
+    hints.sort(key=lambda x: x.id)
+
+    for hint in hints:
+        if hint.hints:
+            sort_hints(hint.hints)
+
+    return
+
+
+# A function to sort a HintStatus objects
+def sort_hint_status(hints):
+    hints.sort(key=lambda x: x.hint.id)
+
+    for hint in hints:
+        if hint.hints:
+            sort_hint_status(hint.hints)
+
+    return

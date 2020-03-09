@@ -275,7 +275,7 @@ class Checkpoint(db.Model):
     checkpoint_type = db.Column(db.Text, nullable=True)
     tests_zip = db.Column(db.Text, nullable=True)
     cards = db.relationship("Card", back_populates="checkpoint")
-    activity_progresses = db.relationship("CheckpointProgress", back_populates="checkpoint")
+    checkpoint_progresses = db.relationship("CheckpointProgress", back_populates="checkpoint")
     # mc_question keeps track of mc_question that a checkpoint owns
     mc_question = db.relationship("MCQuestion", cascade="all,delete", uselist=False, back_populates="checkpoint")
 
@@ -735,18 +735,12 @@ class CheckpointProgress(db.Model):
     id = db.Column('id', db.Integer, primary_key=True)
     activity_progress_id = db.Column(db.Integer, db.ForeignKey("activity_progress.id"))
     checkpoint_id = db.Column(db.Integer, db.ForeignKey('checkpoint.id'))
-    contentful_id = db.Column(db.Text, nullable=False)
     student_id = db.Column(db.Integer, nullable=False)
-    image_to_receive = db.Column(db.Text, nullable=True)
-    video_to_receive = db.Column(db.Text, nullable=True)
-    test_cases_failed = db.Column(db.Integer, nullable=True)
-    test_cases_passed = db.Column(db.Integer, nullable=True)
-    short_answer_response = db.Column(db.Text, nullable=True)
-    multiple_choice_answer = db.Column(db.Text, nullable=True)
+    content = db.Column(db.Text, nullable=True)
     multiple_choice_is_correct = db.Column(db.Boolean, nullable=True, default=False)
     comment = db.Column(db.Text, nullable=True)
     is_completed = db.Column(db.Boolean, nullable=False, default=False)
-    checkpoint = db.relationship("Checkpoint", back_populates="activity_progresses")
+    checkpoint = db.relationship("Checkpoint", back_populates="checkpoint_progresses")
     activity_checkpoints_progress = db.relationship("ActivityProgress", back_populates="checkpoints")
     submissions = db.relationship("Submission", cascade="all,delete", back_populates="progress")
     # activity_passed keeps track of a failed checkpoint progress
@@ -767,8 +761,8 @@ class HintStatus(db.Model):
 
     # hint children and parent_hint_id allows a one to many relationship on itself
     parent_hint_id = db.Column(db.Integer, db.ForeignKey("hint_status.id"), nullable=True)
-    hint_children = db.relationship("HintStatus", cascade="all,delete",
-                                    backref=db.backref('parent_hint', remote_side='HintStatus.id'))
+    hints = db.relationship("HintStatus", cascade="all,delete",
+                            backref=db.backref('parent_hint', remote_side='HintStatus.id'))
     hint = db.relationship("Hint", back_populates="activity_progresses")
     activity = db.relationship("ActivityProgress", back_populates="hints")
 

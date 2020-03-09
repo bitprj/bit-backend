@@ -20,19 +20,20 @@ app.config["SECRET_KEY"] = SECRET_KEY
 # app.config["JWT_REFRESH_LIFESPAN"] = {"days": 1}
 # Change token expires later to some time
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = False
-app.config['MAIL_SERVER'] = MAIL_SERVER
-app.config['MAIL_USERNAME'] = MAIL_USERNAME
-app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
-app.config['MAIL_PORT'] = MAIL_PORT
-app.config['MAIL_USE_TLS'] = MAIL_USE_TLS
+app.config["MAIL_SERVER"] = MAIL_SERVER
+app.config["MAIL_USERNAME"] = MAIL_USERNAME
+app.config["MAIL_PASSWORD"] = MAIL_PASSWORD
+app.config["MAIL_PORT"] = MAIL_PORT
+app.config["MAIL_USE_TLS"] = MAIL_USE_TLS
 app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
 app.config["SQLALCHEMY_POOL_SIZE"] = 70000
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 app.config["JWT_ACCESS_COOKIE_PATH"] = "/"
 app.config["JWT_COOKIE_CSRF_PROTECT"] = True
-app.config['JWT_COOKIE_SECURE'] = False
+app.config["JWT_COOKIE_SECURE"] = False
 app.config["JWT_SECRET_KEY"] = SECRET_KEY
+app.config["CORS_HEADERS"] = "Content-Type"
 
 api = Api(app)
 db = SQLAlchemy(app)

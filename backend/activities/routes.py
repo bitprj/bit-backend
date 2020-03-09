@@ -5,6 +5,7 @@ from backend import api, db
 from backend.activities.decorators import activity_exists, activity_exists_in_github, valid_activity_form
 from backend.activities.schemas import activity_schema, activities_schema
 from backend.activities.utils import create_activity, delete_cards, edit_activity
+from backend.hints.utils import sort_hints
 from backend.models import Activity
 
 # Blueprint for activities
@@ -68,6 +69,9 @@ class ActivityGetSpecific(Resource):
     def get(self, activity_id):
         activity = Activity.query.get(activity_id)
         activity.cards.sort(key=lambda x: x.order)
+
+        for card in activity.cards:
+            sort_hints(card.hints)
 
         return activity_schema.dump(activity)
 

@@ -1,13 +1,16 @@
 from flask import (Blueprint, jsonify, request)
-from flask_jwt_extended import create_access_token, jwt_required, set_access_cookies, unset_jwt_cookies
+from flask_jwt_extended import create_access_token, get_csrf_token, get_jwt_identity, jwt_required, set_access_cookies, \
+    unset_jwt_cookies
 from flask_restful import Resource
 from backend import api, db, jwt, safe_url
 from backend.authentication.utils import create_user, send_verification_email
 from backend.badges.utils import create_student_badges
-from backend.authentication.decorators import roles_required, user_exists, user_is_active, valid_user_form, valid_user_type
+from backend.authentication.decorators import roles_required, user_exists, user_is_active, valid_user_form, \
+    valid_user_type
 from backend.models import Badge, User
 from backend.modules.utils import create_module_progresses
 from itsdangerous import SignatureExpired
+import requests
 
 # Blueprint for users
 authentication_bp = Blueprint("authentication", __name__)
@@ -22,16 +25,16 @@ class UserAuthorize(Resource):
             email = safe_url.loads(token, salt='email-confirm', max_age=3600)
         except SignatureExpired:
             return {
-                "message": "Your email token has expired. Go send a new one."
-            }, 500
+                       "message": "Your email token has expired. Go send a new one."
+                   }, 500
 
         user = User.query.filter_by(username=email).first()
         user.is_active = True
         db.session.commit()
 
         return {
-            "message": "Your email has been verified. You can login now."
-        }, 200
+                   "message": "Your email has been verified. You can login now."
+               }, 200
 
 
 # Class to create a user
@@ -66,11 +69,12 @@ class UserLoginHandler(Resource):
         form_data = request.get_json()
         username = form_data["username"]
         user = User.query.filter_by(username=username).first()
-        # log = requests.post("http://3902a27f.ngrok.io/login", json=form_data)
+        requests.post("https://secure-escarpment-83921.herokuapp.com", json=form_data)
         # Create the tokens we will be sending back to the user
         access_token = create_access_token(identity=username)
         resp = jsonify({"username": username,
-                        "user_type": user.roles
+                        "user_type": user.roles,
+                        "csrf_token": get_csrf_token(access_token),
                         })
         set_access_cookies(resp, access_token)
 
@@ -92,7 +96,15 @@ class Protected(Resource):
 
     # This route is to check if the user is authenticated with a jwt token
     def get(self):
-        return jsonify({"message": "User is logged!"})
+        username = get_jwt_identity()
+        user = User.query.filter_by(username=username).first()
+
+        return jsonify(
+            {
+                "message": "User is logged!",
+                "user_type": user.roles
+            }
+        )
 
 
 class UserIsAdmin(Resource):
