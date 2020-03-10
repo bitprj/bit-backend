@@ -19,6 +19,7 @@ class TrackFormSchema(ma.Schema):
 # This schema is used to display track data
 class TrackSchema(ma.Schema):
     id = fields.Int(required=True)
+    contentful_id = fields.Str(required=False)
     github_id = fields.Int(required=True)
     name = fields.Str(required=True)
     description = fields.Str(required=True)
@@ -29,7 +30,7 @@ class TrackSchema(ma.Schema):
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "github_id", "name", "description", "topics")
+        fields = ("id", "contentful_id", "github_id", "name", "description", "topics")
         ordered = True
 
 

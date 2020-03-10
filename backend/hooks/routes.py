@@ -48,6 +48,10 @@ class ReceiveMerge(Resource):
             if "Module" in file.filename and "Activity" in file.filename and "README.md" in file.filename:
                 parse_activity(file)
 
+            # if "Module" in file.filename and "Activity" in file.filename and file.filename.endswith(
+            #         ".md") and "README.md" not in file.filename:
+            #     parse_card(file)
+
         for file in files_to_delete.values():
             if "Module" in file.filename and "Activity" not in file.filename and "README.md" in file.filename:
                 data = md_to_json(files_to_delete[file.filename].raw_url)
