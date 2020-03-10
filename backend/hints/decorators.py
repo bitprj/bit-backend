@@ -25,7 +25,7 @@ def hint_exists_in_github(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         data = request.get_json()
-        hint = Hint.query.filter_by(github_raw_data=data["github_raw_data"]).first()
+        hint = Hint.query.filter_by(filename=data["filename"]).first()
 
         if hint:
             return f(*args, **kwargs)

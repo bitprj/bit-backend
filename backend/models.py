@@ -174,13 +174,13 @@ topic_track_reqs = db.Table("track_topic_reqs",
 
 class Activity(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    github_id = db.Column(db.Integer, nullable=False)
+    github_id = db.Column(db.Integer, nullable=True)
     contentful_id = db.Column(db.Text, nullable=True)
-    name = db.Column(db.Text, nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    summary = db.Column(db.Text, nullable=False)
-    difficulty = db.Column(db.String(20), nullable=False)
-    image = db.Column(db.Text, nullable=False)
+    name = db.Column(db.Text, nullable=True)
+    description = db.Column(db.Text, nullable=True)
+    summary = db.Column(db.Text, nullable=True)
+    difficulty = db.Column(db.String(20), nullable=True)
+    image = db.Column(db.Text, nullable=True)
     # cards keeps track of all the cards that is owned by an Activity
     cards = db.relationship("Card", cascade="all,delete", back_populates="activity")
     # modules keeps track of all of the modules that an activity belongs to
@@ -237,7 +237,8 @@ class Badge(db.Model):
 class Card(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     contentful_id = db.Column(db.Text(), nullable=True)
-    github_raw_data = db.Column(db.Text, nullable=False)
+    github_raw_data = db.Column(db.Text, nullable=True)
+    filename = db.Column(db.Text, nullable=True)
     name = db.Column(db.Text, nullable=True)
     gems = db.Column(db.Integer, nullable=True)
     # order is a number to keep track of the order in which this card will be displayed
@@ -258,11 +259,12 @@ class Card(db.Model):
     activity_unlocked_cards = db.relationship("ActivityProgress", secondary="activity_progress_unlocked_cards_rel",
                                               back_populates="cards_unlocked")
 
-    def __init__(self, github_raw_data, name, gems, order):
+    def __init__(self, github_raw_data, name, gems, order, filename):
         self.github_raw_data = github_raw_data
         self.name = name
         self.gems = gems
         self.order = order
+        self.filename = filename
 
     def __repr__(self):
         return f"Card('{self.name}')"
@@ -363,10 +365,11 @@ class Gem(db.Model):
 class Hint(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     contentful_id = db.Column(db.Text, nullable=True)
-    github_raw_data = db.Column(db.Text, nullable=False)
-    name = db.Column(db.Text, nullable=False)
-    gems = db.Column(db.Integer, nullable=False)
-    order = db.Column(db.Integer, nullable=False)
+    github_raw_data = db.Column(db.Text, nullable=True)
+    name = db.Column(db.Text, nullable=True)
+    gems = db.Column(db.Integer, nullable=True)
+    order = db.Column(db.Integer, nullable=True)
+    filename = db.Column(db.Text, nullable=True)
     card_id = db.Column(db.Integer, db.ForeignKey("card.id"))
     card = db.relationship("Card", back_populates="hints")
     parent_hint_id = db.Column(db.Integer, db.ForeignKey("hint.id"), nullable=True)
@@ -376,10 +379,11 @@ class Hint(db.Model):
     steps = db.relationship("Step", cascade="all,delete", back_populates="hint")
     activity_progresses = db.relationship("HintStatus", back_populates="hint")
 
-    def __init__(self, name, gems, order, github_raw_data):
+    def __init__(self, name, gems, order, filename, github_raw_data):
         self.name = name
         self.gems = gems
         self.order = order
+        self.filename = filename
         self.github_raw_data = github_raw_data
 
     def __repr__(self):
@@ -388,13 +392,13 @@ class Hint(db.Model):
 
 class Module(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    github_id = db.Column(db.Integer, nullable=False)
+    github_id = db.Column(db.Integer, nullable=True)
     contentful_id = db.Column(db.Text(), nullable=True)
-    name = db.Column(db.Text, nullable=False)
-    description = db.Column(db.Text, nullable=False)
+    name = db.Column(db.Text, nullable=True)
+    description = db.Column(db.Text, nullable=True)
     # gems_needed represents the number of gems in order to pass a module
-    gems_needed = db.Column(db.Integer, nullable=False)
-    image = db.Column(db.Text, nullable=False)
+    gems_needed = db.Column(db.Integer, nullable=True)
+    image = db.Column(db.Text, nullable=True)
     # activities keeps track of all of the activities that belongs to a module
     activities = db.relationship("Activity", secondary="activity_module_rel", back_populates="modules")
     # topics keep track of all of the topics that a module belongs to
@@ -496,7 +500,14 @@ class Organization(db.Model):
 
 class Step(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    contentful_id = db.Column(db.Text, nullable=False)
+    name = db.Column(db.Text, nullable=True)
+    md_content = db.Column(db.Text, nullable=True)
+    code_snippet = db.Column(db.Text, nullable=True)
+    image = db.Column(db.Text, nullable=True)
+    # step_key is used to uniquely identify the step in the database
+    step_key = db.Column(db.Text, nullable=True)
+    # Delete contentful and heading later
+    contentful_id = db.Column(db.Text, nullable=True)
     heading = db.Column(db.Text, nullable=True)
     # concept keeps track of concept that a step belongs to
     concept_id = db.Column(db.Integer, db.ForeignKey("concept.id"))
@@ -505,11 +516,13 @@ class Step(db.Model):
     hint_id = db.Column(db.Integer, db.ForeignKey("hint.id"))
     hint = db.relationship("Hint", back_populates="steps")
 
-    def __init__(self, contentful_id):
-        self.contentful_id = contentful_id
+    def __init__(self, name, md_content, step_key):
+        self.name = name
+        self.md_content = md_content
+        self.step_key = step_key
 
     def __repr__(self):
-        return f"Step('{self.heading}')"
+        return f"Step('{self.name}')"
 
 
 class Submission(db.Model):
@@ -528,10 +541,10 @@ class Submission(db.Model):
 
 class Topic(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    github_id = db.Column(db.Integer, nullable=False)
+    github_id = db.Column(db.Integer, nullable=True)
     contentful_id = db.Column(db.Text, nullable=True)
     name = db.Column(db.Text, unique=True, nullable=True)
-    description = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text, nullable=True)
     # modules keeps track of all of the modules that the belong to a topic
     modules = db.relationship("Module", secondary="topic_module_rel", back_populates="topics")
     # tracks keep track of all of the topics that belong to a track
@@ -565,10 +578,10 @@ class Topic(db.Model):
 
 class Track(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    github_id = db.Column(db.Integer, nullable=False)
+    github_id = db.Column(db.Integer, nullable=True)
     contentful_id = db.Column(db.Text, nullable=True)
     name = db.Column(db.Text, unique=True, nullable=True)
-    description = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text, nullable=True)
     # topics keep track of which topics belong to a track
     topics = db.relationship("Topic", secondary="track_topic_rel", back_populates="tracks")
     # required topics keep track of the required topics that need to be completed by the user

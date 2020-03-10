@@ -7,11 +7,12 @@ class CardFormSchema(ma.ModelSchema):
     name = fields.Str(required=True)
     order = fields.Int(required=True)
     gems = fields.Int(required=True)
+    filename = fields.Str(required=True)
     github_raw_data = fields.Str(required=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("name", "order", "gems", "github_raw_data")
+        fields = ("name", "order", "gems", "filename", "github_raw_data")
         ordered = True
 
 

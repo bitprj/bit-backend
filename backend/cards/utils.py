@@ -22,7 +22,8 @@ def create_card(data):
     card = Card(github_raw_data=data["github_raw_data"],
                 name=data["name"],
                 gems=data["gems"],
-                order=data["order"]
+                order=data["order"],
+                filename=data["filename"]
                 )
 
     return card
@@ -51,6 +52,7 @@ def edit_card(card, data):
     card.name = data["name"]
     card.order = data["order"]
     card.gems = data["gems"]
+    card.filename = data["filename"]
 
     # if "checkpoint" in data["parameters"]:
     #     checkpoint = Checkpoint.query.filter_by(

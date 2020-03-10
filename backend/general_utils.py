@@ -20,12 +20,11 @@ def add_file(image_bytes, folder, filename):
     return image
 
 
-# Function to create an image object
-def create_image_obj(data, folder):
+def create_image_obj(image, image_folder, folder):
     # Gets the image path
     regex = r'\(([^)]+)'
-    image_name = re.search(regex, data["image"]).group(1)
-    image_path = data["image_folder"] + image_name
+    image_name = re.search(regex, image).group(1)
+    image_path = image_folder + image_name
     # Get the download image url from github
     image_url = repo.get_contents(path=image_path).download_url
     image = Image.open(urlopen(image_url))

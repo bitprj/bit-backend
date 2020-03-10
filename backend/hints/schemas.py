@@ -8,13 +8,14 @@ class HintFormSchema(ma.ModelSchema):
     name = fields.Str(required=True)
     gems = fields.Int(required=True)
     order = fields.Int(required=True)
+    filename = fields.Str(required=True)
     parent = fields.Str(required=True)
     is_card_hint = fields.Bool(required=True)
     github_raw_data = fields.Str(required=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("name", "gems", "order", "parent", "is_card_hint", "github_raw_data")
+        fields = ("name", "gems", "order", "filename", "parent", "is_card_hint", "github_raw_data")
         ordered = True
 
 

@@ -1,18 +1,18 @@
-from backend import contentful_client, db
-from backend.config import SPACE_ID
+from backend import db
 from backend.models import Card, Hint, HintStatus
 from backend.prereqs.fetch import get_steps
 
 
 # Function to assign children hints to a parent
-def assign_hints_to_parent_hint(children_hints):
-    hints = []
+def assign_hint_to_parent(hint, data):
+    if data["is_card_hint"]:
+        parent = Card.query.filter_by(github_raw_data=data["parent"]).first()
+        hint.card_id = parent.id
+    else:
+        parent = Hint.query.filter_by(github_raw_data=data["parent"]).first()
+        parent.hints.append(hint)
 
-    for hint in children_hints:
-        target_hint = Hint.query.filter_by(contentful_id=hint["sys"]["id"]).first()
-        hints.append(target_hint)
-
-    return hints
+    return
 
 
 # Function to create a hint
@@ -20,6 +20,7 @@ def create_hint(data):
     hint = Hint(name=data["name"],
                 gems=data["gems"],
                 order=data["order"],
+                filename=data["filename"],
                 github_raw_data=data["github_raw_data"]
                 )
 
@@ -45,31 +46,14 @@ def create_hint_status(activity_prog, hints):
     return
 
 
-# Function to delete a hint's relationship
-def delete_hint(hint):
-    # Deletes the hint's steps in contentful
-    for step in hint.steps:
-        # Unpublishes the steps first then deletes the step in contentful
-        step_entry = contentful_client.entries(SPACE_ID, 'master').find(step.contentful_id)
-        step_entry.unpublish()
-        contentful_client.entries(SPACE_ID, 'master').delete(step.contentful_id)
-
-    return
-
-
 # Function to edit a hint
 def edit_hint(hint, data):
     hint.name = data["name"]
     hint.gems = data["gems"]
     hint.order = data["order"]
+    hint.filename = data["filename"]
     hint.github_raw_data = data["github_raw_data"]
-
-    if data["is_card_hint"]:
-        parent = Card.query.filter_by(github_raw_data=data["parent"]).first()
-        hint.card_id = parent.id
-    else:
-        parent = Hint.query.filter_by(github_raw_data=data["parent"]).first()
-        parent.hints.append(hint)
+    assign_hint_to_parent(hint, data)
 
     # hint.steps = get_steps(contentful_data["parameters"]["steps"]["en-US"])
 
@@ -77,16 +61,6 @@ def edit_hint(hint, data):
     #     hint.hint_children = assign_hints_to_parent_hint(contentful_data["parameters"]["children_hints"]["en-US"])
 
     return
-
-
-# Function to validate a hint
-def validate_hint(hint_id):
-    hint = Hint.query.get(hint_id)
-
-    if not hint:
-        return False
-
-    return True
 
 
 # Function to sort a cards hints

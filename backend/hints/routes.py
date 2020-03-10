@@ -2,10 +2,12 @@ from flask import (Blueprint, request)
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 from backend import api, db
-from backend.models import Card, Hint
+from backend.config import API
+from backend.models import Hint
 from backend.hints.decorators import hint_exists, hint_exists_in_github, valid_hint_form
 from backend.hints.schemas import hint_schema
-from backend.hints.utils import create_hint, delete_hint, edit_hint
+from backend.hints.utils import assign_hint_to_parent, create_hint, edit_hint
+import requests
 
 # Blueprint for hints
 hints_bp = Blueprint("hints", __name__)
@@ -22,13 +24,9 @@ class HintCRUD(Resource):
 
         db.session.add(hint)
         db.session.commit()
-
-        if data["is_card_hint"]:
-            parent = Card.query.filter_by(github_raw_data=data["parent"]).first()
-            hint.card_id = parent.id
-        else:
-            parent = Hint.query.filter_by(github_raw_data=data["parent"]).first()
-            parent.hints.append(hint)
+        assign_hint_to_parent(hint, data)
+        # data = {"github_raw_data": data["github_raw_data"], "hint_id": hint.id}
+        # requests.post(API + "/steps", json=data)
 
         db.session.commit()
 
@@ -41,6 +39,8 @@ class HintCRUD(Resource):
         data = request.get_json()
         hint = Hint.query.filter_by(github_raw_data=data["github_raw_data"]).first()
         edit_hint(hint, data)
+        # data = {"github_raw_data": data["github_raw_data"], "hint_id": hint.id}
+        # requests.put(API + "/steps", json=data)
 
         db.session.commit()
 
@@ -50,8 +50,7 @@ class HintCRUD(Resource):
     @hint_exists_in_github
     def delete(self):
         data = request.get_json()
-        hint = Hint.query.filter_by(github_raw_data=data["github_raw_data"]).first()
-        delete_hint(hint)
+        hint = Hint.query.filter_by(filename=data["filename"]).first()
 
         db.session.delete(hint)
         db.session.commit()

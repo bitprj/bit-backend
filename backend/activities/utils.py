@@ -13,7 +13,7 @@ def create_activity(data):
                         difficulty=data["difficulty"],
                         image=data["image"]
                         )
-    activity.cards = add_cards(data["cards"])
+    # activity.cards = add_cards(data["cards"])
 
     return activity
 
