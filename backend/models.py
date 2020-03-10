@@ -203,13 +203,13 @@ class Activity(db.Model):
     # students keep track of the student's activity progress
     students = db.relationship("ActivityProgress", back_populates="activity")
 
-    def __init__(self, github_id, name, description, summary, difficulty, image):
-        self.github_id = github_id
-        self.name = name
-        self.description = description
-        self.summary = summary
-        self.difficulty = difficulty
-        self.image = image
+    # def __init__(self, github_id, name, description, summary, difficulty, image):
+    #     self.github_id = github_id
+    #     self.name = name
+    #     self.description = description
+    #     self.summary = summary
+    #     self.difficulty = difficulty
+    #     self.image = image
 
     def __repr__(self):
         return f"Activity('{self.name}')"
