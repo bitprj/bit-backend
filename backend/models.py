@@ -376,11 +376,11 @@ class Hint(db.Model):
     steps = db.relationship("Step", cascade="all,delete", back_populates="hint")
     activity_progresses = db.relationship("HintStatus", back_populates="hint")
 
-    def __init__(self, name, gems, order, github_raw_data):
-        self.name = name
-        self.gems = gems
-        self.order = order
-        self.github_raw_data = github_raw_data
+    # def __init__(self, name, gems, order, github_raw_data):
+    #     self.name = name
+    #     self.gems = gems
+    #     self.order = order
+    #     self.github_raw_data = github_raw_data
 
     def __repr__(self):
         return f"Hint('{self.name}')"
@@ -418,12 +418,12 @@ class Module(db.Model):
                                           back_populates="incomplete_modules")
     students = db.relationship("ModuleProgress", cascade="all,delete", back_populates="module")
 
-    def __init__(self, github_id, name, description, gems_needed, image):
-        self.github_id = github_id
-        self.name = name
-        self.description = description
-        self.gems_needed = gems_needed
-        self.image = image
+    # def __init__(self, github_id, name, description, gems_needed, image):
+    #     self.github_id = github_id
+    #     self.name = name
+    #     self.description = description
+    #     self.gems_needed = gems_needed
+    #     self.image = image
 
     def __repr__(self):
         return f"Module('{self.name}')"
@@ -554,10 +554,10 @@ class Topic(db.Model):
     students_inprogress = db.relationship("Student", secondary="student_topic_inprogress_rel",
                                           back_populates="inprogress_topics")
 
-    def __init__(self, github_id, name, description):
-        self.github_id = github_id
-        self.name = name
-        self.description = description
+    # def __init__(self, github_id, name, description):
+    #     self.github_id = github_id
+    #     self.name = name
+    #     self.description = description
 
     def __repr__(self):
         return f"Topic('{self.name}')"
@@ -576,10 +576,10 @@ class Track(db.Model):
     # students keep track of which student is associated with a particular track
     students = db.relationship("Student", back_populates="current_track")
 
-    def __init__(self, github_id, name, description):
-        self.github_id = github_id
-        self.name = name
-        self.description = description
+    # def __init__(self, github_id, name, description):
+    #     self.github_id = github_id
+    #     self.name = name
+    #     self.description = description
 
     def __repr__(self):
         return f"Track('{self.name}')"
