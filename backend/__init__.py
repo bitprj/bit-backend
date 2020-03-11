@@ -33,6 +33,7 @@ app.config["JWT_COOKIE_CSRF_PROTECT"] = True
 app.config["JWT_COOKIE_SECURE"] = False
 app.config["JWT_SECRET_KEY"] = SECRET_KEY
 app.config["CORS_HEADERS"] = "Content-Type"
+app.config["PROPAGATE_EXCEPTIONS"] = True
 
 api = Api(app)
 db = SQLAlchemy(app)
@@ -42,8 +43,8 @@ mail = Mail(app)
 safe_url = URLSafeTimedSerializer(SECRET_KEY)
 ma = Marshmallow()
 migrate = Migrate(app, db)
-# CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["http://localhost:3000"]}})
-CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["*"]}})
+CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["http://localhost:3000"]}})
+# CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["*"]}})
 contentful_client = Client(CONTENT_MANGEMENT_API_KEY)
 pusher_client = pusher.Pusher(
     app_id=PUSHER_APP_ID,
