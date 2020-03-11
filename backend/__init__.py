@@ -10,6 +10,7 @@ from flask_sqlalchemy import SQLAlchemy
 from backend.config import *
 from contentful_management import Client
 from itsdangerous import URLSafeTimedSerializer
+import logging
 import pusher
 
 app = Flask(__name__)
@@ -33,7 +34,6 @@ app.config["JWT_COOKIE_CSRF_PROTECT"] = True
 app.config["JWT_COOKIE_SECURE"] = False
 app.config["JWT_SECRET_KEY"] = SECRET_KEY
 app.config["CORS_HEADERS"] = "Content-Type"
-app.config["PROPAGATE_EXCEPTIONS"] = True
 
 api = Api(app)
 db = SQLAlchemy(app)
@@ -45,6 +45,9 @@ ma = Marshmallow()
 migrate = Migrate(app, db)
 # CORS(app,  supports_credentials=True, resources={r"/*": {"origins": ["http://localhost:3000"]}})
 CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["*"]}})
+handler = logging.StreamHandler()
+handler.setLevel(logging.ERROR)
+app.logger.addHandler(handler)
 contentful_client = Client(CONTENT_MANGEMENT_API_KEY)
 pusher_client = pusher.Pusher(
     app_id=PUSHER_APP_ID,
