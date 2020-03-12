@@ -258,11 +258,11 @@ class Card(db.Model):
     activity_unlocked_cards = db.relationship("ActivityProgress", secondary="activity_progress_unlocked_cards_rel",
                                               back_populates="cards_unlocked")
 
-    def __init__(self, github_raw_data, name, gems, order):
-        self.github_raw_data = github_raw_data
-        self.name = name
-        self.gems = gems
-        self.order = order
+    # def __init__(self, github_raw_data, name, gems, order):
+    #     self.github_raw_data = github_raw_data
+    #     self.name = name
+    #     self.gems = gems
+    #     self.order = order
 
     def __repr__(self):
         return f"Card('{self.name}')"
