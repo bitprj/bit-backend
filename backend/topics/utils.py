@@ -1,5 +1,5 @@
 from backend.models import Module, Student, Topic
-from backend.prereqs.fetch import get_activities, get_modules
+from backend.prereqs.fetch import get_modules
 
 
 # Function to check if a student has completed the required modules for a topic

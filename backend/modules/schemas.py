@@ -5,8 +5,8 @@ from marshmallow import fields
 
 # This schema is used to validate the module form data
 class ModuleFormSchema(ma.Schema):
-    github_id = fields.Int(required=True)
     name = fields.Str(required=True)
+    filename = fields.Str(required=True)
     description = fields.Str(required=True)
     gems_needed = fields.Int(required=True)
     image = fields.Str(required=True)
@@ -14,7 +14,7 @@ class ModuleFormSchema(ma.Schema):
 
     class Meta:
         # Fields to show when sending data
-        fields = ("github_id", "name", "description", "gems_needed", "image", "image_folder")
+        fields = ("name", "filename", "description", "gems_needed", "image", "image_folder")
         ordered = True
 
 

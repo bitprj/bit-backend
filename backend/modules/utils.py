@@ -7,7 +7,7 @@ from backend.models import Activity, Module, ModuleProgress, StudentBadges
 
 # Function to create a module
 def create_module(data):
-    module = Module(github_id=data["github_id"],
+    module = Module(filename=data["filename"],
                     name=data["name"],
                     description=data["description"],
                     gems_needed=data["gems_needed"],
@@ -74,7 +74,7 @@ def delete_badge_weights(badges):
 
 # Function to edit a module
 def edit_module(module, data):
-    module.github_id = data["github_id"]
+    module.filename = data["filename"]
     module.name = data["name"]
     module.description = data["description"]
     module.gems_needed = data["gems_needed"]

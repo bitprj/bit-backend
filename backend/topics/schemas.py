@@ -7,7 +7,7 @@ class TopicFormSchema(ma.Schema):
     github_id = fields.Int(required=True)
     name = fields.Str(required=True)
     description = fields.Str(required=True)
-    modules = fields.List(fields.Int(), required=False)
+    modules = fields.List(fields.Str(), required=False)
 
     class Meta:
         # Fields to show when sending data
