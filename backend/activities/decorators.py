@@ -26,7 +26,7 @@ def activity_exists_in_github(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         data = request.get_json()
-        activity = Activity.query.filter_by(github_id=data["github_id"]).first()
+        activity = Activity.query.filter_by(filename=data["filename"]).first()
 
         if activity:
             return f(*args, **kwargs)

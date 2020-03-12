@@ -177,6 +177,7 @@ class Activity(db.Model):
     github_id = db.Column(db.Integer, nullable=True)
     contentful_id = db.Column(db.Text, nullable=True)
     name = db.Column(db.Text, nullable=True)
+    filename = db.Column(db.Text, nullable=True)
     description = db.Column(db.Text, nullable=True)
     summary = db.Column(db.Text, nullable=True)
     difficulty = db.Column(db.String(20), nullable=True)
@@ -203,13 +204,13 @@ class Activity(db.Model):
     # students keep track of the student's activity progress
     students = db.relationship("ActivityProgress", back_populates="activity")
 
-    def __init__(self, github_id, name, description, summary, difficulty, image):
-        self.github_id = github_id
-        self.name = name
-        self.description = description
-        self.summary = summary
-        self.difficulty = difficulty
-        self.image = image
+    # def __init__(self, filename, name, description, summary, difficulty, image):
+    #     self.filename = filename
+    #     self.name = name
+    #     self.description = description
+    #     self.summary = summary
+    #     self.difficulty = difficulty
+    #     self.image = image
 
     def __repr__(self):
         return f"Activity('{self.name}')"
@@ -311,15 +312,17 @@ class Classroom(db.Model):
 
 class Concept(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    contentful_id = db.Column(db.Text(), nullable=False)
+    contentful_id = db.Column(db.Text, nullable=True)
     name = db.Column(db.Text, nullable=True)
+    filename = db.Column(db.Text, nullable=True)
     # cards keep track of which cards that a concept belongs to
     cards = db.relationship("Card", secondary="card_concept_rel", back_populates="concepts")
     # steps keep track of which steps that a concept owns
     steps = db.relationship("Step", cascade="all,delete", back_populates="concept")
 
-    def __init__(self, contentful_id):
-        self.contentful_id = contentful_id
+    # def __init__(self, name, filename):
+    #     self.name = name
+    #     self.filename = filename
 
     def __repr__(self):
         return f"Concept('{self.name}')"
@@ -395,8 +398,8 @@ class Module(db.Model):
     github_id = db.Column(db.Integer, nullable=True)
     contentful_id = db.Column(db.Text(), nullable=True)
     name = db.Column(db.Text, nullable=True)
+    filename = db.Column(db.Text, nullable=True)
     description = db.Column(db.Text, nullable=True)
-    # gems_needed represents the number of gems in order to pass a module
     gems_needed = db.Column(db.Integer, nullable=True)
     image = db.Column(db.Text, nullable=True)
     # activities keeps track of all of the activities that belongs to a module
@@ -422,12 +425,12 @@ class Module(db.Model):
                                           back_populates="incomplete_modules")
     students = db.relationship("ModuleProgress", cascade="all,delete", back_populates="module")
 
-    def __init__(self, github_id, name, description, gems_needed, image):
-        self.github_id = github_id
-        self.name = name
-        self.description = description
-        self.gems_needed = gems_needed
-        self.image = image
+    # def __init__(self, filename, name, description, gems_needed, image):
+    #     self.filename = filename
+    #     self.name = name
+    #     self.description = description
+    #     self.gems_needed = gems_needed
+    #     self.image = image
 
     def __repr__(self):
         return f"Module('{self.name}')"

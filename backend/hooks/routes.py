@@ -2,7 +2,7 @@ from flask import Blueprint, request
 from flask_restful import Resource
 from backend import api
 from backend.config import API
-from backend.hooks.utils import edit_test_json, get_files, md_to_json, parse_activity, parse_module
+from backend.hooks.utils import edit_test_json, get_files, md_to_json, parse_activity, parse_concept, parse_module
 from backend.models import Card
 import requests
 
@@ -28,60 +28,65 @@ class ReceiveMerge(Resource):
         # if data["ref"] == "refs/heads/master":
         files = get_files(data["commits"])
         files_to_change = files[0]
-        files_removed = files[1]
-        files_to_delete = {}
-
-        for filename in files_to_change.keys():
-            if filename in files_removed:
-                files_to_delete[filename] = files_to_change[filename]
+        files_to_delete = files[1]
 
         for filename in files_to_delete.keys():
-            files_to_change.pop(filename)
+            if filename in files_to_change:
+                files_to_change.pop(filename)
+
+        # for filename in files_to_delete.keys():
+        #     file = files_to_change.pop(filename)
+        #     files_removed.append(file)
 
         print(files_to_delete)
         print(files_to_change)
 
         for file in files_to_change.values():
-            if "Module" in file.filename and "Activity" not in file.filename and "README.md" in file.filename:
-                parse_module(file)
+            if "Concepts" in file.filename and "images" not in file.filename:
+                parse_concept(file)
 
             if "Module" in file.filename and "Activity" in file.filename and "README.md" in file.filename:
                 parse_activity(file)
+
+            if "Module" in file.filename and "Activity" not in file.filename and "README.md" in file.filename:
+                parse_module(file)
 
             # if "Module" in file.filename and "Activity" in file.filename and file.filename.endswith(
             #         ".md") and "README.md" not in file.filename:
             #     parse_card(file)
 
         for file in files_to_delete.values():
-            if "Module" in file.filename and "Activity" not in file.filename and "README.md" in file.filename:
-                data = md_to_json(files_to_delete[file.filename].raw_url)
-                data["github_id"] = int(data["github_id"])
+            if "Concept" in file:
+                data["filename"] = file
+                requests.delete(API + "/concepts", json=data)
+
+            if "Module" in file and "Activity" not in file and "README.md" in file:
+                data["filename"] = file
                 requests.delete(API + "/modules", json=data)
 
-            if "Module" in file.filename and "Activity" in file.filename and "README.md" in file.filename:
-                data = md_to_json(files_to_delete[file.filename].raw_url)
-                data["github_id"] = int(data["github_id"])
+            if "Module" in file and "Activity" in file and "README.md" in file:
+                data["filename"] = file
+                # data = md_to_json(files_to_delete[file.filename].raw_url)
+                # data["github_id"] = int(data["github_id"])
                 requests.delete(API + "/activities", json=data)
 
-            if "Module" in file.filename and "Activity" in file.filename and file.filename.endswith(
-                    ".md") and "README.md" not in file.filename:
-                card_name = file.filename.split("/")[2]
-                card_name = card_name.split(".")[0]
-                name_length = len(card_name) - 2
-                print(name_length)
+        #     if "Module" in file.filename and "Activity" in file.filename and file.filename.endswith(
+        #             ".md") and "README.md" not in file.filename:
+        #         card_name = file.filename.split("/")[2]
+        #         card_name = card_name.split(".")[0]
+        #         name_length = len(card_name) - 2
+        #
+        #         if name_length < 0:
+        #             data = {"filename": file.filename}
+        #             requests.delete(API + "/cards", json=data)
+        #         else:
+        #             data = {"filename": file.filename}
+        #             requests.delete(API + "/hints", json=data)
 
-                print(file.filename)
-                if name_length < 0:
-                    data = {"filename": file.filename}
-                    requests.delete(API + "/cards", json=data)
-                else:
-                    data = {"filename": file.filename}
-                    requests.delete(API + "/hints", json=data)
+        # if "tests.json" in files_to_change:
+        #     edit_test_json(files_to_change["tests.json"])
 
-            # if "tests.json" in files_to_change:
-            #     edit_test_json(files)
-
-            return "ok", 200
+        return "ok", 200
 
 
 api.add_resource(ReceiveMerge, "/merge")

@@ -1,7 +1,7 @@
 from backend import repo
 from backend.config import API
 from backend.general_utils import create_image_obj
-from backend.models import Activity, Card, Hint, Module, Topic, Track
+from backend.models import Activity, Card, Concept, Hint, Module, Step, Topic, Track
 from backend.tracks.utils import create_tracks_dict
 import ast
 import os
@@ -52,6 +52,23 @@ def call_hint_routes(name_length, cards, card_name, card_data):
 
 
 # Function to call the Topic's Create/Update route
+def call_concept_step_routes(step_data, concept_id, image_folder):
+    for key, data in step_data.items():
+        step = Step.query.filter_by(concept_id=concept_id, step_key=key).first()
+        data["step_key"] = key
+        data["concept_id"] = concept_id
+        data["image_folder"] = image_folder
+        data["type"] = "concept"
+
+        if step:
+            requests.put(API + "/steps", json=data)
+        else:
+            requests.post(API + "/steps", json=data)
+
+    return
+
+
+# Function to call the Topic's Create/Update route
 def call_topic_routes(topic_data):
     for key, data in topic_data.items():
         topic = Topic.query.filter_by(github_id=data["github_id"]).first()
@@ -79,6 +96,24 @@ def call_track_routes(track_data, tracks):
     return tracks
 
 
+# Function to delete all of the concept's steps
+# Need to send the step key and the parent_id which is either concept_id or hint_id
+def delete_step_route(steps):
+    for step in steps:
+        data = {"step_key": step.step_key}
+
+        if step.hint_id:
+            data["type"] = "hint"
+            data["hint_id"] = step.hint_id
+        elif step.concept.id:
+            data["type"] = "concept"
+            data["concept_id"] = step.concept_id
+
+        requests.delete(API + "/steps", json=data)
+
+    return
+
+
 # Function to call a topic's delete route
 def delete_topic_route():
     topics = Topic.query.all()
@@ -104,9 +139,9 @@ def delete_track_route(tracks):
 
 
 # Function to edit the tests.json file
-def edit_test_json(files):
+def edit_test_json(file):
     topic_data = {}
-    test_file = files["tests.json"].raw_url
+    test_file = file.raw_url
     response = requests.get(test_file)
     data = response.text
     track_data = ast.literal_eval(data)
@@ -123,6 +158,7 @@ def edit_test_json(files):
 # Function to get files from all the commits
 def get_files(commits):
     files = {}
+    deleted_files = {}
     removed_files = []
 
     for commit in commits:
@@ -132,7 +168,10 @@ def get_files(commits):
         for file in change.files:
             files[file.filename] = file
 
-    return files, removed_files
+    for file in removed_files:
+        deleted_files[file] = file
+
+    return files, deleted_files
 
 
 # Function to get the raw url of each card
@@ -168,13 +207,15 @@ def md_to_json(raw_url):
     return result
 
 
-# Function to take data from a README.md to Create/Update a module
+# Function to take data from a README.md to Create/Update an activity
 def parse_activity(file):
     raw_url = file.raw_url
     data = md_to_json(raw_url)
     data["image"] = create_image_obj(data["image"], data["image_folder"], "activities")
-    activity = Activity.query.filter_by(github_id=data["github_id"]).first()
-    call_card_routes(data["cards"], data["folder_path"])
+    data["filename"] = file.filename
+    activity = Activity.query.filter_by(filename=file.filename).first()
+    # call_card_routes(data["cards"], data["folder_path"])
+    print(file.filename)
 
     if activity:
         requests.put(API + "/activities", json=data)
@@ -184,12 +225,28 @@ def parse_activity(file):
     return
 
 
+# Function to take data from a README.md to Create/Update a concept
+def parse_concept(file):
+    raw_url = file.raw_url
+    data = md_to_json(raw_url)
+    concept = Concept.query.filter_by(filename=file.filename).first()
+    data["filename"] = file.filename
+
+    if concept:
+        requests.put(API + "/concepts", json=data)
+    else:
+        requests.post(API + "/concepts", json=data)
+
+    return
+
+
 # Function to take data from a README.md to Create/Update a module
 def parse_module(file):
     raw_url = file.raw_url
     data = md_to_json(raw_url)
     data = update_module_data(data)
-    module = Module.query.filter_by(github_id=data["github_id"]).first()
+    data["filename"] = file.filename
+    module = Module.query.filter_by(filename=data["filename"]).first()
 
     if module:
         requests.put(API + "/modules", json=data)
@@ -213,9 +270,6 @@ def parse_tracks(track_data, topic_data):
 # Function to type cast module fields and update image field
 def update_module_data(data):
     data["image"] = create_image_obj(data["image"], data["image_folder"], "modules")
-
-    if "github_id" in data:
-        data["github_id"] = int(data["github_id"])
 
     if "gems_needed" in data:
         data["gems_needed"] = int(data["gems_needed"])

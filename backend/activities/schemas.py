@@ -4,7 +4,7 @@ from marshmallow import fields
 
 # This schema is used to validate the activity form data
 class ActivityFormSchema(ma.Schema):
-    github_id = fields.Int(required=True)
+    filename = fields.Str(required=True)
     name = fields.Str(required=True)
     description = fields.Str(required=True)
     summary = fields.Str(required=True)
@@ -17,7 +17,7 @@ class ActivityFormSchema(ma.Schema):
     class Meta:
         # Fields to show when sending data
         fields = (
-            "github_id", "name", "description", "summary", "difficulty", "image", "image_folder", "folder_path",
+            "filename", "name", "description", "summary", "difficulty", "image", "image_folder", "folder_path",
             "cards")
         ordered = True
 
