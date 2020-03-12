@@ -1,5 +1,6 @@
 from flask import request
 from backend.steps.schemas import step_form_schema
+from backend.steps.utils import get_step_from_patent
 from backend.models import Step
 from functools import wraps
 
@@ -25,7 +26,7 @@ def step_exists_in_github(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         data = request.get_json()
-        step = Step.query.filter_by(github_raw_data=data["github_raw_data"]).first()
+        step = get_step_from_patent(data)
 
         if step:
             return f(*args, **kwargs)

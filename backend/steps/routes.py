@@ -2,11 +2,10 @@ from flask import (Blueprint, request)
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 from backend import api, db
-from backend.hooks.utils import md_to_json
 from backend.models import Step
 from backend.steps.decorators import step_exists, step_exists_in_github, valid_step_form
 from backend.steps.schemas import step_schema
-from backend.steps.utils import create_step, edit_step
+from backend.steps.utils import create_step, edit_step, get_step_from_patent
 
 # Blueprint for steps
 steps_bp = Blueprint("steps", __name__)
@@ -16,36 +15,23 @@ steps_bp = Blueprint("steps", __name__)
 class StepCRUD(Resource):
 
     # Function to create a step
-    # @valid_step_form
+    @valid_step_form
     def post(self):
         data = request.get_json()
-        content_data = md_to_json(data["github_raw_data"])
-        image_folder = content_data.pop("image_folder")
+        step = create_step(data)
 
-        for step_key, step_data in content_data.items():
-            step = create_step(step_key, step_data, data["hint_id"], image_folder)
-            db.session.add(step)
-
+        db.session.add(step)
         db.session.commit()
 
         return {"message": "Step successfully created"}, 201
 
     # Function to edit an step
-    # @valid_step_form
-    # @step_exists_in_github
+    @valid_step_form
+    @step_exists_in_github
     def put(self):
         data = request.get_json()
-        content_data = md_to_json(data["github_raw_data"])
-        image_folder = content_data.pop("image_folder")
-
-        for step_key, step_data in content_data.items():
-            step = Step.query.filter_by(hint_id=data["hint_id"], step_key=step_key).first()
-
-            if step:
-                edit_step(step, step_data, image_folder)
-            else:
-                step = create_step(step_key, step_data, data["hint_id"], image_folder)
-                db.session.add(step)
+        step = get_step_from_patent(data)
+        edit_step(step, data)
 
         db.session.commit()
 
@@ -55,7 +41,7 @@ class StepCRUD(Resource):
     @step_exists_in_github
     def delete(self):
         data = request.get_json()
-        step = Step.query.filter_by(hint_id=data["hint_id"]).first()
+        step = get_step_from_patent(data)
 
         db.session.delete(step)
         db.session.commit()

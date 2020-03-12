@@ -69,7 +69,6 @@ def valid_activity_form(f):
     def wrap(*args, **kwargs):
         data = request.get_json()
         errors = activity_form_schema.validate(data)
-        print(data["difficulty"])
 
         if errors:
             return {
