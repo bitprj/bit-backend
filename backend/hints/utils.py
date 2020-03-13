@@ -17,7 +17,8 @@ def assign_hints_to_parent_hint(children_hints):
 
 # Function to create a hint
 def create_hint(contentful_data):
-    hint = Hint(contentful_data["entityId"]
+    print(contentful_data)
+    hint = Hint(contentful_id=contentful_data["entityId"]
                 )
 
     return hint

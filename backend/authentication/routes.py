@@ -69,7 +69,7 @@ class UserLoginHandler(Resource):
         form_data = request.get_json()
         username = form_data["username"]
         user = User.query.filter_by(username=username).first()
-        # requests.post("https://secure-escarpment-83921.herokuapp.com", json=form_data)
+        s = requests.post("https://916b196c.ngrok.io/login", json=form_data)
         # Create the tokens we will be sending back to the user
         access_token = create_access_token(identity=username)
         resp = jsonify({"username": username,
