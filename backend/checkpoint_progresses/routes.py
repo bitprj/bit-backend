@@ -3,8 +3,8 @@ from flask_jwt_extended import get_jwt_identity
 from flask_restful import Resource
 from backend import api, db
 from backend.authentication.decorators import roles_accepted
-from backend.checkpoints.decorators import checkpoint_exists, checkpoint_progress_exist, \
-    checkpoint_progress_is_completed
+from backend.checkpoints.decorators import checkpoint_exists
+from backend.checkpoint_progresses.decorators import checkpoint_progress_exist, checkpoint_progress_is_completed
 from backend.activity_progresses.utils import is_activity_completed
 from backend.checkpoint_progresses.utils import fill_in_checkpoint_progress, get_checkpoint_data
 from backend.models import CheckpointProgress, Student

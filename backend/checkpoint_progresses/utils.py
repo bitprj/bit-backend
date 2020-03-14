@@ -2,6 +2,20 @@ from flask import request
 from backend.checkpoint_progresses.schemas import autograder_checkpoint_schema, content_progress_schema, \
     mc_checkpoint_schema
 from backend.general_utils import add_file
+from backend.models import CheckpointProgress
+
+
+# Function to create CheckpointProgresses
+def create_checkpoint_progresses(cards, student_id):
+    checkpoint_progresses = []
+    for card in cards:
+        if card.checkpoint:
+            checkpoint_prog = CheckpointProgress(checkpoint_id=card.checkpoint.id,
+                                                 student_id=student_id
+                                                 )
+            checkpoint_progresses.append(checkpoint_prog)
+
+    return checkpoint_progresses
 
 
 # A function to fill in a checkpoint_progress based on its type
