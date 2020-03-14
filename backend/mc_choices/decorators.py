@@ -12,10 +12,6 @@ def mc_choice_exists(f):
         mc_choice = MCChoice.query.get(kwargs['mc_choice_id'])
 
         if mc_choice:
-            data = request.get_json()
-            mc_choice = MCChoice.query.get(data["choice_id"])
-
-        if mc_choice:
             return f(*args, **kwargs)
         else:
             return {

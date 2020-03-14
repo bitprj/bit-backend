@@ -6,7 +6,7 @@ from backend.checkpoints.decorators import checkpoint_exists, checkpoint_exists_
     valid_checkpoint_type
 from backend.checkpoints.schemas import checkpoint_schema
 from backend.checkpoints.utils import create_checkpoint, edit_checkpoint
-from backend.hooks.utils import call_mc_choice_routes
+from backend.hooks.utils import call_mc_choice_routes, delete_choice_route
 from backend.models import Checkpoint
 
 # Blueprint for checkpoints
@@ -38,6 +38,9 @@ class CheckpointCRUD(Resource):
     def put(self):
         data = request.get_json()
         checkpoint = Checkpoint.query.filter_by(filename=data["filename"]).first()
+        choices = checkpoint.choices
+        choices.append(checkpoint.correct_choice)
+        delete_choice_route(choices)
         edit_checkpoint(checkpoint, data)
 
         db.session.commit()

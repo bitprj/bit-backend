@@ -52,9 +52,6 @@ def call_hint_routes(hint_name, hint_data, file):
 # Function to call the MCChoice's Create/Update route
 def call_mc_choice_routes(choice_data, correct_choice, checkpoint_id):
     checkpoint = Checkpoint.query.get(checkpoint_id)
-    choices = checkpoint.choices
-    choices.append(checkpoint.correct_choice)
-    print(choices)
 
     for key, content in choice_data.items():
         mc_choice = MCChoice.query.filter_by(checkpoint_id=checkpoint_id, choice_key=key).first()
@@ -67,8 +64,6 @@ def call_mc_choice_routes(choice_data, correct_choice, checkpoint_id):
         }
 
         if mc_choice:
-            print(mc_choice)
-            choices.remove(mc_choice)
             requests.put(API + "/mc_choices", json=data)
         else:
             requests.post(API + "/mc_choices", json=data)
@@ -83,18 +78,10 @@ def call_mc_choice_routes(choice_data, correct_choice, checkpoint_id):
     }
 
     if mc_choice:
-        print(mc_choice)
-        choices.remove(mc_choice)
         requests.put(API + "/mc_choices", json=data)
     else:
         requests.post(API + "/mc_choices", json=data)
 
-    for choice in choices:
-        data = {
-            "choice_id": choice.id
-        }
-
-        requests.delete(API + "/mc_choices", json=data)
     return
 
 
@@ -167,6 +154,18 @@ def delete_step_route(steps):
             data["concept_id"] = step.concept_id
 
         requests.delete(API + "/steps", json=data)
+
+    return
+
+
+# Function to delete MCChoices
+def delete_choice_route(choices):
+    for choice in choices:
+        data = {
+            "checkpoint_id": choice.checkpoint_id,
+            "choice_key": choice.choice_key
+        }
+        requests.delete(API + "/choices", json=data)
 
     return
 
