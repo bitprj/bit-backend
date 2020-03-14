@@ -6,24 +6,24 @@ from marshmallow import fields
 class MCChoiceFormSchema(ma.Schema):
     content = fields.Str(required=True)
     checkpoint_id = fields.Int(required=True)
-    mc_choice_key = fields.Str(required=True)
+    choice_key = fields.Str(required=True)
     is_correct_choice = fields.Bool(required=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("content", "checkpoint_id", "mc_choice_key", "is_correct_answer")
+        fields = ("content", "checkpoint_id", "choice_key", "is_correct_choice")
         ordered = True
 
 
 # This schema is used to keep track of the Multiple Choice data
 class MCChoiceSchema(ma.ModelSchema):
     id = fields.Int(required=True)
-    contentful_id = fields.Str(required=True)
-    name = fields.Str(required=True)
+    content = fields.Str(required=True)
+    choice_key = fields.Str(required=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "contentful_id", "name")
+        fields = ("id", "content", "choice_key")
         ordered = True
 
 

@@ -3,7 +3,8 @@ from backend.models import MCChoice
 
 # Function to create a mc_choice
 def create_mc_choice(data):
-    mc_choice = MCChoice(content=data["content"])
+    mc_choice = MCChoice(content=data["content"],
+                         choice_key=data["choice_key"])
 
     if data["is_correct_choice"]:
         mc_choice.correct_checkpoint_id = data["checkpoint_id"]

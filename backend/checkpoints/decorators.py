@@ -52,3 +52,20 @@ def valid_checkpoint_form(f):
             return f(*args, **kwargs)
 
     return wrap
+
+
+# Decorator to validate checkpoint type
+def valid_checkpoint_type(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        data = request.get_json()
+        valid_checkpoints = ["Image", "Video", "Short Answer", "Multiple Choice", "Autograder"]
+
+        if data["checkpoint_type"] not in valid_checkpoints:
+            return {
+                       "message": "Incorrect checkpoint type"
+                   }, 500
+        else:
+            return f(*args, **kwargs)
+
+    return wrap
