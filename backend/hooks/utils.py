@@ -1,7 +1,7 @@
 from backend import repo
 from backend.config import API
 from backend.general_utils import create_image_obj
-from backend.models import Activity, Card, Concept, Hint, Module, Step, Topic, Track
+from backend.models import Activity, Card, Checkpoint, Concept, Hint, MCChoice, Module, Step, Topic, Track
 from backend.tracks.utils import create_tracks_dict
 import ast
 import os
@@ -46,6 +46,55 @@ def call_hint_routes(hint_name, hint_data, file):
     else:
         requests.post(API + "/hints", json=hint_data)
 
+    return
+
+
+# Function to call the MCChoice's Create/Update route
+def call_mc_choice_routes(choice_data, correct_choice, checkpoint_id):
+    checkpoint = Checkpoint.query.get(checkpoint_id)
+    choices = checkpoint.choices
+    choices.append(checkpoint.correct_choice)
+    print(choices)
+
+    for key, content in choice_data.items():
+        mc_choice = MCChoice.query.filter_by(checkpoint_id=checkpoint_id, choice_key=key).first()
+
+        data = {
+            "content": content,
+            "is_correct_choice": False,
+            "checkpoint_id": checkpoint_id,
+            "choice_key": key
+        }
+
+        if mc_choice:
+            print(mc_choice)
+            choices.remove(mc_choice)
+            requests.put(API + "/mc_choices", json=data)
+        else:
+            requests.post(API + "/mc_choices", json=data)
+
+    mc_choice = MCChoice.query.filter_by(correct_checkpoint_id=checkpoint_id, choice_key="correct_choice").first()
+
+    data = {
+        "content": correct_choice,
+        "is_correct_choice": True,
+        "checkpoint_id": checkpoint_id,
+        "choice_key": "correct_choice"
+    }
+
+    if mc_choice:
+        print(mc_choice)
+        choices.remove(mc_choice)
+        requests.put(API + "/mc_choices", json=data)
+    else:
+        requests.post(API + "/mc_choices", json=data)
+
+    for choice in choices:
+        data = {
+            "choice_id": choice.id
+        }
+
+        requests.delete(API + "/mc_choices", json=data)
     return
 
 
@@ -245,6 +294,20 @@ def parse_card(file, activity_cards, activity_path):
     card_data["github_raw_data"] = file.raw_url
 
     call_card_routes(card_data, card_name, activity_path, file)
+
+    return
+
+
+# Function to parse checkpoint markdown file
+def parse_checkpoint(file):
+    data = md_to_json(file.raw_url)
+    checkpoint = Checkpoint.query.filter_by(filename=file.filename).first()
+    data["filename"] = file.filename
+
+    if checkpoint:
+        requests.put(API + "/checkpoints", json=data)
+    else:
+        requests.post(API + "/checkpoints", json=data)
 
     return
 

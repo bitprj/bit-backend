@@ -1,5 +1,5 @@
 from backend import repo
-from backend.hooks.utils import md_to_json, parse_activity, parse_card, parse_concept, parse_module, parse_tracks
+from backend.hooks.utils import md_to_json, parse_activity, parse_card, parse_checkpoint, parse_concept, parse_module
 
 
 # Function to take all the files changed from commits into specific lists
@@ -23,6 +23,10 @@ def store_files(files_to_change):
         if "Module" in file.filename and "Activity" in file.filename and "Cards" in file.filename and file.filename.endswith(
                 ".md"):
             card_files.append(file)
+
+        if "Module" in file.filename and "Activity" in file.filename and "Checkpoints" in file.filename:
+            checkpoint_files.append(file)
+
     card_files.sort(key=lambda x: x.filename, reverse=True)
 
     return module_files, activity_files, concept_files, card_files, checkpoint_files
@@ -55,7 +59,7 @@ def parse_files(module_files, activity_files, concept_files, card_files, checkpo
             cards = md_to_json(activity_readme.download_url)["cards"]
             parse_card(file, cards, parent_path)
 
-    # for file in checkpoint_files:
-    #     parse_checkpoint()
+    for file in checkpoint_files:
+        parse_checkpoint(file)
 
     return
