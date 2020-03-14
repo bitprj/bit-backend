@@ -17,8 +17,8 @@ class MCChoiceCRUD(Resource):
 
     # Function to create a mc_choice
     def post(self):
-        contentful_data = request.get_json()
-        mc_choice = create_mc_choice(contentful_data)
+        data = request.get_json()
+        mc_choice = create_mc_choice(data)
 
         db.session.add(mc_choice)
         db.session.commit()
@@ -27,9 +27,9 @@ class MCChoiceCRUD(Resource):
 
     # Function to edit an mc_choice
     def put(self):
-        contentful_data = request.get_json()
-        mc_choice = MCChoice.query.filter_by(contentful_id=contentful_data["entityId"]).first()
-        edit_mc_choice(mc_choice, contentful_data)
+        data = request.get_json()
+        mc_choice = MCChoice.query.filter_by(contentful_id=data["entityId"]).first()
+        edit_mc_choice(mc_choice, data)
 
         db.session.commit()
 
@@ -42,8 +42,8 @@ class MCChoiceDelete(Resource):
 
     # Function to delete a mc_choice!!
     def post(self):
-        contentful_data = request.get_json()
-        mc_choice = MCChoice.query.filter_by(contentful_id=contentful_data["entityId"]).first()
+        data = request.get_json()
+        mc_choice = MCChoice.query.filter_by(contentful_id=data["entityId"]).first()
 
         db.session.delete(mc_choice)
         db.session.commit()

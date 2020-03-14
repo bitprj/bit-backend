@@ -5,13 +5,14 @@ from marshmallow import fields
 # This schema is used to validate the checkpoint form data
 class CheckpointFormSchema(ma.Schema):
     name = fields.Str(required=True)
-    type = fields.Str(required=True)
+    checkpoint_type = fields.Str(required=True)
     instruction = fields.Str(required=True)
     filename = fields.Str(required=True)
+    mc_choices = fields.Dict(required=False)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("name", "type", "instruction", "filename")
+        fields = ("name", "checkpoint_type", "instruction", "filename", "mc_choices")
         ordered = True
 
 
@@ -29,4 +30,5 @@ class CheckpointSchema(ma.ModelSchema):
         ordered = True
 
 
+checkpoint_form_schema = CheckpointFormSchema()
 checkpoint_schema = CheckpointSchema()
