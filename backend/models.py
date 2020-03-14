@@ -273,17 +273,28 @@ class Card(db.Model):
 
 class Checkpoint(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    contentful_id = db.Column(db.Text, nullable=False)
+    contentful_id = db.Column(db.Text, nullable=True)
     name = db.Column(db.Text, nullable=True)
+    instruction = db.Column(db.Text, nullable=True)
     checkpoint_type = db.Column(db.Text, nullable=True)
+    filename = db.Column(db.Text, nullable=True)
     tests_zip = db.Column(db.Text, nullable=True)
     cards = db.relationship("Card", back_populates="checkpoint")
     checkpoint_progresses = db.relationship("CheckpointProgress", back_populates="checkpoint")
-    # mc_question keeps track of mc_question that a checkpoint owns
+    # choices represent the choices if the checkpoint is a multiple choice checkpoint
+    choices = db.relationship("MCChoice", cascade="all,delete", back_populates="checkpoint",
+                              foreign_keys="MCChoice.checkpoint_id")
+    correct_choice = db.relationship("MCChoice", uselist=False, cascade="all,delete",
+                                     back_populates="correct_checkpoint", foreign_keys="MCChoice.correct_checkpoint_id")
+
+    # TODO Delete later
     mc_question = db.relationship("MCQuestion", cascade="all,delete", uselist=False, back_populates="checkpoint")
 
-    def __init__(self, contentful_id):
-        self.contentful_id = contentful_id
+    # def __init__(self, name, instruction, checkpoint_type, filename):
+    #     self.name = name
+    #     self.instruction = instruction
+    #     self.checkpoint_type = checkpoint_type
+    #     self.filename = filename
 
     def __repr__(self):
         return f"Checkpoint('{self.name}')"
@@ -438,8 +449,18 @@ class Module(db.Model):
 
 class MCChoice(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    contentful_id = db.Column(db.Text, nullable=False)
+    contentful_id = db.Column(db.Text, nullable=True)
     content = db.Column(db.Text, nullable=True)
+    choice_key = db.Column(db.Text, nullable=True)
+    # checkpoint_id is to reference a MCChoice as a choice for a Multiple Choice Checkpoint
+    checkpoint_id = db.Column(db.Integer, db.ForeignKey("checkpoint.id"))
+    checkpoint = db.relationship("Checkpoint", back_populates="choices", foreign_keys=[checkpoint_id])
+    # correct_checkpoint_id is to reference a MCChoice as the correct choice for a Multiple Choice Checkpoint
+    correct_checkpoint_id = db.Column(db.Integer, db.ForeignKey("checkpoint.id"))
+    correct_checkpoint = db.relationship("Checkpoint", back_populates="correct_choice",
+                                         foreign_keys=[correct_checkpoint_id])
+
+    # TODO DELETE LATER
     # mc_question is the mc_question that a MCChoice belongs to
     mc_question_id = db.Column(db.Integer, db.ForeignKey("mc_question.id"))
     mc_question = db.relationship("MCQuestion", back_populates="choices", foreign_keys=[mc_question_id])
@@ -448,13 +469,14 @@ class MCChoice(db.Model):
     correct_question = db.relationship("MCQuestion", back_populates="correct_choice",
                                        foreign_keys=[correct_question_id])
 
-    def __init__(self, contentful_id):
-        self.contentful_id = contentful_id
+    # def __init__(self, content):
+    #     self.content = content
 
     def __repr__(self):
         return f"MCChoice('{self.id}')"
 
 
+# TODO DELETE LATER
 class MCQuestion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     contentful_id = db.Column(db.Text, nullable=False)

@@ -42,7 +42,8 @@ class ReceiveMerge(Resource):
         activity_files = stored_files[1]
         concept_files = stored_files[2]
         card_files = stored_files[3]
-        parse_files(module_files, activity_files, concept_files, card_files)
+        checkpoint_files = stored_files[4]
+        parse_files(module_files, activity_files, concept_files, card_files, checkpoint_files)
 
         for file in files_to_delete.values():
             if "Concept" in file:

@@ -8,6 +8,7 @@ def store_files(files_to_change):
     activity_files = []
     concept_files = []
     card_files = []
+    checkpoint_files = []
 
     for file in files_to_change.values():
         if "Module" in file.filename and "Activity" not in file.filename and "README.md" in file.filename:
@@ -24,11 +25,11 @@ def store_files(files_to_change):
             card_files.append(file)
     card_files.sort(key=lambda x: x.filename, reverse=True)
 
-    return module_files, activity_files, concept_files, card_files
+    return module_files, activity_files, concept_files, card_files, checkpoint_files
 
 
 # Function to parse files
-def parse_files(module_files, activity_files, concept_files, card_files):
+def parse_files(module_files, activity_files, concept_files, card_files, checkpoint_files):
     activity_cards = {}
 
     for file in module_files:
@@ -53,5 +54,8 @@ def parse_files(module_files, activity_files, concept_files, card_files):
             activity_readme = repo.get_contents(parent_path)
             cards = md_to_json(activity_readme.download_url)["cards"]
             parse_card(file, cards, parent_path)
+
+    # for file in checkpoint_files:
+    #     parse_checkpoint()
 
     return
