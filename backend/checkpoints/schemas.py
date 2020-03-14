@@ -2,6 +2,19 @@ from backend import ma
 from marshmallow import fields
 
 
+# This schema is used to validate the checkpoint form data
+class CheckpointFormSchema(ma.Schema):
+    name = fields.Str(required=True)
+    type = fields.Str(required=True)
+    instruction = fields.Str(required=True)
+    filename = fields.Str(required=True)
+
+    class Meta:
+        # Fields to show when sending data
+        fields = ("name", "type", "instruction", "filename")
+        ordered = True
+
+
 # This schema is used to keep track of checkpoint data
 class CheckpointSchema(ma.ModelSchema):
     id = fields.Int(required=True)

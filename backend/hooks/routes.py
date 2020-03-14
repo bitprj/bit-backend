@@ -1,10 +1,9 @@
 from flask import Blueprint, request
 from flask_restful import Resource
-from backend import api, repo
+from backend import api
 from backend.config import API
 from backend.hooks.parse_utils import parse_files, store_files
-from backend.hooks.utils import edit_test_json, get_files, md_to_json, parse_activity, parse_card, parse_concept, \
-    parse_module
+from backend.hooks.utils import edit_test_json, get_files
 import requests
 
 # Blueprint for hooks
@@ -37,51 +36,13 @@ class ReceiveMerge(Resource):
 
         print(files_to_delete)
         print(files_to_change)
+
         stored_files = store_files(files_to_change)
         module_files = stored_files[0]
         activity_files = stored_files[1]
         concept_files = stored_files[2]
         card_files = stored_files[3]
         parse_files(module_files, activity_files, concept_files, card_files)
-
-        # for file in files_to_change.values():
-        #     if "Module" in file.filename and "Activity" not in file.filename and "README.md" in file.filename:
-        #         module_files.append(file)
-        #
-        #     if "Module" in file.filename and "Activity" in file.filename and "README.md" in file.filename:
-        #         activity_files.append(file)
-        #
-        #     if "Concepts" in file.filename and "images" not in file.filename:
-        #         concept_files.append(file)
-        #
-        #     if "Module" in file.filename and "Activity" in file.filename and "Cards" in file.filename and file.filename.endswith(
-        #             ".md"):
-        #         card_files.append(file)
-        # card_files.sort(key=lambda x: x.filename, reverse=True)
-
-
-        # for file in module_files:
-        #     parse_module(file)
-        #
-        # for file in activity_files:
-        #     cards = parse_activity(file)
-        #     activity_name = file.filename.split("/")
-        #     activity_path = "/".join(activity_name[:-1]) + "/README.md"
-        #     activity_cards[activity_path] = cards
-        #
-        # for file in concept_files:
-        #     parse_concept(file)
-        #
-        # for file in card_files:
-        #     card_name = file.filename.split("/")
-        #     parent_path = "/".join(card_name[:-2]) + "/README.md"
-        #
-        #     if parent_path in activity_cards:
-        #         parse_card(file, activity_cards[parent_path], parent_path)
-        #     else:
-        #         activity_readme = repo.get_contents(parent_path)
-        #         cards = md_to_json(activity_readme.download_url)["cards"]
-        #         parse_card(file, cards, parent_path)
 
         for file in files_to_delete.values():
             if "Concept" in file:
