@@ -260,12 +260,12 @@ class Card(db.Model):
     activity_unlocked_cards = db.relationship("ActivityProgress", secondary="activity_progress_unlocked_cards_rel",
                                               back_populates="cards_unlocked")
 
-    def __init__(self, github_raw_data, name, gems, order, filename):
-        self.github_raw_data = github_raw_data
-        self.name = name
-        self.gems = gems
-        self.order = order
-        self.filename = filename
+    # def __init__(self, github_raw_data, name, gems, order, filename):
+    #     self.github_raw_data = github_raw_data
+    #     self.name = name
+    #     self.gems = gems
+    #     self.order = order
+    #     self.filename = filename
 
     def __repr__(self):
         return f"Card('{self.name}')"
@@ -370,9 +370,9 @@ class Hint(db.Model):
     contentful_id = db.Column(db.Text, nullable=True)
     github_raw_data = db.Column(db.Text, nullable=True)
     name = db.Column(db.Text, nullable=True)
+    filename = db.Column(db.Text, nullable=True)
     gems = db.Column(db.Integer, nullable=True)
     order = db.Column(db.Integer, nullable=True)
-    filename = db.Column(db.Text, nullable=True)
     card_id = db.Column(db.Integer, db.ForeignKey("card.id"))
     card = db.relationship("Card", back_populates="hints")
     parent_hint_id = db.Column(db.Integer, db.ForeignKey("hint.id"), nullable=True)

@@ -9,56 +9,64 @@ import requests
 
 
 # Function to call the Card's Create/Update route
-def call_card_routes(card_data, folder_path):
-    cards = get_github_urls(folder_path)
+def call_card_routes(card_data, card_name, activity_filename, file):
+    if len(card_name) - 2 < 0:
+        card = Card.query.filter_by(filename=card_data["filename"]).first()
+        card_data["activity_filename"] = activity_filename
 
-    for card_name, raw_data in card_data.items():
-        card_data[card_name]["github_raw_data"] = cards[card_name]["raw_url"]
-        card_data[card_name]["gems"] = int(card_data[card_name]["gems"])
-        card_data[card_name]["order"] = int(card_data[card_name]["order"])
-        card_data[card_name]["filename"] = cards[card_name]["filename"]
-        name_length = len(card_name) - 2
-
-        if name_length < 0:
-            card = Card.query.filter_by(github_raw_data=cards[card_name]["raw_url"]).first()
-
-            if card:
-                requests.put(API + "/cards", json=card_data[card_name])
-            else:
-                requests.post(API + "/cards", json=card_data[card_name])
+        if card:
+            requests.put(API + "/cards", json=card_data)
         else:
-            call_hint_routes(name_length, cards, card_name, card_data)
+            requests.post(API + "/cards", json=card_data)
+    else:
+        call_hint_routes(card_name, card_data, file)
 
     return
 
 
 # Function to call the Hint Create/Update route
-def call_hint_routes(name_length, cards, card_name, card_data):
-    hint = Hint.query.filter_by(github_raw_data=cards[card_name]["raw_url"]).first()
-    parent_name = card_name[:name_length]
-    card_data[card_name]["parent"] = cards[parent_name]["raw_url"]
+def call_hint_routes(hint_name, hint_data, file):
+    hint = Hint.query.filter_by(filename=hint_data["filename"]).first()
+    # gets the last element in the list which is the card/hint name
+    split_child = hint_data["filename"].split("/")
+    hint_path = split_child[-1].split(".")[0]
 
-    if name_length == 1:
-        card_data[card_name]["is_card_hint"] = True
+    parent_length = len(hint_path) - 2
+    parent_name = hint_name[:parent_length]
+    hint_data["parent_filename"] = "/".join(split_child[:-1]) + "/" + parent_name + ".md"
+    hint_data["content"] = md_to_json(file.raw_url)
+
+    if parent_length == 1:
+        hint_data["is_card_hint"] = True
     else:
-        card_data[card_name]["is_card_hint"] = False
+        hint_data["is_card_hint"] = False
 
     if hint:
-        requests.put(API + "/hints", json=card_data[card_name])
+        requests.put(API + "/hints", json=hint_data)
     else:
-        requests.post(API + "/hints", json=card_data[card_name])
+        requests.post(API + "/hints", json=hint_data)
 
     return
 
 
-# Function to call the Topic's Create/Update route
-def call_concept_step_routes(step_data, concept_id, image_folder):
+# Function to call the Step's Create/Update route
+def call_step_routes(step_data, parent_id, parent_type, image_folder):
     for key, data in step_data.items():
-        step = Step.query.filter_by(concept_id=concept_id, step_key=key).first()
-        data["step_key"] = key
-        data["concept_id"] = concept_id
-        data["image_folder"] = image_folder
-        data["type"] = "concept"
+        step = None
+
+        if parent_type == "concept":
+            step = Step.query.filter_by(concept_id=parent_id, step_key=key).first()
+            data["step_key"] = key
+            data["concept_id"] = parent_id
+            data["image_folder"] = image_folder
+            data["type"] = "concept"
+
+        elif parent_type == "hint":
+            step = Step.query.filter_by(hint_id=parent_id, step_key=key).first()
+            data["step_key"] = key
+            data["hint_id"] = parent_id
+            data["image_folder"] = image_folder
+            data["type"] = "hint"
 
         if step:
             requests.put(API + "/steps", json=data)
@@ -214,13 +222,29 @@ def parse_activity(file):
     data["image"] = create_image_obj(data["image"], data["image_folder"], "activities")
     data["filename"] = file.filename
     activity = Activity.query.filter_by(filename=file.filename).first()
-    # call_card_routes(data["cards"], data["folder_path"])
-    print(file.filename)
 
     if activity:
         requests.put(API + "/activities", json=data)
     else:
         requests.post(API + "/activities", json=data)
+
+    return data["cards"]
+
+
+# Function to create/update cards
+def parse_card(file, activity_cards, activity_path):
+    # Gets the card name
+    card_path = file.filename.split("/")
+    card_file = card_path[-1]
+    card_name = card_file.split(".")[0]
+    card_data = activity_cards[card_name]
+    # Edit card_data
+    card_data["gems"] = int(card_data["gems"])
+    card_data["order"] = int(card_data["order"])
+    card_data["filename"] = file.filename
+    card_data["github_raw_data"] = file.raw_url
+
+    call_card_routes(card_data, card_name, activity_path, file)
 
     return
 

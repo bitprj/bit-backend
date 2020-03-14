@@ -11,7 +11,6 @@ def create_activity(data):
                         difficulty=data["difficulty"],
                         image=data["image"]
                         )
-    # activity.cards = add_cards(data["cards"])
 
     return activity
 
@@ -23,6 +22,6 @@ def edit_activity(activity, data):
     activity.summary = data["summary"]
     activity.difficulty = data["difficulty"]
     activity.image = data["image"]
-    # activity.cards = add_cards(data["cards"])
+    activity.filename = data["filename"]
 
     return
