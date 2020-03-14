@@ -1,15 +1,15 @@
 from backend import db
+from backend.hooks.utils import call_step_routes
 from backend.models import Card, Hint, HintStatus
-from backend.prereqs.fetch import get_steps
 
 
 # Function to assign children hints to a parent
 def assign_hint_to_parent(hint, data):
     if data["is_card_hint"]:
-        parent = Card.query.filter_by(github_raw_data=data["parent"]).first()
+        parent = Card.query.filter_by(filename=data["parent_filename"]).first()
         hint.card_id = parent.id
     else:
-        parent = Hint.query.filter_by(github_raw_data=data["parent"]).first()
+        parent = Hint.query.filter_by(filename=data["parent_filename"]).first()
         parent.hints.append(hint)
 
     return
@@ -54,6 +54,7 @@ def edit_hint(hint, data):
     hint.filename = data["filename"]
     hint.github_raw_data = data["github_raw_data"]
     assign_hint_to_parent(hint, data)
+    call_step_routes(data["content"]["steps"], hint.id, "hint", data["content"]["image_folder"])
 
     # hint.steps = get_steps(contentful_data["parameters"]["steps"]["en-US"])
 

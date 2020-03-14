@@ -5,7 +5,7 @@ from backend import api, db
 from backend.concepts.decorators import concept_exists, concept_exists_in_github, valid_concept_form
 from backend.concepts.schemas import concept_schema
 from backend.concepts.utils import create_concept, edit_concept
-from backend.hooks.utils import call_concept_step_routes, delete_step_route
+from backend.hooks.utils import call_step_routes, delete_step_route
 from backend.models import Concept
 
 # Blueprint for concepts
@@ -23,7 +23,7 @@ class ConceptCRUD(Resource):
 
         db.session.add(concept)
         db.session.commit()
-        call_concept_step_routes(data["steps"], concept.id, data["image_folder"])
+        call_step_routes(data["steps"], concept.id, "concept", data["image_folder"])
         db.session.commit()
 
         return {"message": "Concept successfully created"}, 201
@@ -36,7 +36,7 @@ class ConceptCRUD(Resource):
         concept = Concept.query.filter_by(filename=data["filename"]).first()
         delete_step_route(concept.steps)
         edit_concept(concept, data)
-        call_concept_step_routes(data["steps"], concept.id, data["image_folder"])
+        call_step_routes(data["steps"], concept.id, "concept", data["image_folder"])
 
         db.session.commit()
 

@@ -26,7 +26,7 @@ def card_exists_in_github(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         data = request.get_json()
-        card = Card.query.filter_by(github_raw_data=data["github_raw_data"]).first()
+        card = Card.query.filter_by(filename=data["filename"]).first()
 
         if card:
             return f(*args, **kwargs)

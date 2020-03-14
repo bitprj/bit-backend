@@ -7,10 +7,10 @@ from backend.activity_progresses.utils import unlock_card
 from backend.cards.decorators import card_exists, card_exists_in_activity, card_exists_in_github, card_is_unlockable, \
     valid_card_form
 from backend.cards.schemas import card_schema
-from backend.cards.utils import create_card, delete_card, edit_card
+from backend.cards.utils import create_card, edit_card
 from backend.hints.schemas import hint_status_schemas
 from backend.hints.utils import sort_hint_status
-from backend.models import ActivityProgress, Card, Checkpoint, HintStatus, Student
+from backend.models import Activity, ActivityProgress, Card, HintStatus, Student
 
 # Blueprint for cards
 cards_bp = Blueprint("cards", __name__)
@@ -23,7 +23,8 @@ class CardCRUD(Resource):
     @valid_card_form
     def post(self):
         data = request.get_json()
-        card = create_card(data)
+        activity = Activity.query.filter_by(filename=data["activity_filename"]).first()
+        card = create_card(data, activity.id)
 
         db.session.add(card)
         db.session.commit()
@@ -35,7 +36,9 @@ class CardCRUD(Resource):
     @card_exists_in_github
     def put(self):
         data = request.get_json()
-        card = Card.query.filter_by(github_raw_data=data["github_raw_data"]).first()
+        card = Card.query.filter_by(filename=data["filename"]).first()
+        activity = Activity.query.filter_by(filename=data["activity_filename"]).first()
+        card.activity_id = activity.id
         edit_card(card, data)
 
         db.session.commit()
@@ -46,12 +49,9 @@ class CardCRUD(Resource):
     @card_exists_in_github
     def delete(self):
         data = request.get_json()
-        card = Card.query.filter_by(github_raw_data=data["github_raw_data"]).first()
-        checkpoint = Checkpoint.query.filter_by(id=card.checkpoint.id).first()
-        delete_card(card, checkpoint)
+        card = Card.query.filter_by(filename=data["filename"]).first()
 
         db.session.delete(card)
-        db.session.delete(checkpoint)
         db.session.commit()
 
         return {"message": "Card successfully deleted"}, 200
