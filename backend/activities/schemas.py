@@ -1,6 +1,5 @@
 from backend import ma
 from marshmallow import fields
-import toastedmarshmallow
 
 
 # This schema is used to display data in the Activity model
@@ -36,4 +35,3 @@ class ActivitiesSchema(ma.ModelSchema):
 
 activity_schema = ActivitySchema()
 activities_schema = ActivitiesSchema(many=True)
-activity_schema.jit = toastedmarshmallow.Jit
