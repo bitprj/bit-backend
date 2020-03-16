@@ -1,5 +1,5 @@
 from backend import db
-from backend.general_utils import create_image_obj
+from backend.general_utils import parse_img_tag
 from backend.models import Step
 
 
@@ -49,7 +49,7 @@ def fill_optional_fields(step, step_data):
         step.code_snippet = step_data["code_snippet"]
 
     if "image" in step_data:
-        image = create_image_obj(step_data["image"], step_data["image_folder"], "steps")
+        image = parse_img_tag(step_data["image"], step_data["image_folder"], "steps")
         step.image = image
 
     return
