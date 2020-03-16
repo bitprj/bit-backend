@@ -26,7 +26,7 @@ def module_exists_in_github(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         data = request.get_json()
-        module = Module.query.filter_by(filename=data["filename"]).first()
+        module = Module.query.filter_by(github_id=data["github_id"]).first()
 
         if module:
             return f(*args, **kwargs)

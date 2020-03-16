@@ -11,10 +11,11 @@ class ModuleFormSchema(ma.Schema):
     gems_needed = fields.Int(required=True)
     image = fields.Str(required=True)
     image_folder = fields.Str(required=True)
+    github_id = fields.Int(required=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("name", "filename", "description", "gems_needed", "image", "image_folder")
+        fields = ("name", "filename", "description", "gems_needed", "image", "image_folder", "github_id")
         ordered = True
 
 
@@ -30,6 +31,7 @@ class ModuleSchema(ma.Schema):
     # We are referencing another Schema below. You do this in oder to avoid circular referencing
     # The only keyword is used to show the id of the activity
     activities = ma.Nested("ActivitySchema", only=("id",), many=True)
+
     # activity_prereqs = ma.Nested("ActivitySchema", only=("id",), many=True)
 
     class Meta:

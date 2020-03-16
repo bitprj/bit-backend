@@ -30,7 +30,7 @@ class ModuleCRUD(Resource):
     @module_exists_in_github
     def put(self):
         data = request.get_json()
-        module = Module.query.filter_by(filename=data["filename"]).first()
+        module = Module.query.filter_by(github_id=data["github_id"]).first()
         edit_module(module, data)
 
         db.session.commit()
@@ -41,7 +41,7 @@ class ModuleCRUD(Resource):
     @module_exists_in_github
     def delete(self):
         data = request.get_json()
-        module = Module.query.filter_by(filename=data["filename"]).first()
+        module = Module.query.filter_by(github_id=data["github_id"]).first()
 
         db.session.delete(module)
         db.session.commit()

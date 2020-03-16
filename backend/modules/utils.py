@@ -11,7 +11,8 @@ def create_module(data):
                     name=data["name"],
                     description=data["description"],
                     gems_needed=data["gems_needed"],
-                    image=data["image"]
+                    image=data["image"],
+                    github_id=data["github_id"]
                     )
 
     return module
