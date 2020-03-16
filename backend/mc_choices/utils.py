@@ -1,3 +1,4 @@
+from backend import db
 from backend.models import MCChoice
 
 
@@ -12,6 +13,17 @@ def create_mc_choice(data):
         mc_choice.checkpoint_id = data["checkpoint_id"]
 
     return mc_choice
+
+
+# Function to delete a checkpoints choices
+def delete_choices(checkpoint):
+    if checkpoint.choices:
+        for choice in checkpoint.choices:
+            db.session.delete(choice)
+    if checkpoint.correct_choice:
+        db.session.delete(checkpoint.correct_choice)
+
+    return
 
 
 # Function to edit a mc_choice

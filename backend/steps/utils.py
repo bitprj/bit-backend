@@ -1,3 +1,4 @@
+from backend import db
 from backend.general_utils import create_image_obj
 from backend.models import Step
 
@@ -21,6 +22,14 @@ def create_step(step_data):
     fill_optional_fields(step, step_data)
 
     return step
+
+
+# Function to delete a list of steps
+def delete_steps(steps):
+    for step in steps:
+        db.session.delete(step)
+
+    return
 
 
 # Function to edit a step

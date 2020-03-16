@@ -2,7 +2,7 @@ from flask import (Blueprint, request)
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 from backend import api, db
-from backend.mc_choices.decorators import mc_choice_exists, mc_choice_exists_in_github, valid_mc_choice_form
+from backend.mc_choices.decorators import mc_choice_exists, mc_choice_exists_json, mc_choice_exists_in_github, valid_mc_choice_form
 from backend.mc_choices.schemas import mc_choice_schema
 from backend.mc_choices.utils import create_mc_choice, edit_mc_choice, get_mc_choice
 from backend.models import MCChoice
@@ -38,10 +38,10 @@ class MCChoiceCRUD(Resource):
         return {"message": "MCChoice successfully updated"}, 200
 
     # Function to delete a mc_choice!!
-    @mc_choice_exists
+    @mc_choice_exists_json
     def delete(self):
         data = request.get_json()
-        mc_choice = get_mc_choice(data)
+        mc_choice = MCChoice.query.get(data["mc_choice_id"])
 
         db.session.delete(mc_choice)
         db.session.commit()

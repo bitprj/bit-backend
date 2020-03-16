@@ -21,6 +21,23 @@ def mc_choice_exists(f):
     return wrap
 
 
+# Decorator to check if a mc_choice exists with json data
+def mc_choice_exists_json(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        data = request.get_json()
+        mc_choice = MCChoice.query.get(data["mc_choice_id"])
+
+        if mc_choice:
+            return f(*args, **kwargs)
+        else:
+            return {
+                       "message": "MCChoice does not exist"
+                   }, 404
+
+    return wrap
+
+
 # Decorator to check if a mc_choice exists in github
 def mc_choice_exists_in_github(f):
     @wraps(f)
