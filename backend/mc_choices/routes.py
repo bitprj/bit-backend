@@ -38,10 +38,10 @@ class MCChoiceCRUD(Resource):
         return {"message": "MCChoice successfully updated"}, 200
 
     # Function to delete a mc_choice!!
-    @mc_choice_exists_json
+    @mc_choice_exists_in_github
     def delete(self):
         data = request.get_json()
-        mc_choice = MCChoice.query.get(data["mc_choice_id"])
+        mc_choice = get_mc_choice(data)
 
         db.session.delete(mc_choice)
         db.session.commit()

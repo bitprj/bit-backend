@@ -49,7 +49,7 @@ def mc_choice_exists_in_github(f):
             return f(*args, **kwargs)
         else:
             return {
-                       "message": "Checkpoint does not exist"
+                       "message": "MCChoice does not exist"
                    }, 404
 
     return wrap
