@@ -29,7 +29,7 @@ class TopicCRUD(Resource):
     @valid_topic_form
     def put(self):
         data = request.get_json()
-        topic = Topic.query.filter_by(github_id=data["github_id"]).first()
+        topic = Topic.query.filter_by(filename=data["filename"]).first()
         edit_topic(topic, data)
 
         db.session.commit()
@@ -40,7 +40,7 @@ class TopicCRUD(Resource):
     @topic_exists_in_github
     def delete(self):
         data = request.get_json()
-        topic = Topic.query.filter_by(github_id=data["github_id"]).first()
+        topic = Topic.query.filter_by(filename=data["filename"]).first()
         delete_topic(topic)
 
         db.session.delete(topic)

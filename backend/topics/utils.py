@@ -15,14 +15,16 @@ def completed_modules(student, modules):
 
 
 # Function to create a topic
-def create_topic(form_data):
-    topic = Topic(github_id=form_data["github_id"],
-                  name=form_data["name"],
-                  description=form_data["description"]
+def create_topic(data):
+    topic = Topic(github_id=data["github_id"],
+                  name=data["name"],
+                  filename=data["filename"],
+                  description=data["description"],
+                  image=data["image"]
                   )
 
-    if "modules" in form_data:
-        topic.modules = get_modules(form_data["modules"])
+    if "modules" in data:
+        topic.modules = get_modules(data["modules"])
 
     # if "module_prereqs" in contentful_data["parameters"]:
     #     topic.module_prereqs = get_modules(contentful_data["parameters"]["module_prereqs"]["en-US"])
@@ -43,12 +45,12 @@ def delete_topic(topic):
 
 
 # Function to edit an topic
-def edit_topic(topic, form_data):
-    topic.name = form_data["name"]
-    topic.description = form_data["description"]
+def edit_topic(topic, data):
+    topic.name = data["name"]
+    topic.description = data["description"]
 
-    if "modules" in form_data:
-        topic.modules = get_modules(form_data["modules"])
+    if "modules" in data:
+        topic.modules = get_modules(data["modules"])
 
     # delete_badge_prereqs(topic)
     # assign_badge_prereqs(contentful_data, topic, "Topic")

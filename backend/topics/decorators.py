@@ -83,7 +83,7 @@ def topic_exists_in_github(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         data = request.get_json()
-        topic = Topic.query.filter_by(github_id=data["github_id"])
+        topic = Topic.query.filter_by(filename=data["filename"]).first()
 
         if topic:
             return f(*args, **kwargs)

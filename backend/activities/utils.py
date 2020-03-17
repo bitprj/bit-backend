@@ -4,7 +4,8 @@ from backend.models import Activity
 
 # Function to create a activity
 def create_activity(data):
-    activity = Activity(filename=data["filename"],
+    activity = Activity(github_id=data["github_id"],
+                        filename=data["filename"],
                         name=data["name"],
                         description=data["description"],
                         summary=data["summary"],
