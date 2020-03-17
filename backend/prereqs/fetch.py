@@ -60,9 +60,8 @@ def get_hints(hint_list):
 def get_modules(module_list):
     modules = []
 
-    for module_filename in module_list:
-        filename = module_filename + "/README.md"
-        module = Module.query.filter_by(filename=filename).first()
+    for module_github_id in module_list:
+        module = Module.query.filter_by(github_id=module_github_id).first()
         modules.append(module)
 
     return modules

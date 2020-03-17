@@ -35,9 +35,9 @@ def create_image_obj(image_name, image_path, folder):
 
 
 # Function to parse files from github and save them locally
-def create_zip(data):
+def create_zip(test_file_location):
     os.chdir("./github")
-    files = repo.get_contents(data["test_file_location"])
+    files = repo.get_contents(test_file_location)
     zip_file = ZipFile('tests.zip', 'w')
     files_to_send = write_files(files)
 
@@ -55,6 +55,7 @@ def delete_files(files):
         os.remove(file)
 
     os.remove("tests.zip")
+    os.chdir("..")
 
     return
 

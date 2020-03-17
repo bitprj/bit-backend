@@ -27,6 +27,25 @@ def edit_mc_choice(mc_choice, data):
     return
 
 
+# Function to format data for a mc_choice
+def format_mc_choice_data(mc_choice, content, key, checkpoint_id):
+    data = {
+        "content": content,
+        "checkpoint_id": checkpoint_id,
+        "choice_key": key
+    }
+
+    if mc_choice:
+        if mc_choice.correct_checkpoint_id:
+            data["is_correct_choice"] = True
+        else:
+            data["is_correct_choice"] = False
+    else:
+        data["is_correct_choice"] = False
+
+    return data
+
+
 # Function to get a MCChoice whether it is the correct choice or not
 def get_mc_choice(data):
     mc_choice = None
