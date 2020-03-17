@@ -5,8 +5,7 @@ from backend import api, db
 from backend.checkpoints.decorators import checkpoint_exists, checkpoint_exists_in_github, valid_checkpoint_form, \
     valid_checkpoint_type
 from backend.checkpoints.schemas import checkpoint_schema
-from backend.checkpoints.utils import create_checkpoint, edit_checkpoint
-from backend.hooks.utils import call_mc_choice_routes, delete_choice_route
+from backend.checkpoints.utils import create_checkpoint, edit_checkpoint, fill_optional_checkpoint_fields
 from backend.models import Checkpoint
 
 # Blueprint for checkpoints
@@ -24,9 +23,7 @@ class CheckpointCRUD(Resource):
         checkpoint = create_checkpoint(data)
 
         db.session.add(checkpoint)
-        db.session.commit()
-        if checkpoint.checkpoint_type == "Multiple Choice" and "mc_choices" in data and "correct_choice" in data:
-            call_mc_choice_routes(data["mc_choices"], data["correct_choice"], checkpoint.id)
+        fill_optional_checkpoint_fields(checkpoint, data)
         db.session.commit()
 
         return {"message": "Checkpoint successfully created"}, 201
@@ -38,11 +35,10 @@ class CheckpointCRUD(Resource):
     def put(self):
         data = request.get_json()
         checkpoint = Checkpoint.query.filter_by(filename=data["filename"]).first()
-        choices = checkpoint.choices
-        choices.append(checkpoint.correct_choice)
-        delete_choice_route(choices)
-        edit_checkpoint(checkpoint, data)
+        # delete_choices(checkpoint)
 
+        db.session.commit()
+        edit_checkpoint(checkpoint, data)
         db.session.commit()
 
         return {"message": "Checkpoint successfully updated"}, 200

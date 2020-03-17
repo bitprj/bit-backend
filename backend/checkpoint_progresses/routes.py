@@ -19,7 +19,7 @@ class CheckpointProgressSubmit(Resource):
 
     # Function to retrieve data from a checkpoint progress
     @checkpoint_progress_exist
-    @checkpoint_progress_is_completed
+    # @checkpoint_progress_is_completed
     def get(self, checkpoint_id):
         username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()

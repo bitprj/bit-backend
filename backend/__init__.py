@@ -68,6 +68,7 @@ from backend.checkpoints.routes import checkpoints_bp
 from backend.checkpoint_progresses.routes import checkpoint_progresses_bp
 from backend.classrooms.routes import classrooms_bp
 from backend.concepts.routes import concepts_bp
+from backend.criteria.routes import criteria_bp
 from backend.events.routes import events_bp
 from backend.gems.routes import gems_bp
 from backend.hints.routes import hints_bp
@@ -94,6 +95,7 @@ app.register_blueprint(checkpoints_bp)
 app.register_blueprint(checkpoint_progresses_bp)
 app.register_blueprint(classrooms_bp)
 app.register_blueprint(concepts_bp)
+app.register_blueprint(criteria_bp)
 app.register_blueprint(events_bp)
 app.register_blueprint(gems_bp)
 app.register_blueprint(hints_bp)

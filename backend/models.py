@@ -277,9 +277,12 @@ class Checkpoint(db.Model):
     name = db.Column(db.Text, nullable=True)
     instruction = db.Column(db.Text, nullable=True)
     checkpoint_type = db.Column(db.Text, nullable=True)
+    image = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
+    test_cases_location = db.Column(db.Text, nullable=True)
     tests_zip = db.Column(db.Text, nullable=True)
     cards = db.relationship("Card", back_populates="checkpoint")
+    criteria = db.relationship("Criteria", cascade="all,delete", back_populates="checkpoint")
     checkpoint_progresses = db.relationship("CheckpointProgress", back_populates="checkpoint")
     # choices represent the choices if the checkpoint is a multiple choice checkpoint
     choices = db.relationship("MCChoice", cascade="all,delete", back_populates="checkpoint",
@@ -337,6 +340,19 @@ class Concept(db.Model):
 
     def __repr__(self):
         return f"Concept('{self.name}')"
+
+
+class Criteria(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=True)
+    criteria_key = db.Column(db.Text, nullable=True)
+    checkpoint_id = db.Column(db.Integer, db.ForeignKey("checkpoint.id"), nullable=True)
+    checkpoint = db.relationship("Checkpoint", back_populates="criteria")
+
+    def __init__(self, content, criteria_key, checkpoint_id):
+        self.content = content
+        self.criteria_key = criteria_key
+        self.checkpoint_id = checkpoint_id
 
 
 class Event(db.Model):
@@ -568,8 +584,10 @@ class Topic(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     github_id = db.Column(db.Integer, nullable=True)
     contentful_id = db.Column(db.Text, nullable=True)
-    name = db.Column(db.Text, unique=True, nullable=True)
+    name = db.Column(db.Text, nullable=True)
+    filename = db.Column(db.Text, nullable=True)
     description = db.Column(db.Text, nullable=True)
+    image = db.Column(db.Text, nullable=True)
     # modules keeps track of all of the modules that the belong to a topic
     modules = db.relationship("Module", secondary="topic_module_rel", back_populates="topics")
     # tracks keep track of all of the topics that belong to a track
@@ -592,10 +610,11 @@ class Topic(db.Model):
     students_inprogress = db.relationship("Student", secondary="student_topic_inprogress_rel",
                                           back_populates="inprogress_topics")
 
-    def __init__(self, github_id, name, description):
-        self.github_id = github_id
-        self.name = name
-        self.description = description
+    # def __init__(self, github_id, name, description, image):
+    #     self.github_id = github_id
+    #     self.name = name
+    #     self.description = description
+    #     self.image = image
 
     def __repr__(self):
         return f"Topic('{self.name}')"
