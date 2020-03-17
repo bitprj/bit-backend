@@ -1,7 +1,9 @@
-from backend import repo
+from backend import db, repo
 from backend.config import API
-from backend.general_utils import create_image_obj
-from backend.models import Activity, Card, Checkpoint, Concept, Hint, MCChoice, Module, Step, Topic, Track
+from backend.general_utils import create_zip, delete_files, parse_img_tag, send_tests_zip
+from backend.hooks.delete_utils import delete_criteria, delete_mc_choices, delete_track_route
+from backend.mc_choices.utils import format_mc_choice_data
+from backend.models import Activity, Card, Checkpoint, Concept, Criteria, Hint, MCChoice, Module, Step, Topic, Track
 from backend.tracks.utils import create_tracks_dict
 import ast
 import os
@@ -10,6 +12,8 @@ import requests
 
 # Function to call the Card's Create/Update route
 def call_card_routes(card_data, card_name, activity_filename, file):
+    # len(card_name) checks if the card is a hard card
+    # If it is then you would create a card else you create a hint
     if len(card_name) - 2 < 0:
         card = Card.query.filter_by(filename=card_data["filename"]).first()
         card_data["activity_filename"] = activity_filename
@@ -20,6 +24,30 @@ def call_card_routes(card_data, card_name, activity_filename, file):
             requests.post(API + "/cards", json=card_data)
     else:
         call_hint_routes(card_name, card_data, file)
+
+    return
+
+
+# Function to all the Criteria Create/Update route
+def call_criteria_routes(criteria_data, checkpoint):
+    checkpoint_criteria = Criteria.query.filter_by(checkpoint_id=checkpoint.id).all()
+
+    for key, data in criteria_data.items():
+        criteria = Criteria.query.filter_by(checkpoint_id=checkpoint.id, criteria_key=key).first()
+
+        data = {
+            "criteria_key": key,
+            "content": data["content"],
+            "checkpoint_id": checkpoint.id
+        }
+
+        if criteria:
+            requests.put(API + "/criteria", json=data)
+            checkpoint_criteria.remove(criteria)
+        else:
+            requests.post(API + "/criteria", json=data)
+
+    delete_criteria(checkpoint_criteria, checkpoint.id)
 
     return
 
@@ -51,36 +79,31 @@ def call_hint_routes(hint_name, hint_data, file):
 
 # Function to call the MCChoice's Create/Update route
 def call_mc_choice_routes(choice_data, correct_choice, checkpoint_id):
-    checkpoint = Checkpoint.query.get(checkpoint_id)
+    mc_choices = MCChoice.query.filter_by(checkpoint_id=checkpoint_id).all()
+    correct_mc_choice = MCChoice.query.filter_by(correct_checkpoint_id=checkpoint_id,
+                                                 choice_key="correct_choice").first()
+
+    if correct_mc_choice:
+        mc_choices.append(correct_mc_choice)
 
     for key, content in choice_data.items():
         mc_choice = MCChoice.query.filter_by(checkpoint_id=checkpoint_id, choice_key=key).first()
-
-        data = {
-            "content": content,
-            "is_correct_choice": False,
-            "checkpoint_id": checkpoint_id,
-            "choice_key": key
-        }
+        data = format_mc_choice_data(mc_choice, content, key, checkpoint_id)
 
         if mc_choice:
+            mc_choices.remove(mc_choice)
             requests.put(API + "/mc_choices", json=data)
         else:
             requests.post(API + "/mc_choices", json=data)
 
-    mc_choice = MCChoice.query.filter_by(correct_checkpoint_id=checkpoint_id, choice_key="correct_choice").first()
+    data = format_mc_choice_data(correct_mc_choice, correct_choice, "correct_choice", checkpoint_id)
 
-    data = {
-        "content": correct_choice,
-        "is_correct_choice": True,
-        "checkpoint_id": checkpoint_id,
-        "choice_key": "correct_choice"
-    }
-
-    if mc_choice:
+    if correct_mc_choice:
+        mc_choices.remove(correct_mc_choice)
         requests.put(API + "/mc_choices", json=data)
     else:
         requests.post(API + "/mc_choices", json=data)
+    delete_mc_choices(mc_choices)
 
     return
 
@@ -140,60 +163,6 @@ def call_track_routes(track_data, tracks):
     return tracks
 
 
-# Function to delete all of the concept's steps
-# Need to send the step key and the parent_id which is either concept_id or hint_id
-def delete_step_route(steps):
-    for step in steps:
-        data = {"step_key": step.step_key}
-
-        if step.hint_id:
-            data["type"] = "hint"
-            data["hint_id"] = step.hint_id
-        elif step.concept.id:
-            data["type"] = "concept"
-            data["concept_id"] = step.concept_id
-
-        requests.delete(API + "/steps", json=data)
-
-    return
-
-
-# Function to delete MCChoices
-def delete_choice_route(choices):
-    for choice in choices:
-        data = {
-            "checkpoint_id": choice.checkpoint_id,
-            "choice_key": choice.choice_key
-        }
-        requests.delete(API + "/choices", json=data)
-
-    return
-
-
-# Function to call a topic's delete route
-def delete_topic_route():
-    topics = Topic.query.all()
-
-    # Deletes Topics if they are not associated with a track
-    for topic in topics:
-        if not topic.tracks:
-            data = {
-                "github_id": topic.github_id
-            }
-            requests.delete(API + "/topics", json=data)
-
-    return
-
-
-# Function to call the track's delete route
-def delete_track_route(tracks):
-    # Deletes Tracks
-    for track in tracks.values():
-        requests.delete(API + "/tracks", json=track)
-
-    return
-
-
 # Function to edit the tests.json file
 def edit_test_json(file):
     topic_data = {}
@@ -230,23 +199,6 @@ def get_files(commits):
     return files, deleted_files
 
 
-# Function to get the raw url of each card
-def get_github_urls(folder_path):
-    contents = repo.get_contents(path=folder_path)
-    cards = {}
-
-    for content in contents:
-        if "README.md" not in content.path and "images" not in content.path:
-            card_name = content.path.split("/")[2]
-            card_name = card_name.split(".")[0]
-            cards[card_name] = {
-                "raw_url": content.download_url,
-                "filename": content.path
-            }
-
-    return cards
-
-
 # Function to parse a markdown file to JSON data
 def md_to_json(raw_url):
     response = requests.get(raw_url)
@@ -267,8 +219,9 @@ def md_to_json(raw_url):
 def parse_activity(file):
     raw_url = file.raw_url
     data = md_to_json(raw_url)
-    data["image"] = create_image_obj(data["image"], data["image_folder"], "activities")
+    data["image"] = parse_img_tag(data["image"], data["image_folder"], "activities")
     data["filename"] = file.filename
+    data["github_id"] = int(data["github_id"])
     activity = Activity.query.filter_by(filename=file.filename).first()
 
     if activity:
@@ -332,7 +285,7 @@ def parse_module(file):
     data = md_to_json(raw_url)
     data = update_module_data(data)
     data["filename"] = file.filename
-    module = Module.query.filter_by(filename=data["filename"]).first()
+    module = Module.query.filter_by(filename=file.filename).first()
 
     if module:
         requests.put(API + "/modules", json=data)
@@ -342,12 +295,25 @@ def parse_module(file):
     return
 
 
+# Function to take data from a README.md to Create/Update a topic
+def parse_topic(file):
+    raw_url = file.raw_url
+    data = md_to_json(raw_url)
+    data = update_topic_data(data, file)
+    topic = Topic.query.filter_by(filename=file.filename).first()
+
+    if topic:
+        requests.put(API + "/topics", json=data)
+    else:
+        requests.post(API + "/topics", json=data)
+
+    return
+
+
 # Function to take the data from tests.json and update it
 def parse_tracks(track_data, topic_data):
     tracks = create_tracks_dict()
-    call_topic_routes(topic_data)
     tracks = call_track_routes(track_data, tracks)
-    delete_topic_route()
     delete_track_route(tracks)
 
     return
@@ -355,9 +321,38 @@ def parse_tracks(track_data, topic_data):
 
 # Function to type cast module fields and update image field
 def update_module_data(data):
-    data["image"] = create_image_obj(data["image"], data["image_folder"], "modules")
+    data["image"] = parse_img_tag(data["image"], data["image_folder"], "modules")
 
     if "gems_needed" in data:
         data["gems_needed"] = int(data["gems_needed"])
+
+    if "github_id" in data:
+        data["github_id"] = int(data["github_id"])
+
+    return data
+
+
+# Function to update tests.zip files
+def update_test_cases(test_case_location):
+    checkpoints = Checkpoint.query.filter_by(test_cases_location=test_case_location).all()
+
+    for checkpoint in checkpoints:
+        files = create_zip(test_case_location)
+        zip_link = send_tests_zip(checkpoint.filename)
+        delete_files(files)
+        checkpoint.tests_zip = zip_link
+    db.session.commit()
+
+    return
+
+
+# Function to type case topic fields
+def update_topic_data(data, file):
+    data["github_id"] = int(data["github_id"])
+    data["image"] = parse_img_tag(data["image"], data["image_folder"], "topics")
+    data["filename"] = file.filename
+
+    for i in range(len(data["modules"]) - 1):
+        data["modules"][i] = int(data["modules"][i])
 
     return data
