@@ -1,6 +1,7 @@
 from backend import repo
 from backend.hooks.utils import md_to_json, parse_activity, parse_card, parse_checkpoint, parse_concept, parse_module, \
-    parse_topic, update_test_cases
+    parse_topic
+from backend.hooks.update_utils import update_test_cases
 
 
 # Function to take all the files changed from commits into specific lists
@@ -14,26 +15,29 @@ def store_files(files_to_change):
     tests_cases = set()
 
     for file in files_to_change.values():
-        if "Topic" in file.filename and "Module" not in file.filename and "Activity" not in file.filename and "README.md" in file.filename:
+        if "Topic" in file.filename and "Module" not in file.filename and "Activity" not in file.filename and "Lab" not in file.filename and "README.md" in file.filename:
             topic_files.append(file)
 
-        if "Module" in file.filename and "Activity" not in file.filename and "README.md" in file.filename:
+        if "Module" in file.filename and "Activity" not in file.filename and "Lab" not in file.filename and "README.md" in file.filename:
             module_files.append(file)
 
-        if "Module" in file.filename and "Activity" in file.filename and "README.md" in file.filename:
+        if "Module" in file.filename and (
+                "Activity" in file.filename or "Lab" in file.filename) and "README.md" in file.filename:
             activity_files.append(file)
 
-        if "Concepts" in file.filename and "images" not in file.filename:
+        if "concepts" in file.filename and "images" not in file.filename:
             concept_files.append(file)
 
-        if "Topic" in file.filename and "Module" in file.filename and "Activity" in file.filename and "Cards" in file.filename and file.filename.endswith(
+        if "Topic" in file.filename and "Module" in file.filename and (
+                "Activity" in file.filename or "Lab" in file.filename) and "cards" in file.filename and file.filename.endswith(
                 ".md"):
             card_files.append(file)
 
-        if "Module" in file.filename and "Activity" in file.filename and "Checkpoints" in file.filename:
+        if "Module" in file.filename and (
+                "Activity" in file.filename or "Lab" in file.filename) and "checkpoints" in file.filename:
             checkpoint_files.append(file)
 
-        if "Module" in file.filename and "Activity" in file.filename and "tests" in file.filename:
+        if "Module" in file.filename and "Activity" in file.filename and "Lab" in file.filename and "tests" in file.filename:
             name = file.filename.split("/")
             test_location = "/".join(name[:-1])
             test_location += "/"

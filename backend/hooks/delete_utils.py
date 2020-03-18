@@ -1,6 +1,4 @@
-from backend import repo
 from backend.config import API
-from backend.models import Topic
 import requests
 
 
@@ -41,16 +39,16 @@ def delete_files(files_to_delete):
         if "Concept" in file:
             delete_file(file, "/concepts")
 
-        if "Module" in file and "Activity" not in file and "README.md" in file:
+        if "Module" in file and "Activity" not in file and "Lab" not in file and "README.md" in file:
             delete_file(file, "/modules")
 
-        if "Module" in file and "Activity" in file and "README.md" in file:
+        if "Module" in file and ("Activity" in file or "Lab" in file) and "README.md" in file:
             delete_file(file, "/activities")
 
-        if "Module" in file and "Activity" in file and "Cards" in file and file.endswith(".md"):
+        if "Module" in file and ("Activity" in file or "Lab" in file) and "cards" in file and file.endswith(".md"):
             delete_card(file)
 
-        if "Topic" in file and "Module" not in file and "Activity" not in file and "README.md" in file:
+        if "Topic" in file and "Module" not in file and "Activity" not in file and "Lab" not in file and "README.md" in file:
             delete_file(file, "/topics")
 
     return
@@ -77,6 +75,23 @@ def delete_mc_choices(mc_choices):
             data["checkpoint_id"] = choice.checkpoint_id
 
         requests.delete(API + "/mc_choices", json=data)
+
+    return
+
+
+# Function to delete steps
+def delete_steps(steps):
+    for step in steps:
+        data = {"step_key": step.step_key}
+
+        if step.hint_id:
+            data["hint_id"] = step.hint_id
+            data["type"] = "hint"
+        else:
+            data["concept"] = step.concept_id
+            data["type"] = "concept"
+
+        requests.delete(API + "/steps", json=data)
 
     return
 

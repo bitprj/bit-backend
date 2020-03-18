@@ -7,7 +7,6 @@ from backend.hints.decorators import hint_exists, hint_exists_in_github, valid_h
 from backend.hints.schemas import hint_schema
 from backend.hints.utils import assign_hint_to_parent, create_hint, edit_hint
 from backend.hooks.utils import call_step_routes
-from backend.steps.utils import delete_steps
 
 # Blueprint for hints
 hints_bp = Blueprint("hints", __name__)
@@ -36,7 +35,6 @@ class HintCRUD(Resource):
     def put(self):
         data = request.get_json()
         hint = Hint.query.filter_by(filename=data["filename"]).first()
-        delete_steps(hint.steps)
         edit_hint(hint, data)
 
         db.session.commit()

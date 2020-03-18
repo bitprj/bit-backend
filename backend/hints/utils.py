@@ -56,11 +56,6 @@ def edit_hint(hint, data):
     assign_hint_to_parent(hint, data)
     call_step_routes(data["content"]["steps"], hint.id, "hint", data["content"]["image_folder"])
 
-    # hint.steps = get_steps(contentful_data["parameters"]["steps"]["en-US"])
-
-    # if "children_hints" in contentful_data["parameters"]:
-    #     hint.hint_children = assign_hints_to_parent_hint(contentful_data["parameters"]["children_hints"]["en-US"])
-
     return
 
 

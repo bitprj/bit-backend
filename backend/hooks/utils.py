@@ -1,9 +1,12 @@
-from backend import db, repo
+from backend import repo
 from backend.config import API
-from backend.general_utils import create_zip, delete_files, parse_img_tag, send_tests_zip
-from backend.hooks.delete_utils import delete_criteria, delete_mc_choices, delete_track_route
+from backend.general_utils import clear_white_space, parse_img_tag
+from backend.hooks.delete_utils import delete_criteria, delete_mc_choices, delete_steps, delete_track_route
+from backend.hooks.update_utils import update_card_data, update_hint_data, update_module_data, update_step_data, \
+    update_topic_data
 from backend.mc_choices.utils import format_mc_choice_data
 from backend.models import Activity, Card, Checkpoint, Concept, Criteria, Hint, MCChoice, Module, Step, Topic, Track
+from backend.steps.utils import get_step_from_patent
 from backend.tracks.utils import create_tracks_dict
 import ast
 import os
@@ -14,7 +17,7 @@ import requests
 def call_card_routes(card_data, card_name, activity_filename, file):
     # len(card_name) checks if the card is a hard card
     # If it is then you would create a card else you create a hint
-    if len(card_name) - 2 < 0:
+    if len(card_name) - 2 <= 0:
         card = Card.query.filter_by(filename=card_data["filename"]).first()
         card_data["activity_filename"] = activity_filename
 
@@ -23,7 +26,9 @@ def call_card_routes(card_data, card_name, activity_filename, file):
         else:
             requests.post(API + "/cards", json=card_data)
     else:
-        call_hint_routes(card_name, card_data, file)
+        content = md_to_json(file.raw_url)
+        hint_data = update_hint_data(card_data, card_name, content)
+        call_hint_routes(hint_data)
 
     return
 
@@ -53,21 +58,8 @@ def call_criteria_routes(criteria_data, checkpoint):
 
 
 # Function to call the Hint Create/Update route
-def call_hint_routes(hint_name, hint_data, file):
+def call_hint_routes(hint_data):
     hint = Hint.query.filter_by(filename=hint_data["filename"]).first()
-    # gets the last element in the list which is the card/hint name
-    split_child = hint_data["filename"].split("/")
-    hint_path = split_child[-1].split(".")[0]
-
-    parent_length = len(hint_path) - 2
-    parent_name = hint_name[:parent_length]
-    hint_data["parent_filename"] = "/".join(split_child[:-1]) + "/" + parent_name + ".md"
-    hint_data["content"] = md_to_json(file.raw_url)
-
-    if parent_length == 1:
-        hint_data["is_card_hint"] = True
-    else:
-        hint_data["is_card_hint"] = False
 
     if hint:
         requests.put(API + "/hints", json=hint_data)
@@ -110,27 +102,24 @@ def call_mc_choice_routes(choice_data, correct_choice, checkpoint_id):
 
 # Function to call the Step's Create/Update route
 def call_step_routes(step_data, parent_id, parent_type, image_folder):
+    # Gets all the steps based on the parent
+    steps = []
+    if parent_type == "concept":
+        steps = Step.query.filter_by(concept_id=parent_id).all()
+    elif parent_type == "hint":
+        steps = Step.query.filter_by(hint_id=parent_id).all()
+
     for key, data in step_data.items():
-        step = None
-
-        if parent_type == "concept":
-            step = Step.query.filter_by(concept_id=parent_id, step_key=key).first()
-            data["step_key"] = key
-            data["concept_id"] = parent_id
-            data["image_folder"] = image_folder
-            data["type"] = "concept"
-
-        elif parent_type == "hint":
-            step = Step.query.filter_by(hint_id=parent_id, step_key=key).first()
-            data["step_key"] = key
-            data["hint_id"] = parent_id
-            data["image_folder"] = image_folder
-            data["type"] = "hint"
+        data = update_step_data(data, key, parent_id, parent_type, image_folder)
+        step = get_step_from_patent(data)
 
         if step:
             requests.put(API + "/steps", json=data)
+            steps.remove(step)
         else:
             requests.post(API + "/steps", json=data)
+
+    delete_steps(steps)
 
     return
 
@@ -165,17 +154,11 @@ def call_track_routes(track_data, tracks):
 
 # Function to edit the tests.json file
 def edit_test_json(file):
-    topic_data = {}
     test_file = file.raw_url
     response = requests.get(test_file)
     data = response.text
     track_data = ast.literal_eval(data)
-
-    for key, val in track_data.items():
-        for topic in val["topics"]:
-            topic_data[topic["name"]] = topic
-
-    parse_tracks(track_data, topic_data)
+    parse_tracks(track_data)
 
     return
 
@@ -210,9 +193,10 @@ def md_to_json(raw_url):
     cmd = "md_to_json parse.md"
     output = os.popen(cmd).read()
     result = ast.literal_eval(output)
+    sanitized_result = clear_white_space(result)
     os.remove("parse.md")
 
-    return result
+    return sanitized_result
 
 
 # Function to take data from a README.md to Create/Update an activity
@@ -234,18 +218,8 @@ def parse_activity(file):
 
 # Function to create/update cards
 def parse_card(file, activity_cards, activity_path):
-    # Gets the card name
-    card_path = file.filename.split("/")
-    card_file = card_path[-1]
-    card_name = card_file.split(".")[0]
-    card_data = activity_cards[card_name]
-    # Edit card_data
-    card_data["gems"] = int(card_data["gems"])
-    card_data["order"] = int(card_data["order"])
-    card_data["filename"] = file.filename
-    card_data["github_raw_data"] = file.raw_url
-
-    call_card_routes(card_data, card_name, activity_path, file)
+    card_data = update_card_data(file, activity_cards)
+    call_card_routes(card_data[0], card_data[1], activity_path, file)
 
     return
 
@@ -311,48 +285,9 @@ def parse_topic(file):
 
 
 # Function to take the data from tests.json and update it
-def parse_tracks(track_data, topic_data):
+def parse_tracks(track_data):
     tracks = create_tracks_dict()
     tracks = call_track_routes(track_data, tracks)
     delete_track_route(tracks)
 
     return
-
-
-# Function to type cast module fields and update image field
-def update_module_data(data):
-    data["image"] = parse_img_tag(data["image"], data["image_folder"], "modules")
-
-    if "gems_needed" in data:
-        data["gems_needed"] = int(data["gems_needed"])
-
-    if "github_id" in data:
-        data["github_id"] = int(data["github_id"])
-
-    return data
-
-
-# Function to update tests.zip files
-def update_test_cases(test_case_location):
-    checkpoints = Checkpoint.query.filter_by(test_cases_location=test_case_location).all()
-
-    for checkpoint in checkpoints:
-        files = create_zip(test_case_location)
-        zip_link = send_tests_zip(checkpoint.filename)
-        delete_files(files)
-        checkpoint.tests_zip = zip_link
-    db.session.commit()
-
-    return
-
-
-# Function to type case topic fields
-def update_topic_data(data, file):
-    data["github_id"] = int(data["github_id"])
-    data["image"] = parse_img_tag(data["image"], data["image_folder"], "topics")
-    data["filename"] = file.filename
-
-    for i in range(len(data["modules"]) - 1):
-        data["modules"][i] = int(data["modules"][i])
-
-    return data

@@ -21,11 +21,12 @@ def update_card_data(file, activity_cards):
 
 # Function to update hint data
 def update_hint_data(hint_data, hint_name, content):
-    # gets the last element in the list which is the card/hint name
+    # gets the last element in the list which is the hint name
     split_child = hint_data["filename"].split("/")
     hint_path = split_child[-1].split(".")[0]
     parent_length = len(hint_path) - 2
     parent_name = hint_name[:parent_length]
+    # Gets the parent filename
     hint_data["parent_filename"] = "/".join(split_child[:-1]) + "/" + parent_name + ".md"
     hint_data["content"] = content
 
@@ -36,6 +37,25 @@ def update_hint_data(hint_data, hint_name, content):
         hint_data["is_card_hint"] = False
 
     return hint_data
+
+
+# Function to update step data
+def update_step_data(data, key, parent_id, parent_type, image_folder):
+    # Gives the step a unique key to reference later
+    data["step_key"] = key
+    data["image_folder"] = image_folder
+
+    # If the step is for a concept make the parent a concept
+    if parent_type == "concept":
+        data["concept_id"] = parent_id
+        data["type"] = "concept"
+
+    # If the step is for a hint make the parent a hint
+    elif parent_type == "hint":
+        data["hint_id"] = parent_id
+        data["type"] = "hint"
+
+    return data
 
 
 # Function to type cast module fields and update image field
