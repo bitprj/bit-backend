@@ -7,10 +7,7 @@ from backend.models import Step
 def create_step(step_data):
     # subtract 4 because the content is written in code blocks
     name_length = len(step_data["name"]) - 4
-    md_content_length = len(step_data["md_content"]) - 4
-
     step = Step(name=step_data["name"][4:name_length],
-                md_content=step_data["md_content"][3:md_content_length],
                 step_key=step_data["step_key"]
                 )
 
@@ -51,6 +48,10 @@ def fill_optional_fields(step, step_data):
     if "image" in step_data:
         image = parse_img_tag(step_data["image"], step_data["image_folder"], "steps")
         step.image = image
+
+    if "md_content" in step_data:
+        md_content_length = len(step_data["md_content"]) - 4
+        step.md_content = step_data["md_content"][3:md_content_length]
 
     return
 

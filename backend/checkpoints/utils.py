@@ -8,7 +8,7 @@ import os
 def assign_checkpoint_to_card(checkpoint, data):
     checkpoint_path = data["filename"].split("/")[-1]
     card_name = checkpoint_path.split("-")[0] + ".md"
-    card_filename = data["cards_folder"] + card_name
+    card_filename = data["cards_folder"] + "/" + card_name
     card = Card.query.filter_by(filename=card_filename).first()
     checkpoint.cards.append(card)
 
@@ -17,6 +17,10 @@ def assign_checkpoint_to_card(checkpoint, data):
 
 # Function to give a checkpoint a test.zip link if the checkpoint is an Autograder checkpoint
 def assign_tests_zip_to_checkpoint(checkpoint, test_file_location, filename):
+    if "github" in os.getcwd():
+        os.chdir("..")
+    os.chdir("./github")
+
     files = create_zip(test_file_location)
     zip_link = send_tests_zip(filename)
     delete_files(files)
@@ -33,7 +37,6 @@ def create_checkpoint(data):
                             checkpoint_type=data["checkpoint_type"],
                             filename=data["filename"]
                             )
-    assign_checkpoint_to_card(checkpoint, data)
 
     return checkpoint
 

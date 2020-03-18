@@ -81,6 +81,9 @@ def valid_card_form(f):
     def wrap(*args, **kwargs):
         data = request.get_json()
         errors = card_form_schema.validate(data)
+        print(data["name"])
+        print(data)
+        print(errors)
 
         if errors:
             return {

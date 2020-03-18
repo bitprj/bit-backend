@@ -5,7 +5,7 @@ from marshmallow import fields
 # This schema is used to validate the card form data
 class StepFormSchema(ma.ModelSchema):
     name = fields.Str(required=True)
-    md_content = fields.Str(required=True)
+    md_content = fields.Str(required=False)
     step_key = fields.Str(required=True)
     type = fields.Str(required=True)
     concept_id = fields.Int(required=False)

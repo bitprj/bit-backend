@@ -44,6 +44,9 @@ def valid_step_form(f):
     def wrap(*args, **kwargs):
         data = request.get_json()
         errors = step_form_schema.validate(data)
+        print(data["step_key"])
+        print(data)
+        print(errors)
 
         if errors:
             return {
