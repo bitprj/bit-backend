@@ -7,7 +7,6 @@ from backend.concepts.schemas import concept_schema
 from backend.concepts.utils import create_concept, edit_concept
 from backend.hooks.utils import call_step_routes
 from backend.models import Concept
-from backend.steps.utils import delete_steps
 
 # Blueprint for concepts
 concepts_bp = Blueprint("concepts", __name__)
@@ -35,9 +34,7 @@ class ConceptCRUD(Resource):
     def put(self):
         data = request.get_json()
         concept = Concept.query.filter_by(filename=data["filename"]).first()
-        delete_steps(concept.steps)
         edit_concept(concept, data)
-        call_step_routes(data["steps"], concept.id, "concept", data["image_folder"])
 
         db.session.commit()
 

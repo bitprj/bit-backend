@@ -22,6 +22,27 @@ def add_file(image_bytes, folder, filename):
     return image
 
 
+# Function to remove white space in dictionary keys
+def clear_white_space(readme_data):
+    new_data = {}
+
+    for name, data in readme_data.items():
+        # Gets rid of white space in the dictionary key
+        no_space_name = name.strip().lower()
+
+        if isinstance(data, dict):
+            # Recurse if the value is a dictionary
+            data = clear_white_space(data)
+
+        if isinstance(data, str):
+            # Gets rid of white space in the dictionary value
+            new_data[no_space_name] = data.strip()
+        else:
+            new_data[no_space_name] = data
+
+    return new_data
+
+
 def create_image_obj(image_name, image_path, folder):
     # Get the download image url from github
     image_url = repo.get_contents(path=image_path).download_url
@@ -36,7 +57,6 @@ def create_image_obj(image_name, image_path, folder):
 
 # Function to parse files from github and save them locally
 def create_zip(test_file_location):
-    os.chdir("./github")
     files = repo.get_contents(test_file_location)
     zip_file = ZipFile('tests.zip', 'w')
     files_to_send = write_files(files)

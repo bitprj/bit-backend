@@ -557,10 +557,10 @@ class Step(db.Model):
     hint_id = db.Column(db.Integer, db.ForeignKey("hint.id"))
     hint = db.relationship("Hint", back_populates="steps")
 
-    def __init__(self, name, md_content, step_key):
-        self.name = name
-        self.md_content = md_content
-        self.step_key = step_key
+    # def __init__(self, name, md_content, step_key):
+    #     self.name = name
+    #     self.md_content = md_content
+    #     self.step_key = step_key
 
     def __repr__(self):
         return f"Step('{self.name}')"

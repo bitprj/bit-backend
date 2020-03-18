@@ -8,7 +8,8 @@ import os
 def assign_checkpoint_to_card(checkpoint, data):
     checkpoint_path = data["filename"].split("/")[-1]
     card_name = checkpoint_path.split("-")[0] + ".md"
-    card_filename = data["cards_folder"] + "/" + card_name
+    card_filename = data["cards_folder"] + card_name
+    print(card_filename)
     card = Card.query.filter_by(filename=card_filename).first()
     checkpoint.cards.append(card)
 

@@ -24,11 +24,11 @@ def fill_in_checkpoint_progress(data, checkpoint_prog):
 
     if checkpoint_type == "Image":
         image_file = request.files["content"]
-        image = add_file(image_file, "checkpoints")
+        image = add_file(image_file, "checkpoints", image_file.filename)
         checkpoint_prog.content = image
     elif checkpoint_type == "Video":
         video_file = request.files["content"]
-        video = add_file(video_file, "checkpoints")
+        video = add_file(video_file, "checkpoints", video_file.filename)
         checkpoint_prog.content = video
     elif checkpoint_type == "Short Answer":
         checkpoint_prog.content = data["content"]

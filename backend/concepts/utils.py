@@ -1,3 +1,4 @@
+from backend.hooks.utils import call_step_routes
 from backend.models import Concept
 
 
@@ -14,5 +15,6 @@ def create_concept(data):
 def edit_concept(concept, data):
     concept.name = data["concept_name"]
     concept.filename = data["filename"]
+    call_step_routes(data["steps"], concept.id, "concept", data["image_folder"])
 
     return

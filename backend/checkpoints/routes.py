@@ -40,7 +40,6 @@ class CheckpointCRUD(Resource):
         data = request.get_json()
         checkpoint = Checkpoint.query.filter_by(filename=data["filename"]).first()
 
-        db.session.commit()
         edit_checkpoint(checkpoint, data)
         db.session.commit()
 
