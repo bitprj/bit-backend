@@ -4,7 +4,8 @@ from flask_restful import Resource
 from backend import api, db
 from backend.authentication.decorators import roles_accepted
 from backend.checkpoints.decorators import checkpoint_exists
-from backend.checkpoint_progresses.decorators import checkpoint_progress_exist, checkpoint_progress_is_completed
+from backend.checkpoint_progresses.decorators import checkpoint_progress_exist, multiple_choice_is_completed, \
+    valid_checkpoint_progress_data
 from backend.activity_progresses.utils import is_activity_completed
 from backend.checkpoint_progresses.utils import fill_in_checkpoint_progress, get_checkpoint_data
 from backend.models import CheckpointProgress, Student
@@ -19,21 +20,22 @@ class CheckpointProgressSubmit(Resource):
 
     # Function to retrieve data from a checkpoint progress
     @checkpoint_progress_exist
-    # @checkpoint_progress_is_completed
     def get(self, checkpoint_id):
         username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()
         checkpoint_prog = CheckpointProgress.query.filter_by(checkpoint_id=checkpoint_id,
                                                              student_id=student.id).first()
-        checkpoint_prog.submissions.sort(key=lambda x: x.id, reverse=True)
+        checkpoint_prog.submissions.sort(key=lambda x: x.date_time)
         schema = get_checkpoint_data(checkpoint_prog)
 
         return schema.dump(checkpoint_prog)
 
     # Function to return data on a single checkpoint
     @checkpoint_progress_exist
+    @valid_checkpoint_progress_data
+    @multiple_choice_is_completed
     def put(self, checkpoint_id):
-        data = request.get_json()
+        data = request.form
         username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()
         checkpoint_prog = CheckpointProgress.query.filter_by(checkpoint_id=checkpoint_id,
