@@ -37,7 +37,7 @@ def store_files(files_to_change):
                 "Activity" in file.filename or "Lab" in file.filename) and "checkpoints" in file.filename:
             checkpoint_files.append(file)
 
-        if "Module" in file.filename and "Activity" in file.filename and "Lab" in file.filename and "tests" in file.filename:
+        if "Topic" in file.filename and "Module" in file.filename and ("Activity" in file.filename or "Lab" in file.filename) and "tests" in file.filename:
             name = file.filename.split("/")
             test_location = "/".join(name[:-1])
             test_location += "/"

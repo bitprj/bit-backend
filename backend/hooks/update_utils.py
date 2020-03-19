@@ -78,6 +78,7 @@ def update_test_cases(test_case_location):
     checkpoints = Checkpoint.query.filter_by(test_cases_location=test_case_location).all()
 
     for checkpoint in checkpoints:
+        # Recreates a tests.zip file and sends it to s3
         files = create_zip(test_case_location)
         zip_link = send_tests_zip(checkpoint.filename)
         delete_files(files)
