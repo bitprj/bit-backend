@@ -278,6 +278,7 @@ class Checkpoint(db.Model):
     instruction = db.Column(db.Text, nullable=True)
     checkpoint_type = db.Column(db.Text, nullable=True)
     image = db.Column(db.Text, nullable=True)
+    cli_command = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
     test_cases_location = db.Column(db.Text, nullable=True)
     tests_zip = db.Column(db.Text, nullable=True)
