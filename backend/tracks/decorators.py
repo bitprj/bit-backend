@@ -1,8 +1,7 @@
 from flask import request
-from backend import contentful_client
-from backend.config import SPACE_ID
 from backend.models import Track
 from functools import wraps
+from backend.tracks.schemas import track_form_schema
 
 
 # Decorator to check if a track exists
@@ -21,18 +20,14 @@ def track_exists(f):
     return wrap
 
 
-# Decorator to check if a track exists in contentful
-def track_exists_in_contentful(f):
+# Decorator to check if a track exists in github
+def track_exists_in_github(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         data = request.get_json()
-        content_type = data["contentType"]["sys"]["id"]
-        track = Track.query.filter_by(contentful_id=data["entityId"]).first()
-        contentful_track = contentful_client.entries(SPACE_ID, 'master').find(data["entityId"])
+        track = Track.query.filter_by(github_id=data["github_id"]).first()
 
-        # Checks if the track exists in contentful and if its a track
-        # Checks if the track exists in the db for put request
-        if contentful_track and content_type == "track" or track:
+        if track:
             return f(*args, **kwargs)
         else:
             return {
@@ -42,18 +37,18 @@ def track_exists_in_contentful(f):
     return wrap
 
 
-# Decorator to check if the track can be deleted
-def track_delete(f):
+# Decorator to validate the track form data
+def valid_track_form(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         data = request.get_json()
-        track = Track.query.filter_by(contentful_id=data["entityId"]).first()
+        errors = track_form_schema.validate(data)
 
-        if track:
-            return f(*args, **kwargs)
-        else:
+        if errors:
             return {
-                       "message": "Track does not exist"
-                   }, 404
+                       "message": "Missing or sending incorrect data to create a track. Double check the JSON data that it has everything needed to create a track."
+                   }, 500
+        else:
+            return f(*args, **kwargs)
 
     return wrap

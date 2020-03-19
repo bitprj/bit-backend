@@ -1,57 +1,72 @@
-from backend import contentful_client
-from backend.config import SPACE_ID, CONTENT_DELIVERY_API_KEY
-from backend.models import Checkpoint, CheckpointProgress, MCQuestion
-from contentful import Client
-
-client = Client(
-    SPACE_ID,
-    CONTENT_DELIVERY_API_KEY,
-    environment='master'
-)
+from backend.general_utils import create_zip, delete_files, parse_img_tag, send_tests_zip
+from backend.hooks.utils import call_mc_choice_routes, call_criteria_routes
+from backend.models import Card, Checkpoint
+import os
 
 
-# Function to choose which checkpoint to create based on type
-def create_checkpoint(contentful_data):
-    checkpoint = Checkpoint(contentful_id=contentful_data["entityId"])
-
-    return checkpoint
-
-
-# Function to create CheckpointProgresses
-def create_checkpoint_progresses(cards, student_id):
-    checkpoint_progresses = []
-    for card in cards:
-        if card.checkpoint:
-            checkpoint_prog = CheckpointProgress(checkpoint_id=card.checkpoint.id,
-                                                 student_id=student_id
-                                                 )
-            checkpoint_progresses.append(checkpoint_prog)
-
-    return checkpoint_progresses
-
-
-# Function to delete a checkpoint from contentful
-def delete_checkpoint(checkpoint):
-    checkpoint_entry = contentful_client.entries(SPACE_ID, 'master').find(checkpoint.contentful_id)
-    checkpoint_entry.unpublish()
-    contentful_client.entries(SPACE_ID, 'master').delete(checkpoint.contentful_id)
+# Function to assign a checkpoint to its respective card
+def assign_checkpoint_to_card(checkpoint, data):
+    checkpoint_path = data["filename"].split("/")[-1]
+    card_name = checkpoint_path.split("-")[0] + ".md"
+    card_filename = data["cards_folder"] + card_name
+    print(card_filename)
+    card = Card.query.filter_by(filename=card_filename).first()
+    checkpoint.cards.append(card)
 
     return
 
 
+# Function to give a checkpoint a test.zip link if the checkpoint is an Autograder checkpoint
+def assign_tests_zip_to_checkpoint(checkpoint, test_file_location, filename):
+    if "github" in os.getcwd():
+        os.chdir("..")
+    os.chdir("./github")
+
+    files = create_zip(test_file_location)
+    zip_link = send_tests_zip(filename)
+    delete_files(files)
+    os.chdir("..")
+    checkpoint.tests_zip = zip_link
+
+    return
+
+
+# Function to choose which checkpoint to create based on type
+def create_checkpoint(data):
+    checkpoint = Checkpoint(name=data["name"],
+                            instruction=data["instruction"],
+                            checkpoint_type=data["checkpoint_type"],
+                            filename=data["filename"]
+                            )
+
+    return checkpoint
+
+
 # Function to edit a checkpoint
-def edit_checkpoint(checkpoint, contentful_data):
-    checkpoint.name = contentful_data["parameters"]["name"]["en-US"]
-    checkpoint.checkpoint_type = contentful_data["parameters"]["checkpointType"]["en-US"]
+def edit_checkpoint(checkpoint, data):
+    checkpoint.name = data["name"]
+    checkpoint.instruction = data["instruction"]
+    checkpoint.checkpoint_type = data["checkpoint_type"]
+    checkpoint.filename = data["filename"]
+    assign_checkpoint_to_card(checkpoint, data)
+    fill_optional_checkpoint_fields(checkpoint, data)
 
-    if checkpoint.checkpoint_type == "Multiple Choice" and "mc_question" in contentful_data["parameters"]:
-        mc_question = MCQuestion.query.filter_by(
-            contentful_id=contentful_data["parameters"]["mc_question"]["en-US"]["sys"]["id"]).first()
-        checkpoint.mc_question = mc_question
+    return
 
-    if checkpoint.checkpoint_type == "Autograder" and "tests.zip" in contentful_data["parameters"]:
-        test_content_id = contentful_data["parameters"]["tests.zip"]["en-US"]["sys"]["id"]
-        tests = client.asset(test_content_id).fields()["file"]["url"]
-        checkpoint.tests_zip = tests[2:]
+
+# Function to fill out optional fields in a checkpoint
+def fill_optional_checkpoint_fields(checkpoint, data):
+    if "image" in data:
+        checkpoint.image = parse_img_tag(data["image"], data["image_folder"], "checkpoints")
+
+    if checkpoint.checkpoint_type == "Multiple Choice" and "mc_choices" in data and "correct_choice" in data:
+        call_mc_choice_routes(data["mc_choices"], data["correct_choice"], checkpoint.id)
+
+    if checkpoint.checkpoint_type == "Autograder" and "test_file_location" in data:
+        checkpoint.test_cases_location = data["test_file_location"]
+        assign_tests_zip_to_checkpoint(checkpoint, data["test_file_location"], data["filename"])
+
+    if checkpoint.checkpoint_type == "Video" or checkpoint.checkpoint_type == "Image" and "criteria" in data:
+        call_criteria_routes(data["criteria"], checkpoint)
 
     return

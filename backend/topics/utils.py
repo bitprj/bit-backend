@@ -1,6 +1,5 @@
 from backend.models import Module, Student, Topic
-from backend.prereqs.fetch import get_activities, get_modules
-from backend.prereqs.utils import assign_badge_prereqs, delete_badge_prereqs
+from backend.prereqs.fetch import get_modules
 
 
 # Function to check if a student has completed the required modules for a topic
@@ -16,9 +15,22 @@ def completed_modules(student, modules):
 
 
 # Function to create a topic
-def create_topic(contentful_data):
-    topic = Topic(contentful_id=contentful_data["entityId"]
+def create_topic(data):
+    topic = Topic(github_id=data["github_id"],
+                  name=data["name"],
+                  filename=data["filename"],
+                  description=data["description"],
+                  image=data["image"]
                   )
+
+    if "modules" in data:
+        topic.modules = get_modules(data["modules"])
+
+    # if "module_prereqs" in contentful_data["parameters"]:
+    #     topic.module_prereqs = get_modules(contentful_data["parameters"]["module_prereqs"]["en-US"])
+    #
+    # if "activity_prereqs" in contentful_data["parameters"]:
+    #     topic.activity_prereqs = get_activities(contentful_data["parameters"]["activity_prereqs"]["en-US"])
 
     return topic
 
@@ -33,17 +45,21 @@ def delete_topic(topic):
 
 
 # Function to edit an topic
-def edit_topic(topic, contentful_data):
-    topic.name = contentful_data["parameters"]["name"]["en-US"]
-    topic.modules = get_modules(contentful_data["parameters"]["modules"]["en-US"])
-    delete_badge_prereqs(topic)
-    assign_badge_prereqs(contentful_data, topic, "Topic")
+def edit_topic(topic, data):
+    topic.name = data["name"]
+    topic.description = data["description"]
 
-    if "module_prereqs" in contentful_data["parameters"]:
-        topic.module_prereqs = get_modules(contentful_data["parameters"]["module_prereqs"]["en-US"])
+    if "modules" in data:
+        topic.modules = get_modules(data["modules"])
 
-    if "activity_prereqs" in contentful_data["parameters"]:
-        topic.activity_prereqs = get_activities(contentful_data["parameters"]["activity_prereqs"]["en-US"])
+    # delete_badge_prereqs(topic)
+    # assign_badge_prereqs(contentful_data, topic, "Topic")
+
+    # if "module_prereqs" in contentful_data["parameters"]:
+    #     topic.module_prereqs = get_modules(contentful_data["parameters"]["module_prereqs"]["en-US"])
+    #
+    # if "activity_prereqs" in contentful_data["parameters"]:
+    #     topic.activity_prereqs = get_activities(contentful_data["parameters"]["activity_prereqs"]["en-US"])
 
     return
 

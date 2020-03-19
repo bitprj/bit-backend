@@ -3,9 +3,9 @@ from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 from backend import api, db
 from backend.models import Step
-from backend.steps.decorators import step_delete, step_exists, step_exists_in_contentful
+from backend.steps.decorators import step_exists, step_exists_in_github, valid_step_form
 from backend.steps.schemas import step_schema
-from backend.steps.utils import create_step, edit_step
+from backend.steps.utils import create_step, edit_step, get_step_from_patent
 
 # Blueprint for steps
 steps_bp = Blueprint("steps", __name__)
@@ -13,12 +13,12 @@ steps_bp = Blueprint("steps", __name__)
 
 # Class for step CRUD routes
 class StepCRUD(Resource):
-    method_decorators = [step_exists_in_contentful]
 
     # Function to create a step
+    @valid_step_form
     def post(self):
-        contentful_data = request.get_json()
-        step = create_step(contentful_data)
+        data = request.get_json()
+        step = create_step(data)
 
         db.session.add(step)
         db.session.commit()
@@ -26,24 +26,22 @@ class StepCRUD(Resource):
         return {"message": "Step successfully created"}, 201
 
     # Function to edit an step
+    @valid_step_form
+    @step_exists_in_github
     def put(self):
-        contentful_data = request.get_json()
-        step = Step.query.filter_by(contentful_id=contentful_data["entityId"]).first()
-        edit_step(step, contentful_data)
+        data = request.get_json()
+        step = get_step_from_patent(data)
+        edit_step(step, data)
 
         db.session.commit()
 
         return {"message": "Step successfully updated"}, 200
 
-
-# This class is used to delete an step with a POST request
-class StepDelete(Resource):
-    method_decorators = [step_delete]
-
     # Function to delete a step!!
-    def post(self):
-        contentful_data = request.get_json()
-        step = Step.query.filter_by(contentful_id=contentful_data["entityId"]).first()
+    @step_exists_in_github
+    def delete(self):
+        data = request.get_json()
+        step = get_step_from_patent(data)
 
         db.session.delete(step)
         db.session.commit()
@@ -64,4 +62,3 @@ class StepGetSpecific(Resource):
 # Creates the routes for the classes
 api.add_resource(StepCRUD, "/steps")
 api.add_resource(StepGetSpecific, "/steps/<int:step_id>")
-api.add_resource(StepDelete, "/steps/delete")

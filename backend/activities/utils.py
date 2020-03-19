@@ -1,43 +1,51 @@
-from backend import contentful_client
-from backend.cards.utils import add_cards, delete_card
-from backend.config import SPACE_ID
-from backend.models import Activity
+from backend.models import Activity, Card, Hint
 
 
 # Function to create a activity
-def create_activity(contentful_data):
-    activity = Activity(contentful_id=contentful_data["entityId"]
+def create_activity(data):
+    activity = Activity(github_id=data["github_id"],
+                        filename=data["filename"],
+                        name=data["name"],
+                        description=data["description"],
+                        summary=data["summary"],
+                        difficulty=data["difficulty"],
+                        image=data["image"]
                         )
 
     return activity
 
 
-# Function to delete an activity's cards
-def delete_cards(cards):
-    for card in cards:
-        delete_card(card, card.checkpoint)
-
-        # Unpublishes the card first then deletes the card in contentful
-        card_entry = contentful_client.entries(SPACE_ID, 'master').find(card.contentful_id)
-        card_entry.unpublish()
-        contentful_client.entries(SPACE_ID, 'master').delete(card.contentful_id)
-
-    return
-
-
 # Function to edit an activity
-def edit_activity(activity, contentful_data):
-    activity.name = contentful_data["parameters"]["name"]["en-US"]
-    activity.cards = add_cards(contentful_data)
+def edit_activity(activity, data):
+    activity.name = data["name"]
+    activity.description = data["description"]
+    activity.summary = data["summary"]
+    activity.difficulty = data["difficulty"]
+    activity.image = data["image"]
+    activity.filename = data["filename"]
 
+    if "cards" in data:
+        card_filename_path = activity.filename.split("/")[:-1]
+        card_path = "/".join(card_filename_path)
+        for card_name, card_data in data["cards"].items():
+            card_filename = card_path + "/Cards/" + card_name + ".md"
+            update_card(card_path, card_name, card_filename)
     return
 
 
-# Function to validate an activity
-def validate_activity(activity_id):
-    activity = Activity.query.get(activity_id)
+# Function to update an Activity's cards/hints from the README when the
+# Activity gets updated
+def update_card(card_data, card_name, card_filename):
+    card = None
 
-    if not activity:
-        return True
+    if len(card_name) <= 2:
+        card = Card.query.filter_by(filename=card_filename).first()
+    else:
+        card = Hint.query.filter_by(filename=card_filename).first()
 
-    return False
+    if card:
+        card.name = card_data["name"]
+        card.order = card_data["order"]
+        card.gems = card_data["gems"]
+
+    return

@@ -2,9 +2,10 @@ from flask import (Blueprint, request)
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 from backend import api, db
-from backend.concepts.decorators import concept_delete, concept_exists, concept_exists_in_contentful
+from backend.concepts.decorators import concept_exists, concept_exists_in_github, valid_concept_form
 from backend.concepts.schemas import concept_schema
-from backend.concepts.utils import create_concept, delete_concept, edit_concept
+from backend.concepts.utils import create_concept, edit_concept
+from backend.hooks.utils import call_step_routes
 from backend.models import Concept
 
 # Blueprint for concepts
@@ -13,38 +14,37 @@ concepts_bp = Blueprint("concepts", __name__)
 
 # Class for concept CRUD routes
 class ConceptCRUD(Resource):
-    method_decorators = [concept_exists_in_contentful]
 
     # Function to create a concept
+    @valid_concept_form
     def post(self):
-        contentful_data = request.get_json()
-        concept = create_concept(contentful_data)
+        data = request.get_json()
+        concept = create_concept(data)
 
         db.session.add(concept)
+        db.session.commit()
+        call_step_routes(data["steps"], concept.id, "concept", data["image_folder"])
         db.session.commit()
 
         return {"message": "Concept successfully created"}, 201
 
     # Function to edit an concept
+    @valid_concept_form
+    @concept_exists_in_github
     def put(self):
-        contentful_data = request.get_json()
-        concept = Concept.query.filter_by(contentful_id=contentful_data["entityId"]).first()
-        edit_concept(concept, contentful_data)
+        data = request.get_json()
+        concept = Concept.query.filter_by(filename=data["filename"]).first()
+        edit_concept(concept, data)
 
         db.session.commit()
 
         return {"message": "Concept successfully updated"}, 200
 
-
-# This class is used to delete an concept with a POST request
-class ConceptDelete(Resource):
-    method_decorators = [concept_delete]
-
     # Function to delete a concept!!
-    def post(self):
-        contentful_data = request.get_json()
-        concept = Concept.query.filter_by(contentful_id=contentful_data["entityId"]).first()
-        delete_concept(concept)
+    @concept_exists_in_github
+    def delete(self):
+        data = request.get_json()
+        concept = Concept.query.filter_by(filename=data["filename"]).first()
 
         db.session.delete(concept)
         db.session.commit()
@@ -64,5 +64,4 @@ class ConceptGetSpecific(Resource):
 
 # Creates the routes for the classes
 api.add_resource(ConceptCRUD, "/concepts")
-api.add_resource(ConceptDelete, "/concepts/delete")
 api.add_resource(ConceptGetSpecific, "/concepts/<int:concept_id>")

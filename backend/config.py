@@ -32,3 +32,7 @@ MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS')
 CONTENT_MANGEMENT_API_KEY = os.environ.get("CONTENT_MANGEMENT_API_KEY")
 CONTENT_DELIVERY_API_KEY = os.environ.get("CONTENT_DELIVERY_API_KEY")
 SPACE_ID = os.environ.get("SPACE_ID")
+
+GITHUB_ACCESS_TOKEN = os.environ.get("GITHUB_ACCESS_TOKEN")
+GITHUB_REPO = os.environ.get("GITHUB_REPO")
+API = os.environ.get("API")

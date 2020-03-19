@@ -1,6 +1,6 @@
 from flask import request
-from backend import contentful_client
-from backend.config import SPACE_ID
+from backend.steps.schemas import step_form_schema
+from backend.steps.utils import get_step_from_patent
 from backend.models import Step
 from functools import wraps
 
@@ -21,17 +21,14 @@ def step_exists(f):
     return wrap
 
 
-# Decorator to check if a step exists in contentful
-def step_exists_in_contentful(f):
+# Decorator to check if a step exists in github
+def step_exists_in_github(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         data = request.get_json()
-        content_type = data["contentType"]["sys"]["id"]
-        step = Step.query.filter_by(contentful_id=data["entityId"]).first()
-        contentful_step = contentful_client.entries(SPACE_ID, 'master').find(data["entityId"])
-        # Checks if the step exists in contentful and if its a step
-        # Checks if the step exists in the db for put request
-        if contentful_step and content_type == "step" or step:
+        step = get_step_from_patent(data)
+
+        if step:
             return f(*args, **kwargs)
         else:
             return {
@@ -41,18 +38,21 @@ def step_exists_in_contentful(f):
     return wrap
 
 
-# Decorator to check if the step can be deleted
-def step_delete(f):
+# Decorator to validate step form data
+def valid_step_form(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         data = request.get_json()
-        step = Step.query.filter_by(contentful_id=data["entityId"]).first()
+        errors = step_form_schema.validate(data)
+        # print(data["step_key"])
+        # print(data)
+        # print(errors)
 
-        if step:
-            return f(*args, **kwargs)
-        else:
+        if errors:
             return {
-                       "message": "Step does not exist"
-                   }, 404
+                       "message": "Missing or sending incorrect data to create a step. Double check the JSON data that it has everything needed to create a step."
+                   }, 500
+        else:
+            return f(*args, **kwargs)
 
     return wrap

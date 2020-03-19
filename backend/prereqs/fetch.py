@@ -56,12 +56,12 @@ def get_hints(hint_list):
     return hints
 
 
-# Function to return a list of modules based on a list of module ids
+# Function to return a list of modules based on a list of module github_ids
 def get_modules(module_list):
     modules = []
 
-    for module_id in module_list:
-        module = Module.query.filter_by(contentful_id=module_id["sys"]["id"]).first()
+    for module_github_id in module_list:
+        module = Module.query.filter_by(github_id=module_github_id).first()
         modules.append(module)
 
     return modules
@@ -78,12 +78,12 @@ def get_steps(step_list):
     return steps
 
 
-# Function to return a list of topics based on the contentful jds
+# Function to return a list of topics based on the github_ids
 def get_topics(topic_list):
     topics = []
 
-    for topic_id in topic_list:
-        topic = Topic.query.filter_by(contentful_id=topic_id["sys"]["id"]).first()
+    for topic in topic_list:
+        topic = Topic.query.filter_by(github_id=topic["github_id"]).first()
         topics.append(topic)
 
     return topics

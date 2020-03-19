@@ -1,4 +1,4 @@
-from backend.checkpoints.utils import create_checkpoint_progresses
+from backend.checkpoint_progresses.utils import create_checkpoint_progresses
 from backend.models import Activity, ActivityProgress, CheckpointProgress, HintStatus
 
 

@@ -1,7 +1,6 @@
 from flask import request
 from flask_jwt_extended import get_jwt_identity
-from backend import contentful_client
-from backend.config import SPACE_ID
+from backend.activities.schemas import activity_form_schema
 from backend.models import Activity, Student
 from functools import wraps
 
@@ -22,17 +21,14 @@ def activity_exists(f):
     return wrap
 
 
-# Decorator to check if a activity exists in contentful
-def activity_exists_in_contentful(f):
+# Decorator to check if a module exists in github
+def activity_exists_in_github(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         data = request.get_json()
-        content_type = data["contentType"]["sys"]["id"]
-        activity = Activity.query.filter_by(contentful_id=data["entityId"]).first()
-        contentful_activity = contentful_client.entries(SPACE_ID, 'master').find(data["entityId"])
-        # Checks if the activity exists in contentful and if its a activity
-        # Checks if the activity exists in the db for put request
-        if contentful_activity and content_type == "activity" or activity:
+        activity = Activity.query.filter_by(filename=data["filename"]).first()
+
+        if activity:
             return f(*args, **kwargs)
         else:
             return {
@@ -63,21 +59,22 @@ def activity_exists_in_student_prog(f):
             return {
                        "message": "Activity does not exist"
                    }, 500
+
     return wrap
 
 
-# Decorator to check if the activity can be deleted
-def activity_delete(f):
+# Decorator to validate activity form data
+def valid_activity_form(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         data = request.get_json()
-        activity = Activity.query.filter_by(contentful_id=data["entityId"]).first()
+        errors = activity_form_schema.validate(data)
 
-        if activity:
-            return f(*args, **kwargs)
-        else:
+        if errors:
             return {
-                       "message": "Activity does not exist"
-                   }, 404
+                       "message": "Missing or sending incorrect data to create a activity. Double check the JSON data that it has everything needed to create a activity."
+                   }, 500
+        else:
+            return f(*args, **kwargs)
 
     return wrap

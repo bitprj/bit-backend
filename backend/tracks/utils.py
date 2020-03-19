@@ -3,20 +3,36 @@ from backend.prereqs.fetch import get_topics
 
 
 # Function to create a track
-def create_track(contentful_data):
-    track = Track(contentful_id=contentful_data["entityId"]
+def create_track(form_data):
+    track = Track(github_id=form_data["github_id"],
+                  name=form_data["name"],
+                  description=form_data["description"]
                   )
+
+    track.topics = get_topics(form_data["topics"])
+    # track.required_topics = get_topics(form_data["required_topics"])
 
     return track
 
 
-# Function to edit an track
-def edit_track(track, contentful_data):
-    track.name = contentful_data["parameters"]["name"]["en-US"]
-    track.topics = get_topics(contentful_data["parameters"]["topics"]["en-US"])
+# Function to create a dictionary of Tracks
+def create_tracks_dict():
+    tracks = {}
+    track_list = Track.query.all()
 
-    if "required_topics" in contentful_data["parameters"]:
-        track.required_topics = get_topics(contentful_data["parameters"]["required_topics"]["en-US"])
+    for track in track_list:
+        # Use github_id as key because it is unique
+        tracks[track.github_id] = {"github_id": track.github_id}
+
+    return tracks
+
+
+# Function to edit an track
+def edit_track(form_data, track):
+    track.name = form_data["name"]
+    track.description = form_data["description"]
+    track.topics = get_topics(form_data["topics"])
+    # track.required_topics = get_topics(form_data["required_topics"])
 
     return
 

@@ -1,24 +1,27 @@
-from backend import contentful_client, db
-from backend.config import SPACE_ID
-from backend.models import Hint, HintStatus
-from backend.prereqs.fetch import get_steps
+from backend import db
+from backend.hooks.utils import call_step_routes
+from backend.models import Card, Hint, HintStatus
 
 
 # Function to assign children hints to a parent
-def assign_hints_to_parent_hint(children_hints):
-    hints = []
+def assign_hint_to_parent(hint, data):
+    if data["is_card_hint"]:
+        parent = Card.query.filter_by(filename=data["parent_filename"]).first()
+        hint.card_id = parent.id
+    else:
+        parent = Hint.query.filter_by(filename=data["parent_filename"]).first()
+        parent.hints.append(hint)
 
-    for hint in children_hints:
-        target_hint = Hint.query.filter_by(contentful_id=hint["sys"]["id"]).first()
-        hints.append(target_hint)
-
-    return hints
+    return
 
 
 # Function to create a hint
-def create_hint(contentful_data):
-    print(contentful_data)
-    hint = Hint(contentful_id=contentful_data["entityId"]
+def create_hint(data):
+    hint = Hint(name=data["name"],
+                gems=data["gems"],
+                order=data["order"],
+                filename=data["filename"],
+                github_raw_data=data["github_raw_data"]
                 )
 
     return hint
@@ -43,38 +46,17 @@ def create_hint_status(activity_prog, hints):
     return
 
 
-# Function to delete a hint's relationship
-def delete_hint(hint):
-    # Deletes the hint's steps in contentful
-    for step in hint.steps:
-        # Unpublishes the steps first then deletes the step in contentful
-        step_entry = contentful_client.entries(SPACE_ID, 'master').find(step.contentful_id)
-        step_entry.unpublish()
-        contentful_client.entries(SPACE_ID, 'master').delete(step.contentful_id)
-
-    return
-
-
 # Function to edit a hint
-def edit_hint(hint, contentful_data):
-    hint.name = contentful_data["parameters"]["name"]["en-US"]
-    hint.steps = get_steps(contentful_data["parameters"]["steps"]["en-US"])
-    hint.gems = contentful_data["parameters"]["gems"]["en-US"]
-
-    if "children_hints" in contentful_data["parameters"]:
-        hint.hints = assign_hints_to_parent_hint(contentful_data["parameters"]["children_hints"]["en-US"])
+def edit_hint(hint, data):
+    hint.name = data["name"]
+    hint.gems = data["gems"]
+    hint.order = data["order"]
+    hint.filename = data["filename"]
+    hint.github_raw_data = data["github_raw_data"]
+    assign_hint_to_parent(hint, data)
+    call_step_routes(data["content"]["steps"], hint.id, "hint", data["content"]["image_folder"])
 
     return
-
-
-# Function to validate a hint
-def validate_hint(hint_id):
-    hint = Hint.query.get(hint_id)
-
-    if not hint:
-        return False
-
-    return True
 
 
 # Function to sort a cards hints

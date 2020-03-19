@@ -4,13 +4,13 @@ from flask_restful import Resource
 from backend import api, db
 from backend.authentication.decorators import roles_accepted
 from backend.activity_progresses.utils import unlock_card
-from backend.cards.decorators import card_delete, card_exists, card_exists_in_activity, card_exists_in_contentful, \
-    card_is_unlockable
+from backend.cards.decorators import card_exists, card_exists_in_activity, card_exists_in_github, card_is_unlockable, \
+    valid_card_form
 from backend.cards.schemas import card_schema
-from backend.cards.utils import create_card, delete_card, edit_card
+from backend.cards.utils import create_card, edit_card
 from backend.hints.schemas import hint_status_schemas
 from backend.hints.utils import sort_hint_status
-from backend.models import ActivityProgress, Card, Checkpoint, HintStatus, Student
+from backend.models import Activity, ActivityProgress, Card, HintStatus, Student
 
 # Blueprint for cards
 cards_bp = Blueprint("cards", __name__)
@@ -18,12 +18,13 @@ cards_bp = Blueprint("cards", __name__)
 
 # Class to Read, Create, and Update
 class CardCRUD(Resource):
-    method_decorators = [card_exists_in_contentful]
 
     # Function to create a card
+    @valid_card_form
     def post(self):
-        contentful_data = request.get_json()
-        card = create_card(contentful_data)
+        data = request.get_json()
+        activity = Activity.query.filter_by(filename=data["activity_filename"]).first()
+        card = create_card(data, activity.id)
 
         db.session.add(card)
         db.session.commit()
@@ -31,29 +32,26 @@ class CardCRUD(Resource):
         return {"message": "Card successfully created"}, 201
 
     # Function to edit a card
+    @valid_card_form
+    @card_exists_in_github
     def put(self):
-        contentful_data = request.get_json()
-        card = Card.query.filter_by(contentful_id=contentful_data["entityId"]).first()
-        edit_card(card, contentful_data)
+        data = request.get_json()
+        card = Card.query.filter_by(filename=data["filename"]).first()
+        activity = Activity.query.filter_by(filename=data["activity_filename"]).first()
+        card.activity_id = activity.id
+        edit_card(card, data)
 
         db.session.commit()
 
         return {"message": "Card successfully updated"}, 200
 
-
-# This class is used to delete a card with a POST request
-class CardDelete(Resource):
-    method_decorators = [card_delete]
-
     # Function to delete a card
-    def post(self):
-        contentful_data = request.get_json()
-        card = Card.query.filter_by(contentful_id=contentful_data["entityId"]).first()
-        checkpoint = Checkpoint.query.filter_by(contentful_id=card.checkpoint.contentful_id).first()
-        delete_card(card, checkpoint)
+    @card_exists_in_github
+    def delete(self):
+        data = request.get_json()
+        card = Card.query.filter_by(filename=data["filename"]).first()
 
         db.session.delete(card)
-        db.session.delete(checkpoint)
         db.session.commit()
 
         return {"message": "Card successfully deleted"}, 200
@@ -104,6 +102,5 @@ class CardGetHints(Resource):
 
 # Creates the routes for the classes
 api.add_resource(CardCRUD, "/cards")
-api.add_resource(CardDelete, "/cards/delete")
 api.add_resource(CardGetSpecific, "/cards/<int:card_id>")
 api.add_resource(CardGetHints, "/activities/<int:activity_id>/cards/<int:card_id>")
