@@ -11,6 +11,7 @@ from backend.config import *
 from contentful_management import Client
 from github import Github
 from itsdangerous import URLSafeTimedSerializer
+import logging
 import pusher
 
 app = Flask(__name__)
@@ -43,7 +44,7 @@ mail = Mail(app)
 safe_url = URLSafeTimedSerializer(SECRET_KEY)
 ma = Marshmallow()
 migrate = Migrate(app, db)
-# CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["http://localhost:3000"]}})
+# CORS(app,  supports_credentials=True, resources={r"/*": {"origins": ["http://localhost:3000"]}})
 CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["*"]}})
 git = Github(GITHUB_ACCESS_TOKEN)
 repo = git.get_repo(GITHUB_REPO)

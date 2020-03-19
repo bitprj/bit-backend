@@ -132,6 +132,11 @@ class UserIsTeacher(Resource):
         return jsonify({"message": "Teacher logged in!"})
 
 
+class Ping(Resource):
+    def get(self):
+        return jsonify({"message": "pong"})
+
+
 @jwt.user_claims_loader
 def add_claims_to_access_token(identity):
     user = User.query.filter_by(username=identity).first()
@@ -150,3 +155,4 @@ api.add_resource(Protected, "/protected")
 api.add_resource(UserIsAdmin, "/isAdmin")
 api.add_resource(UserIsStudent, "/isStudent")
 api.add_resource(UserIsTeacher, "/isTeacher")
+api.add_resource(Ping, "/ping")

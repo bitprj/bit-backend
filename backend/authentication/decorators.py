@@ -18,7 +18,6 @@ def roles_accepted(*accepted_rolenames):
             verify_jwt_in_request()
             claims = get_jwt_claims()
             user_roles = set(r.strip() for r in claims['roles'].split(','))
-
             try:
                 MissingRoleError.require_condition(
                     not user_roles.isdisjoint(role_set),

@@ -633,10 +633,10 @@ class Track(db.Model):
     # students keep track of which student is associated with a particular track
     students = db.relationship("Student", back_populates="current_track")
 
-    def __init__(self, github_id, name, description):
-        self.github_id = github_id
-        self.name = name
-        self.description = description
+    # def __init__(self, github_id, name, description):
+    #     self.github_id = github_id
+    #     self.name = name
+    #     self.description = description
 
     def __repr__(self):
         return f"Track('{self.name}')"
