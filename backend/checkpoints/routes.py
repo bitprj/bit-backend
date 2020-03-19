@@ -25,7 +25,6 @@ class CheckpointCRUD(Resource):
 
         db.session.add(checkpoint)
         db.session.commit()
-
         assign_checkpoint_to_card(checkpoint, data)
         fill_optional_checkpoint_fields(checkpoint, data)
         db.session.commit()

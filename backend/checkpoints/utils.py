@@ -1,6 +1,6 @@
 from backend.general_utils import create_zip, delete_files, parse_img_tag, send_tests_zip
 from backend.hooks.utils import call_mc_choice_routes, call_criteria_routes
-from backend.models import Card, Checkpoint
+from backend.models import Activity, Card, Checkpoint
 import os
 
 
@@ -9,7 +9,6 @@ def assign_checkpoint_to_card(checkpoint, data):
     checkpoint_path = data["filename"].split("/")[-1]
     card_name = checkpoint_path.split("-")[0] + ".md"
     card_filename = data["cards_folder"] + card_name
-    print(card_filename)
     card = Card.query.filter_by(filename=card_filename).first()
     checkpoint.cards.append(card)
 
@@ -42,6 +41,19 @@ def create_checkpoint(data):
     return checkpoint
 
 
+# Function to create a command line command for autograder checkpoints
+def create_cli_command(checkpoint):
+    # TODO Replace main.py with files from the checkpoint
+    checkpoint_split = checkpoint.filename.split("/")
+    activity_path = "/".join(checkpoint_split[0:3]) + "/README.md"
+    activity = Activity.query.filter_by(filename=activity_path).first()
+    command_start = "bit_autograder submit -c={} -a={} main.py"
+    formatted_command = command_start.format(checkpoint.id, activity.id)
+    checkpoint.cli_command = formatted_command
+
+    return
+
+
 # Function to edit a checkpoint
 def edit_checkpoint(checkpoint, data):
     checkpoint.name = data["name"]
@@ -56,16 +68,21 @@ def edit_checkpoint(checkpoint, data):
 
 # Function to fill out optional fields in a checkpoint
 def fill_optional_checkpoint_fields(checkpoint, data):
+    # Give a checkpoint and image if there exits an image in data
     if "image" in data:
         checkpoint.image = parse_img_tag(data["image"], data["image_folder"], "checkpoints")
 
+    # If the checkpoint is a multiple choice checkpoint then create choices for the checkpoint
     if checkpoint.checkpoint_type == "Multiple Choice" and "mc_choices" in data and "correct_choice" in data:
         call_mc_choice_routes(data["mc_choices"], data["correct_choice"], checkpoint.id)
 
+    # If the checkpoint is an Autograder checkpoint, create tests.zip file and cli command
     if checkpoint.checkpoint_type == "Autograder" and "test_file_location" in data:
         checkpoint.test_cases_location = data["test_file_location"]
         assign_tests_zip_to_checkpoint(checkpoint, data["test_file_location"], data["filename"])
+        create_cli_command(checkpoint)
 
+    # If there is criteria in the checkpoint then create criteria
     if checkpoint.checkpoint_type == "Video" or checkpoint.checkpoint_type == "Image" and "criteria" in data:
         call_criteria_routes(data["criteria"], checkpoint)
 

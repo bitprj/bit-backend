@@ -34,13 +34,15 @@ def fill_in_checkpoint_progress(data, checkpoint_prog):
         checkpoint_prog.content = data["content"]
     elif checkpoint_type == "Multiple Choice":
         checkpoint_prog.content = data["content"]
-        correct_answer = checkpoint_prog.checkpoint.mc_question.correct_choice
+        correct_answer = checkpoint_prog.checkpoint.correct_choice
 
         if data["content"] == correct_answer:
             checkpoint_prog.multiple_choice_is_correct = True
         else:
             checkpoint_prog.multiple_choice_is_correct = False
+    # Marks the checkpoint as complete and fills in the student's comment
     checkpoint_prog.is_completed = True
+    checkpoint_prog.student_comment = data["comment"]
 
     return
 
