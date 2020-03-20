@@ -16,16 +16,17 @@ class ClassroomFormSchema(ma.Schema):
 
 # This schema is used to display the classroom data
 class ClassroomSchema(ma.Schema):
+    id = fields.Str(required=True)
     name = fields.Str(required=True)
     date_start = fields.Date(required=True)
     date_end = fields.Date(required=True)
     class_code = fields.Str(required=True)
-    teacher = fields.Nested("UserSchema", only=("name", "username"))
-    students = fields.Nested("UserSchema", only=("name", "username"), many=True)
+    teacher = fields.Nested("UserSchema", only=("id",))
+    students = fields.Nested("UserSchema", only=("id",), many=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("name", "date_start", "date_end", "class_code", "teacher", "students")
+        fields = ("id", "name", "date_start", "date_end", "class_code", "teacher", "students")
         ordered = True
 
 
