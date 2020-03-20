@@ -16,7 +16,7 @@ GET/POST/PUT/DELETE
 **Route Url**
 Name of the route you want created/updated
 
-**Data Returned**
+**Data Sent/Returned**
 The data you want returned/adjusted
 
 **Create/Update Postman/Documentation**
