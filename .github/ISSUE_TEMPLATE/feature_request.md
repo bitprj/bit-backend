@@ -7,11 +7,17 @@ assignees: ''
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+**What feature would you like implemented**
+The feature that you want implemented
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+**Type of Request**
+GET/POST/PUT/DELETE
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+**Route Name**
+Name of the route you want created/updated
+
+**Data Returned**
+The data you want returned/adjusted
+
+**Create/Update Postman/Documentation**
+Routes that you want to change/update on Postman
