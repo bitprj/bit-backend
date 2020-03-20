@@ -1,5 +1,6 @@
 from flask import request
 from flask_jwt_extended import get_jwt_identity
+from backend.classrooms.schemas import classroom_modules_schema
 from backend.models import Module, Student
 from backend.modules.schemas import module_form_schema
 from backend.modules.utils import get_modules
@@ -116,13 +117,20 @@ def valid_modules_list(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         data = request.get_json()
-        modules = get_modules(data["module_ids"])
+        errors = classroom_modules_schema.validate(data)
 
-        if None in modules:
+        if errors:
             return {
-                       "message": "Invalid module in list"
-                   }, 500
+                "message": "Incorrect data types in list"
+            }, 500
         else:
-            return f(*args, **kwargs)
+            modules = get_modules(data["module_ids"])
+
+            if None in modules:
+                return {
+                           "message": "Invalid module in list"
+                       }, 500
+            else:
+                return f(*args, **kwargs)
 
     return wrap

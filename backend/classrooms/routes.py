@@ -75,6 +75,7 @@ class ClassroomModules(Resource):
         classroom = Classroom.query.get(classroom_id)
         modules = get_modules(data["module_ids"])
         classroom.modules = modules
+        db.session.commit()
 
         return {
                    "message": "Successfully updated classroom modules"
@@ -83,5 +84,5 @@ class ClassroomModules(Resource):
 
 # Creates the routes for the classes
 api.add_resource(ClassroomCRUD, "/classrooms/<int:classroom_id>")
-api.add_resource(ClassroomCreate, "/classrooms/create")
+api.add_resource(ClassroomCreate, "/classrooms")
 api.add_resource(ClassroomModules, "/classrooms/<int:classroom_id>/modules")
