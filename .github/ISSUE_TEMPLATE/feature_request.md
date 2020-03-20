@@ -13,7 +13,7 @@ The feature that you want implemented
 **Type of Request**
 GET/POST/PUT/DELETE
 
-**Route Name**
+**Route Url**
 Name of the route you want created/updated
 
 **Data Returned**
