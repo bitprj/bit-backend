@@ -1,7 +1,6 @@
 from backend import db
 # from backend.badges.utils import add_badge_weights
 from backend.models import Activity, Module, ModuleProgress, StudentBadges
-# from backend.prereqs.fetch import get_activities
 # from backend.prereqs.utils import assign_badge_prereqs, delete_badge_prereqs
 
 
@@ -81,7 +80,6 @@ def edit_module(module, data):
     module.gems_needed = data["gems_needed"]
     module.image = data["image"]
 
-    # module.activities = get_activities(data[
     # delete_badge_weights(module.badge_weights)
     # module.badge_weights = add_badge_weights(contentful_data["parameters"]["badge_weights"]["en-US"], module.id)
     # delete_badge_prereqs(module)
@@ -104,3 +102,14 @@ def get_module_progress(student, module_id):
                          }
 
     return activity_progress
+
+
+# Function to return a list of modules based on the module ids
+def get_modules(module_ids):
+    modules = []
+
+    for module_id in module_ids:
+        module = Module.query.get(module_id)
+        modules.append(module)
+
+    return modules

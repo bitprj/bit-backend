@@ -8,7 +8,7 @@ from datetime import datetime
 def assign_comments(checkpoints):
     for checkpoint in checkpoints:
         checkpoint_prog = CheckpointProgress.query.get(checkpoint["id"])
-        checkpoint_prog.comment = checkpoint["comment"]
+        checkpoint_prog.teacher_comment = checkpoint["comment"]
 
     return
 
