@@ -815,7 +815,7 @@ class CheckpointProgress(db.Model):
     student_comment = db.Column(db.Text, nullable=True)
     teacher_comment = db.Column(db.Text, nullable=True)
     is_completed = db.Column(db.Boolean, nullable=False, default=False)
-    checkpoint = db.relationship("Checkpoint", back_populates="checkpoint_progresses")
+    checkpoint = db.relationship("Checkpoint", lazy="joined", back_populates="checkpoint_progresses")
     activity_checkpoints_progress = db.relationship("ActivityProgress", back_populates="checkpoints")
     submissions = db.relationship("Submission", cascade="all,delete", back_populates="progress")
     # activity_passed keeps track of a failed checkpoint progress

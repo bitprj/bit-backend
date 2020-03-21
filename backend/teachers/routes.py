@@ -6,12 +6,11 @@ from backend.authentication.decorators import roles_accepted
 from backend.authentication.utils import send_graded_activity_email
 from backend.activity_progresses.decorators import activity_prog_grading_format, is_activity_graded, \
     submitted_activity_prog_exist
-from backend.activity_progresses.schemas import activity_progress_submission_schema
-from backend.classrooms.decorators import classroom_exists, owns_classroom
-from backend.models import ActivityProgress, Classroom, Teacher
+from backend.classrooms.decorators import owns_classroom
+from backend.models import ActivityProgress, Teacher
 from backend.modules.utils import complete_modules
 from backend.teachers.schemas import teacher_classroom_schema
-from backend.teachers.utils import get_activities, grade_activity, pusher_activity
+from backend.teachers.utils import grade_activity, pusher_activity
 
 # Blueprint for teachers
 teachers_bp = Blueprint("teachers", __name__)
@@ -30,20 +29,6 @@ class TeacherFetchData(Resource):
 
 # Class to display teacher data
 class TeacherAssignments(Resource):
-    method_decorators = [roles_accepted("Teacher"), classroom_exists]
-
-    # Function to display teacher data
-    @owns_classroom
-    def get(self, classroom_id):
-        classroom = Classroom.query.get(classroom_id)
-        ungraded_assignments = get_activities(classroom)
-
-        if ungraded_assignments:
-            return activity_progress_submission_schema.dump(ungraded_assignments)
-
-        return {
-                   "message": "No submitted activities"
-               }, 200
 
     # This route is used to grade an activity
     @owns_classroom

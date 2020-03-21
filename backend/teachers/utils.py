@@ -2,6 +2,7 @@ from backend import pusher_client
 from backend.models import ActivityProgress, CheckpointProgress
 from backend.modules.utils import add_gems_to_module_progress
 from datetime import datetime
+from itertools import product
 
 
 # Loops through the checkpoint progresses, finds the checkpoint progress and assigns the comment
@@ -14,16 +15,20 @@ def assign_comments(checkpoints):
 
 
 # Function to fetch all of the ungraded finished activities in a classroom
-def get_activities(classroom):
-    ungraded_activities = []
+def get_activities(students, activities):
+    unfiltered_activities = []
+    filtered_activities = []
 
-    for student in classroom.students:
-        student_activity = ActivityProgress.query.filter_by(student_id=student.id, is_completed=True,
-                                                            is_graded=False).first()
-        if student_activity:
-            ungraded_activities.append(student_activity)
+    for student in students:
+        student_progs = ActivityProgress.query.filter_by(student_id=student.id, is_completed=True,
+                                                         is_graded=False).all()
+        unfiltered_activities += student_progs
 
-    return ungraded_activities
+    for activity_prog in unfiltered_activities:
+        if activity_prog.activity in activities:
+            filtered_activities.append(activity_prog)
+
+    return unfiltered_activities
 
 
 # Function to grade a student's activity
