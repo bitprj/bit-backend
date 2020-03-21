@@ -20,8 +20,8 @@ class UserFormSchema(ma.Schema):
 
 
 # This schema is used to display user data,
-# Don't want to expose private data like its id, or password
 class UserSchema(ma.Schema):
+    id = fields.Str(required=True)
     name = fields.Str(required=True)
     username = fields.Email(required=True)
     location = fields.Str(required=True)
@@ -30,7 +30,7 @@ class UserSchema(ma.Schema):
 
     class Meta:
         # Fields to show when sending data
-        fields = ("name", "username", "roles", "location", "image")
+        fields = ("id", "name", "username", "roles", "location", "image")
         ordered = True
 
 

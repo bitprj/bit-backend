@@ -42,6 +42,11 @@ card_concept_rel = db.Table("card_concept_rel",
                             db.Column("card_id", db.Integer, db.ForeignKey("card.id")),
                             db.Column("concept_id", db.Integer, db.ForeignKey("concept.id"))
                             )
+# This many to many relationship is used to keep track of which modules belong to a classroom and vice versa
+classroom_modules_rel = db.Table("classroom_modules_rel",
+                                 db.Column("classroom_id", db.Integer, db.ForeignKey("classroom.id")),
+                                 db.Column("module_id", db.Integer, db.ForeignKey("module.id"))
+                                 )
 
 # This many to many relationship is used to keep track of all of the topics that a student has completed
 student_topic_completed_rel = db.Table("student_topic_completed_rel",
@@ -318,7 +323,9 @@ class Classroom(db.Model):
     date_start = db.Column(db.Date)
     date_end = db.Column(db.Date)
     # students keep track of all the students in a classroom
-    students = db.relationship('Student', secondary=students_classes_rel, back_populates='classes')
+    students = db.relationship('Student', secondary=students_classes_rel, lazy="joined", back_populates='classes')
+    # modules keep track of all the modules that a teacher wants their students to learn
+    modules = db.relationship("Module", secondary=classroom_modules_rel, lazy="joined", back_populates="classrooms")
 
     def __init__(self, name, teacher_id, date_start, date_end):
         self.name = name
@@ -457,6 +464,8 @@ class Module(db.Model):
     students_incomplete = db.relationship("Student", secondary="student_module_incomplete_rel",
                                           back_populates="incomplete_modules")
     students = db.relationship("ModuleProgress", cascade="all,delete", back_populates="module")
+    # classrooms keep track of all the modules that are associated with a classroom
+    classrooms = db.relationship("Classroom", secondary=classroom_modules_rel, back_populates="modules")
 
     # def __init__(self, filename, name, description, gems_needed, image):
     #     self.filename = filename
@@ -704,6 +713,7 @@ class Admin(User):
 
 class Student(User):
     id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
+    global_gems = db.Column(db.Integer, nullable=False, default=0)
     # completed_activities keeps track of all activities that a student has completed
     completed_activities = db.relationship("Activity", secondary="student_activity_completed_rel",
                                            back_populates="students_completed")
@@ -806,7 +816,7 @@ class CheckpointProgress(db.Model):
     student_comment = db.Column(db.Text, nullable=True)
     teacher_comment = db.Column(db.Text, nullable=True)
     is_completed = db.Column(db.Boolean, nullable=False, default=False)
-    checkpoint = db.relationship("Checkpoint", back_populates="checkpoint_progresses")
+    checkpoint = db.relationship("Checkpoint", lazy="joined", back_populates="checkpoint_progresses")
     activity_checkpoints_progress = db.relationship("ActivityProgress", back_populates="checkpoints")
     submissions = db.relationship("Submission", cascade="all,delete", back_populates="progress")
     # activity_passed keeps track of a failed checkpoint progress

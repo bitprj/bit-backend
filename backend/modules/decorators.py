@@ -1,7 +1,9 @@
 from flask import request
 from flask_jwt_extended import get_jwt_identity
+from backend.classrooms.schemas import classroom_modules_schema
 from backend.models import Module, Student
 from backend.modules.schemas import module_form_schema
+from backend.modules.utils import get_modules
 from functools import wraps
 
 
@@ -56,7 +58,7 @@ def module_is_incomplete(f):
     return wrap
 
 
-# Decorator to check if a module has been completed
+# Decorator to check if a module is in progress
 def module_in_inprogress(f):
     @wraps(f)
     def wrap(*args, **kwargs):
@@ -106,5 +108,29 @@ def valid_module_form(f):
                    }, 500
         else:
             return f(*args, **kwargs)
+
+    return wrap
+
+
+# Decorator to check if a list of modules is valid
+def valid_modules_list(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        data = request.get_json()
+        errors = classroom_modules_schema.validate(data)
+
+        if errors:
+            return {
+                "message": "Incorrect data types in list"
+            }, 500
+        else:
+            modules = get_modules(data["module_ids"])
+
+            if None in modules:
+                return {
+                           "message": "Invalid module in list"
+                       }, 500
+            else:
+                return f(*args, **kwargs)
 
     return wrap

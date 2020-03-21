@@ -18,29 +18,26 @@ class AutograderCheckpointSchema(ma.ModelSchema):
 class CheckpointProgressSchema(ma.ModelSchema):
     id = fields.Int(required=True)
     checkpoint_id = fields.Int(required=True)
-    contentful_id = fields.Str(required=True)
     student_comment = fields.Str(missing=None, required=False)
     teacher_comment = fields.Str(missing=None, required=False)
+    content = fields.Str(required=True)
     is_completed = fields.Boolean(required=True)
-    image_to_receive = fields.Str(missing=None, required=False)
-    video_to_receive = fields.Str(missing=None, required=False)
     checkpoint = fields.Nested("CheckpointSchema", only=("checkpoint_type",))
 
     class Meta:
         # Fields to show when sending data
-        fields = (
-            "id", "checkpoint_id", "contentful_id", "student_comment", "is_completed", "image_to_receive", "video_to_receive",
-            "checkpoint")
+        fields = ("id", "checkpoint_id", "student_comment", "teacher_comment", "content", "is_completed", "checkpoint")
         ordered = True
 
 
 class CheckpointGradingSchema(ma.Schema):
-    id = fields.Int(required=True)
+    checkpoint_id = fields.Int(required=True)
+    is_passed = fields.Bool(required=True)
     comment = fields.Str(required=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "comment")
+        fields = ("checkpoint_id", "is_passed", "comment")
         ordered = True
 
 

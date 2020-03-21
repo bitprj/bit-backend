@@ -11,7 +11,6 @@ from backend.config import *
 from contentful_management import Client
 from github import Github
 from itsdangerous import URLSafeTimedSerializer
-import logging
 import pusher
 
 app = Flask(__name__)
