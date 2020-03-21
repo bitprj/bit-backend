@@ -713,6 +713,7 @@ class Admin(User):
 
 class Student(User):
     id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
+    global_gems = db.Column(db.Integer, nullable=False, default=0)
     # completed_activities keeps track of all activities that a student has completed
     completed_activities = db.relationship("Activity", secondary="student_activity_completed_rel",
                                            back_populates="students_completed")

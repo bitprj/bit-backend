@@ -1,17 +1,15 @@
 from backend import ma
-from backend.checkpoint_progresses.schemas import CheckpointProgressSchema
 from marshmallow import fields
 
 
 # This schema is used to grade a student's activity
 class ActivityProgressGradingSchema(ma.ModelSchema):
-    activity_progress_id = fields.Int(required=True)
-    checkpoints_failed = fields.Nested("CheckpointGradingSchema", many=True)
-    checkpoints_passed = fields.Nested("CheckpointGradingSchema", many=True)
+    student_id = fields.Int(required=True)
+    checkpoints = fields.Nested("CheckpointGradingSchema", many=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("activity_progress_id", "checkpoints_failed", "checkpoints_passed")
+        fields = ("student_id", "checkpoints")
         ordered = True
 
 

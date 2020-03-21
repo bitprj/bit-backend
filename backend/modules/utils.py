@@ -18,18 +18,17 @@ def create_module(data):
 
 
 # Function to add gems to module progress
-def add_gems_to_module_progress(student, activity_progress):
+def add_gems_to_module_progress(activity_progress):
     modules_completed = []
 
     for module in activity_progress.activity.modules:
-        if module in student.inprogress_modules:
-            module_prog = ModuleProgress.query.filter_by(module_id=module.id,
-                                                         student_id=activity_progress.student_id).first()
-            if module_prog:
-                module_prog.gems += activity_progress.accumulated_gems
-                # If the module progress has satisfied the gem requirement added it to the completed module list
-                if module_prog.gems >= module_prog.module.gems_needed:
-                    modules_completed.append(module_prog)
+        module_prog = ModuleProgress.query.filter_by(module_id=module.id,
+                                                     student_id=activity_progress.student_id).first()
+        if module_prog:
+            module_prog.gems += activity_progress.accumulated_gems
+            # If the module progress has satisfied the gem requirement added it to the completed module list
+            if module_prog.gems >= module_prog.module.gems_needed:
+                modules_completed.append(module_prog)
 
     return modules_completed
 

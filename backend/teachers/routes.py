@@ -6,7 +6,6 @@ from backend.authentication.decorators import roles_accepted
 from backend.authentication.utils import send_graded_activity_email
 from backend.activity_progresses.decorators import activity_prog_grading_format, is_activity_graded, \
     submitted_activity_prog_exist
-from backend.classrooms.decorators import owns_classroom
 from backend.models import ActivityProgress, Teacher
 from backend.modules.utils import complete_modules
 from backend.teachers.schemas import teacher_classroom_schema
@@ -31,19 +30,19 @@ class TeacherFetchData(Resource):
 class TeacherAssignments(Resource):
 
     # This route is used to grade an activity
-    @owns_classroom
     @activity_prog_grading_format
     @submitted_activity_prog_exist
     @is_activity_graded
-    def put(self, classroom_id):
-        form_data = request.get_json()
-        activity_progress = ActivityProgress.query.get(form_data["activity_progress_id"])
-        modules_completed = grade_activity(activity_progress, form_data)
+    def put(self, activity_id):
+        data = request.get_json()
+        activity_progress = ActivityProgress.query.filter_by(activity_id=activity_id,
+                                                             student_id=data["student_id"]).first()
+        modules_completed = grade_activity(activity_progress, data)
         complete_modules(modules_completed)
         db.session.commit()
 
-        send_graded_activity_email(activity_progress.student.username)
-        pusher_activity(activity_progress)
+        # send_graded_activity_email(activity_progress.student.username)
+        # pusher_activity(activity_progress)
 
         return {
                    "message": "Student Activity has been graded"
@@ -51,5 +50,5 @@ class TeacherAssignments(Resource):
 
 
 # Creates the routes for the classes
-api.add_resource(TeacherAssignments, "/teachers/<int:classroom_id>/grade")
+api.add_resource(TeacherAssignments, "/teachers/activities/<int:activity_id>")
 api.add_resource(TeacherFetchData, "/teachers/data")

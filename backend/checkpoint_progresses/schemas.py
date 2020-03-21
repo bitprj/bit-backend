@@ -31,12 +31,13 @@ class CheckpointProgressSchema(ma.ModelSchema):
 
 
 class CheckpointGradingSchema(ma.Schema):
-    id = fields.Int(required=True)
+    checkpoint_id = fields.Int(required=True)
+    is_passed = fields.Bool(required=True)
     comment = fields.Str(required=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "comment")
+        fields = ("checkpoint_id", "is_passed", "comment")
         ordered = True
 
 
