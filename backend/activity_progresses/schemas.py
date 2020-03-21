@@ -27,12 +27,11 @@ class ActivityProgressSubmissionSchema(ma.ModelSchema):
 
 # This schema is used to display ActivityProgress data
 class ActivityProgressSchema(ma.ModelSchema):
-    activity = fields.Nested("ActivitySchema", only=("contentful_id",), many=False)
+    is_completed = fields.Bool(required=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = (
-            "activity",)
+        fields = ("is_completed",)
         ordered = True
 
 
