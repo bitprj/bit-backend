@@ -3,47 +3,20 @@ from flask_jwt_extended import get_jwt_identity
 from flask_restful import Resource
 from backend import api, db
 from backend.authentication.decorators import roles_accepted
-from backend.authentication.utils import send_graded_activity_email
 from backend.activity_progresses.decorators import activity_prog_grading_format, is_activity_graded, \
     submitted_activity_prog_exist
-<<<<<<< HEAD
-from backend.activity_progresses.schemas import activity_progress_submission_schema
-from backend.classrooms.decorators import classroom_exists, owns_classroom
-from backend.models import ActivityProgress, Classroom, Teacher
-from backend.modules.utils import complete_modules
-from backend.teachers.schemas import teacher_classroom_schema
-from backend.teachers.utils import get_activities, grade_activity, pusher_activity
-=======
 from backend.models import ActivityProgress, Teacher
 from backend.modules.utils import complete_modules
 from backend.teachers.schemas import teacher_classroom_schema
-from backend.teachers.utils import grade_activity, pusher_activity
->>>>>>> b3af5b20644906b7b92342efa680bd79a1145f13
+from backend.teachers.utils import grade_activity
 
 # Blueprint for teachers
 teachers_bp = Blueprint("teachers", __name__)
 
 
-<<<<<<< HEAD
-# Class to retrieve Teacher Data
-class TeacherData(Resource):
-    method_decorators = [roles_accepted("Teacher")]
-
-    def get(self):
-        username = get_jwt_identity()
-        teacher = Teacher.query.filter_by(username=username).first()
-
-        return teacher_classroom_schema.dump(teacher)
-
-
-# Class to display teacher data
-class TeacherAssignments(Resource):
-    method_decorators = [roles_accepted("Teacher"), classroom_exists]
-=======
 # Class to fetch classroom data for the teacher
 class TeacherFetchData(Resource):
     method_decorators = [roles_accepted("Teacher")]
->>>>>>> b3af5b20644906b7b92342efa680bd79a1145f13
 
     def get(self):
         username = get_jwt_identity()
@@ -76,10 +49,5 @@ class TeacherAssignments(Resource):
 
 
 # Creates the routes for the classes
-<<<<<<< HEAD
 api.add_resource(TeacherAssignments, "/teachers/<int:classroom_id>/grade")
-api.add_resource(TeacherData, "/teachers/data")
-=======
-api.add_resource(TeacherAssignments, "/teachers/activities/<int:activity_id>")
 api.add_resource(TeacherFetchData, "/teachers/data")
->>>>>>> b3af5b20644906b7b92342efa680bd79a1145f13
