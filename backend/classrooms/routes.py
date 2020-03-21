@@ -2,11 +2,15 @@ from flask import (Blueprint, request)
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource
 from backend import api, db
+from backend.activity_progresses.schemas import activity_progress_submission_schema
 from backend.authentication.decorators import roles_accepted
 from backend.classrooms.decorators import classroom_exists, owns_classroom, valid_classroom_form
 from backend.classrooms.schemas import classroom_schema
-from backend.classrooms.utils import create_classroom, edit_classroom
+from backend.classrooms.utils import create_classroom, edit_classroom, get_classroom_activities
 from backend.models import Classroom, Teacher
+from backend.modules.utils import get_modules
+from backend.modules.decorators import valid_modules_list
+from backend.teachers.utils import get_activities
 
 # Blueprint for classrooms
 classrooms_bp = Blueprint("classrooms", __name__)
@@ -62,6 +66,42 @@ class ClassroomCreate(Resource):
         return {"message": "Classroom successfully created"}, 202
 
 
+# This class is used to update a classroom's modules
+class ClassroomModules(Resource):
+    method_decorators = [roles_accepted("Teacher"), classroom_exists, valid_modules_list]
+
+    # Function to update a classroom's modules
+    @owns_classroom
+    def put(self, classroom_id):
+        data = request.get_json()
+        classroom = Classroom.query.get(classroom_id)
+        modules = get_modules(data["module_ids"])
+        classroom.modules = modules
+        db.session.commit()
+
+        return {
+                   "message": "Successfully updated classroom modules"
+               }, 200
+
+
+class ClassroomAssignments(Resource):
+    method_decorators = [roles_accepted("Teacher"), classroom_exists]
+
+    # Function to display teacher data
+    @owns_classroom
+    def get(self, classroom_id):
+        classroom = Classroom.query.get(classroom_id)
+        activity_set = get_classroom_activities(classroom)
+        ungraded_assignments = get_activities(classroom.students, activity_set)
+
+        if ungraded_assignments:
+            return activity_progress_submission_schema.dump(ungraded_assignments)
+
+        return []
+
+
 # Creates the routes for the classes
 api.add_resource(ClassroomCRUD, "/classrooms/<int:classroom_id>")
-api.add_resource(ClassroomCreate, "/classrooms/create")
+api.add_resource(ClassroomCreate, "/classrooms")
+api.add_resource(ClassroomModules, "/classrooms/<int:classroom_id>/modules")
+api.add_resource(ClassroomAssignments, "/classrooms/<int:classroom_id>/activities")

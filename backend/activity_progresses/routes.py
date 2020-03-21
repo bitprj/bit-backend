@@ -45,7 +45,7 @@ class ActivityProgressUpdate(Resource):
 
         card = Card.query.get(student_activity_prog.last_card_unlocked)
         progress = activity_progress_schema.dump(student_activity_prog)
-        progress["card_contentful_id"] = card.contentful_id
+        progress["last_card_completed_id"] = card.id
 
         return progress
 

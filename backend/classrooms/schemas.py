@@ -23,12 +23,31 @@ class ClassroomSchema(ma.Schema):
     class_code = fields.Str(required=True)
     teacher = fields.Nested("UserSchema", only=("id",))
     students = fields.Nested("UserSchema", only=("id",), many=True)
+<<<<<<< HEAD
 
     class Meta:
         # Fields to show when sending data
         fields = ("id", "name", "date_start", "date_end", "class_code", "teacher", "students")
+=======
+    modules = fields.Nested("ModuleSchema", only=("id",), many=True)
+
+    class Meta:
+        # Fields to show when sending data
+        fields = ("id", "name", "date_start", "date_end", "class_code", "teacher", "students", "modules")
         ordered = True
 
 
-classroom_form_schema = ClassroomFormSchema()
+# This schema is used to validate the module_ids when the teacher updates the modules in their classroom
+class ClassroomModulesSchema(ma.Schema):
+    module_ids = fields.List(fields.Int(), required=True)
+
+    class Meta:
+        # Fields to show when sending data
+        fields = ("module_ids",)
+>>>>>>> b3af5b20644906b7b92342efa680bd79a1145f13
+        ordered = True
+
+
 classroom_schema = ClassroomSchema()
+classroom_form_schema = ClassroomFormSchema()
+classroom_modules_schema = ClassroomModulesSchema()

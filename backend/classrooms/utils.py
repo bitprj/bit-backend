@@ -24,3 +24,15 @@ def edit_classroom(classroom, form_data):
     classroom.date_end = form_data["date_end"]
 
     return
+
+
+# Function to get all the activities used in a classroom
+def get_classroom_activities(classroom):
+    activities = []
+
+    for module in classroom.modules:
+        activities += module.activities
+
+    activity_set = set(activities)
+
+    return activity_set
