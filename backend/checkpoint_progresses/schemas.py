@@ -54,11 +54,10 @@ class CheckpointSubmissionSchema(ma.Schema):
 class ContentCheckpointSchema(ma.ModelSchema):
     content = fields.Str(required=True)
     student_comment = fields.Str(required=True)
-    checkpoint = fields.Nested("CheckpointSchema", only=("checkpoint_type",))
 
     class Meta:
         # Fields to show when sending data
-        fields = ("content", "student_comment", "checkpoint")
+        fields = ("content", "student_comment")
         ordered = True
 
 
@@ -67,11 +66,10 @@ class MCCheckpointSchema(ma.ModelSchema):
     content = fields.Str(required=True)
     student_comment = fields.Str(required=True)
     multiple_choice_is_correct = fields.Bool(required=True)
-    checkpoint = fields.Nested("CheckpointSchema", only=("checkpoint_type",))
 
     class Meta:
         # Fields to show when sending data
-        fields = ("content", "student_comment", "multiple_choice_is_correct", "checkpoint")
+        fields = ("content", "student_comment", "multiple_choice_is_correct")
         ordered = True
 
 

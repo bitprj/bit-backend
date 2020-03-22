@@ -17,7 +17,7 @@ class ActivityProgressGradingSchema(ma.ModelSchema):
 class ActivityProgressSubmissionSchema(ma.ModelSchema):
     student_id = fields.Int(required=True)
     activity_id = fields.Int(required=True)
-    checkpoints = fields.Nested("CheckpointProgressSchema", only=("checkpoint_id", "content"), required=True,
+    checkpoints = fields.Nested("CheckpointProgressSchema", only=("checkpoint_id", "content", "student_comment"), required=True,
                                 many=True)
 
     class Meta:

@@ -29,6 +29,7 @@ class CheckpointFormSchema(ma.Schema):
 class CheckpointSchema(ma.ModelSchema):
     id = fields.Int(required=True)
     contentful_id = fields.Str(required=True)
+    instruction = fields.Str(required=True)
     name = fields.Str(required=True)
     checkpoint_type = fields.Str(required=True)
     choices = fields.Nested("MCChoiceSchema", required=False, many=True)
@@ -36,7 +37,7 @@ class CheckpointSchema(ma.ModelSchema):
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "contentful_id", "name", "checkpoint_type", "choices", "correct_choice")
+        fields = ("id", "contentful_id", "instruction", "name", "checkpoint_type", "choices", "correct_choice")
         ordered = True
 
 
