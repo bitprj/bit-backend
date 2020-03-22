@@ -15,7 +15,6 @@ import urllib.request
 def add_file(image_bytes, folder, filename):
     s3_client = boto3.client('s3')
     path = 'Github/' + folder + '/' + filename
-    print(S3_BUCKET)
     s3_client.put_object(Bucket=S3_BUCKET, Key=path, Body=image_bytes)
     url = 'https://projectbit.s3-us-west-1.amazonaws.com/Github/' + folder + '/' + filename
     image = urllib.parse.quote(url, "\./_-:")

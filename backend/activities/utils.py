@@ -5,7 +5,6 @@ from backend.models import Activity, Card, Hint, Module
 def assign_activity_to_module(filename, activity):
     activity_path = filename.split("/")
     module_path = "/".join(activity_path[:-2]) + "/README.md"
-    print(module_path)
     module = Module.query.filter_by(filename=module_path).first()
     module.activities.append(activity)
 
@@ -22,6 +21,8 @@ def create_activity(data):
                         difficulty=data["difficulty"],
                         image=data["image"]
                         )
+
+    activity.is_project = has_hints(data["cards"])
     assign_activity_to_module(data["filename"], activity)
 
     return activity
@@ -35,6 +36,7 @@ def edit_activity(activity, data):
     activity.difficulty = data["difficulty"]
     activity.image = data["image"]
     activity.filename = data["filename"]
+    activity.is_project = has_hints(data["cards"])
     assign_activity_to_module(data["filename"], activity)
 
     if "cards" in data:
@@ -45,6 +47,15 @@ def edit_activity(activity, data):
             update_card(card_path, card_name, card_filename)
 
     return
+
+
+# Function to check if the activity's cards have hints
+def has_hints(cards):
+    for card in cards.keys():
+        if len(card) > 2:
+            return True
+
+    return False
 
 
 # Function to update an Activity's cards/hints from the README when the

@@ -186,6 +186,7 @@ class Activity(db.Model):
     description = db.Column(db.Text, nullable=True)
     summary = db.Column(db.Text, nullable=True)
     difficulty = db.Column(db.String(20), nullable=True)
+    is_project = db.Column(db.Boolean, nullable=True)
     image = db.Column(db.Text, nullable=True)
     # cards keeps track of all the cards that is owned by an Activity
     cards = db.relationship("Card", cascade="all,delete", lazy="joined", back_populates="activity")
@@ -212,13 +213,14 @@ class Activity(db.Model):
     # students keep track of the student's activity progress
     students = db.relationship("ActivityProgress", lazy="joined", back_populates="activity")
 
-    # def __init__(self, filename, name, description, summary, difficulty, image):
-    #     self.filename = filename
-    #     self.name = name
-    #     self.description = description
-    #     self.summary = summary
-    #     self.difficulty = difficulty
-    #     self.image = image
+    def __init__(self, github_id, filename, name, description, summary, difficulty, image):
+        self.github_id = github_id
+        self.filename = filename
+        self.name = name
+        self.description = description
+        self.summary = summary
+        self.difficulty = difficulty
+        self.image = image
 
     def __repr__(self):
         return f"Activity('{self.name}')"

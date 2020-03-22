@@ -24,7 +24,6 @@ def assign_tests_zip_to_checkpoint(checkpoint, test_file_location, filename):
     files = create_zip(test_file_location)
     zip_link = send_tests_zip(filename)
     delete_files(files)
-    os.chdir("..")
     checkpoint.tests_zip = zip_link
 
     return

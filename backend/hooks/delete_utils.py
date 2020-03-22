@@ -33,7 +33,7 @@ def delete_criteria(checkpoint_criteria, checkpoint_id):
 # Function to delete files from github
 def delete_files(files_to_delete):
     for file in files_to_delete.values():
-        if "Checkpoints" in file:
+        if "checkpoints" in file:
             delete_file(file, "/checkpoints")
 
         if "Concept" in file:
