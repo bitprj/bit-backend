@@ -24,7 +24,6 @@ def assign_tests_zip_to_checkpoint(checkpoint, test_file_location, filename):
     files = create_zip(test_file_location)
     zip_link = send_tests_zip(filename)
     delete_files(files)
-    os.chdir("..")
     checkpoint.tests_zip = zip_link
 
     return
@@ -42,13 +41,12 @@ def create_checkpoint(data):
 
 
 # Function to create a command line command for autograder checkpoints
-def create_cli_command(checkpoint):
-    # TODO Replace main.py with files from the checkpoint
+def create_cli_command(checkpoint, files_to_send):
     checkpoint_split = checkpoint.filename.split("/")
     activity_path = "/".join(checkpoint_split[0:3]) + "/README.md"
     activity = Activity.query.filter_by(filename=activity_path).first()
-    command_start = "bit_autograder submit -c={} -a={} main.py"
-    formatted_command = command_start.format(checkpoint.id, activity.id)
+    command_start = "bit_autograder submit -c={} -a={} {}"
+    formatted_command = command_start.format(checkpoint.id, activity.id, files_to_send)
     checkpoint.cli_command = formatted_command
 
     return
@@ -77,10 +75,10 @@ def fill_optional_checkpoint_fields(checkpoint, data):
         call_mc_choice_routes(data["mc_choices"], data["correct_choice"], checkpoint.id)
 
     # If the checkpoint is an Autograder checkpoint, create tests.zip file and cli command
-    if checkpoint.checkpoint_type == "Autograder" and "test_file_location" in data:
+    if checkpoint.checkpoint_type == "Autograder" and "test_file_location" in data and "files_to_send" in data:
         checkpoint.test_cases_location = data["test_file_location"]
         assign_tests_zip_to_checkpoint(checkpoint, data["test_file_location"], data["filename"])
-        create_cli_command(checkpoint)
+        create_cli_command(checkpoint, data["files_to_send"])
 
     # If there is criteria in the checkpoint then create criteria
     if checkpoint.checkpoint_type == "Video" or checkpoint.checkpoint_type == "Image" and "criteria" in data:

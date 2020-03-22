@@ -11,6 +11,7 @@ class CheckpointFormSchema(ma.Schema):
     filename = fields.Str(required=True)
     image = fields.Str(required=False)
     image_folder = fields.Str(required=False)
+    files_to_send = fields.Str(required=False)
     test_file_location = fields.Str(required=False)
     mc_choices = fields.Dict(required=False)
     criteria = fields.Dict(required=False)
@@ -20,7 +21,7 @@ class CheckpointFormSchema(ma.Schema):
         # Fields to show when sending data
         fields = (
             "name", "cards_folder", "checkpoint_type", "instruction", "filename", "image", "image_folder",
-            "test_file_location", "mc_choices", "criteria", "correct_choice")
+            "files_to_send", "test_file_location", "mc_choices", "criteria", "correct_choice")
         ordered = True
 
 
