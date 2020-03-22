@@ -15,13 +15,14 @@ class ActivityProgressGradingSchema(ma.ModelSchema):
 
 # This schema is used to display activity progress' checkpoints for the teacher to grade
 class ActivityProgressSubmissionSchema(ma.ModelSchema):
-    student = fields.Nested("StudentSchema", only=("name",), required=True)
-    checkpoints = fields.Nested("CheckpointProgressSchema", only=("id", "content", "checkpoint"), required=True,
+    student_id = fields.Int(required=True)
+    activity_id = fields.Int(required=True)
+    checkpoints = fields.Nested("CheckpointProgressSchema", only=("checkpoint_id", "content"), required=True,
                                 many=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("student", "checkpoints")
+        fields = ("student_id", "activity_id", "checkpoints")
         ordered = True
 
 
