@@ -61,7 +61,7 @@ def edit_hint(hint, data):
 
 # Function to sort a cards hints
 def sort_hints(hints):
-    hints.sort(key=lambda x: x.id)
+    hints.sort(key=lambda x: x.order)
 
     for hint in hints:
         if hint.hints:
