@@ -54,7 +54,7 @@ This call is used to edit a user.
     	"location": "Vacaville"
     }
 
-**POST** Login - `api.bitproject.org/user/login`
+**POST** Login - `api.bitproject.org/auth`
 
 This call is used to login a user
 
