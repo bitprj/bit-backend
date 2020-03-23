@@ -20,18 +20,18 @@ class CardFormSchema(ma.ModelSchema):
 # This schema is used to keep track of card data
 class CardSchema(ma.ModelSchema):
     id = fields.Int(required=True)
+    activity_id = fields.Int(required=True)
     github_raw_data = fields.Str(required=True)
     name = fields.Str(required=True)
     order = fields.Int(required=True)
     # activity is used to keep track of which activity that the card belongs to
-    activity = ma.Nested("ActivitySchema", only=("id",))
     concepts = ma.Nested("ConceptSchema", only=("id",), many=True)
     hints = ma.Nested("HintSchema", only=("id", "hints"), many=True)
     checkpoint = ma.Nested("CheckpointSchema", only=("id",))
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "name", "order", "activity", "concepts", "hints", "checkpoint")
+        fields = ("id", "activity_id", "github_raw_data", "name", "order", "concepts", "hints", "checkpoint")
         ordered = True
 
 

@@ -5,7 +5,6 @@ from backend import api, db
 from backend.activities.decorators import activity_exists, activity_exists_in_github, valid_activity_form
 from backend.activities.schemas import activity_schema, activities_schema
 from backend.activities.utils import create_activity, edit_activity
-from backend.hints.utils import sort_hints
 from backend.models import Activity
 
 # Blueprint for activities
