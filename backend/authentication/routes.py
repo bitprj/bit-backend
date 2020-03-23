@@ -1,9 +1,9 @@
-from flask import (Blueprint, jsonify, redirect, request, session, url_for)
+from flask import (Blueprint, jsonify, redirect, request, session)
 from flask_jwt_extended import create_access_token, get_csrf_token, get_jwt_identity, jwt_required, set_access_cookies, \
     unset_jwt_cookies
 from flask_restful import Resource
 from backend import api, auth0, db, jwt, oauth, safe_url
-from backend.authentication.utils import create_user, send_verification_email
+from backend.authentication.utils import create_user, send_verification_email, store_user
 from backend.badges.utils import create_student_badges
 from backend.authentication.decorators import roles_required, user_exists, user_is_active, valid_user_form, \
     valid_user_type
@@ -75,13 +75,9 @@ class UserCallBack(Resource):
         userinfo["password"] = "TemporaryPW"
 
         # If user doesn't exist store in db
-        cur_user = db.session.query(User).filter_by(username=userinfo["email"]).first()
+        cur_user = User.query.filter_by(username=userinfo["email"]).first()
         if (cur_user is None):
-            user = create_user("Student", userinfo)
-
-            db.session.add(user)
-            db.session.commit()
-            send_verification_email(user.username)
+            store_user(userinfo)
 
         return redirect('/')
 

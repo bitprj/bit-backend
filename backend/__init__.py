@@ -1,3 +1,4 @@
+from authlib.integrations.flask_client import OAuth
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
@@ -11,7 +12,6 @@ from backend.config import *
 from contentful_management import Client
 from github import Github
 from itsdangerous import URLSafeTimedSerializer
-from authlib.integrations.flask_client import OAuth
 import logging
 import pusher
 

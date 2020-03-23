@@ -107,3 +107,13 @@ def send_graded_activity_email(email):
     mail.send(msg)
 
     return
+
+# Function to store the new users in the database
+def store_user(userinfo):
+    user = create_user("Student", userinfo)
+
+    db.session.add(user)
+    db.session.commit()
+    send_verification_email(user.username)
+
+    return
