@@ -11,6 +11,7 @@ from backend.config import *
 from contentful_management import Client
 from github import Github
 from itsdangerous import URLSafeTimedSerializer
+from authlib.integrations.flask_client import OAuth
 import logging
 import pusher
 
@@ -44,6 +45,7 @@ mail = Mail(app)
 safe_url = URLSafeTimedSerializer(SECRET_KEY)
 ma = Marshmallow()
 migrate = Migrate(app, db)
+oauth = OAuth(app)
 # CORS(app,  supports_credentials=True, resources={r"/*": {"origins": ["http://localhost:3000"]}})
 CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["*"]}})
 git = Github(GITHUB_ACCESS_TOKEN)
@@ -55,6 +57,17 @@ pusher_client = pusher.Pusher(
     secret=PUSHER_SECRET,
     cluster=PUSHER_CLUSTER,
     ssl=True)
+auth0 = oauth.register(
+    'auth0',
+    client_id='TW6496jNDAkANSIJwG1muLznFxz1Fj11',
+    client_secret='vHeT3U3pAFM1oHjsa9IjJq-aCuGgVAj9qkQnFuGDTADCmD-Gel79S6iahgJORzmx',
+    api_base_url='https://bitprj.auth0.com',
+    access_token_url='https://bitprj.auth0.com/oauth/token',
+    authorize_url='https://bitprj.auth0.com/authorize',
+    client_kwargs={
+        'scope': 'openid profile email',
+    },
+)
 
 from backend.models import User
 

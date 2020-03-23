@@ -26,17 +26,17 @@ def create_student(form_data):
     hashed_password = guard.hash_password(form_data["password"])
 
     student = Student(name=form_data["name"],
-                      username=form_data["username"],
+                      username=form_data["email"],
                       password=hashed_password,
                       roles="Student",
                       location=form_data["location"],
-                      is_active=False,
-                      image=form_data["image"],
+                      is_active=form_data["is_active"],
+                      image=form_data["picture"],
                       current_track_id=form_data["track_id"]
                       )
 
-    classroom = Classroom.query.filter_by(class_code=form_data["class_code"]).first()
-    student.classes.append(classroom)
+    #classroom = Classroom.query.filter_by(class_code=form_data["class_code"]).first()
+    #student.classes.append(classroom)
     track = Track.query.get(form_data["track_id"])
     student.incomplete_topics = track.topics
     student.incomplete_modules = assign_incomplete_modules(track.topics)

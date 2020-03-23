@@ -8,6 +8,16 @@ from backend.models import User
 from functools import wraps
 
 
+# Used to authenticate users signing in with auth0
+def auth0_auth(f):
+    @wraps(f)
+    def decorator(*args, **kwargs):
+        if 'profile' not in session:
+            return redirect('/auth')
+        return f(*args, **kwargs)
+    return decorator
+
+
 # Took inspiration from flask praetorian roles accepted decorator
 # This is used to restrict a route to accept certain roles
 def roles_accepted(*accepted_rolenames):
