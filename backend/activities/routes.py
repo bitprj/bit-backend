@@ -22,6 +22,10 @@ class ActivityCRUD(Resource):
 
         db.session.add(activity)
         db.session.commit()
+        schema_data = activity_schema.dump(activity)
+        activity_filename = activity.filename.split("/")
+        activity_path = "/".join(activity_filename[:-1])
+
 
         return {"message": "Activity successfully created"}, 201
 
