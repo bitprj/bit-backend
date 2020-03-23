@@ -69,9 +69,6 @@ class ActivityGetSpecific(Resource):
         activity = Activity.query.get(activity_id)
         activity.cards.sort(key=lambda x: x.order)
 
-        for card in activity.cards:
-            sort_hints(card.hints)
-
         return activity_schema.dump(activity)
 
 
