@@ -150,7 +150,7 @@ def add_claims_to_access_token(identity):
 api.add_resource(UserAuthorize, "/confirm_email/<string:token>")
 api.add_resource(UserCreate, "/users/<string:user_type>/create")
 api.add_resource(UserLoginHandler, "/auth")
-api.add_resource(UserLogoutHandler, "/user/logout")
+api.add_resource(UserLogoutHandler, "/auth")
 api.add_resource(Protected, "/protected")
 api.add_resource(UserIsAdmin, "/isAdmin")
 api.add_resource(UserIsStudent, "/isStudent")
