@@ -1,11 +1,14 @@
 from backend import repo
-from backend.config import S3_BUCKET
+from backend.activities.schemas import activity_schema
+from backend.cards.schemas import card_schema
+from backend.config import S3_BUCKET, S3_CDN_BUCKET
 from bs4 import BeautifulSoup as BS
 from PIL import Image
 from urllib.request import urlopen
 from zipfile import ZipFile
 import boto3
 import io
+import json
 import os
 import urllib.parse
 import urllib.request
@@ -55,6 +58,18 @@ def create_image_obj(image_name, image_path, folder):
     return add_file(image_bytes, folder, image_name[7:])
 
 
+# Function to create a json file based on the schema type and send it to s3
+def create_schema_json(data, schema_type):
+    schema = get_schema(schema_type)
+    schema_data = schema.dump(data)
+    data_filename = data.filename.split("/")
+    data_path = "/".join(data_filename[:-1])
+    filename = data.name.replace(" ", "_") + ".json"
+    url = send_json_to_cdn(schema_data, data_path, filename)
+
+    return url
+
+
 # Function to parse files from github and save them locally
 def create_zip(test_file_location):
     files = repo.get_contents(test_file_location)
@@ -78,6 +93,14 @@ def delete_files(files):
     os.chdir("..")
 
     return
+
+
+# Function to choose a schema to return data
+def get_schema(schema_type):
+    if schema_type == "activity":
+        return activity_schema
+    elif schema_type == "card":
+        return card_schema
 
 
 # Function to parse an image tag for its name
@@ -106,17 +129,25 @@ def send_tests_zip(filename):
     return zip_link
 
 
-# Function to give a checkpoint a test.zip link if the checkpoint is an Autograder checkpoint
+# Function to store json data into a file and send them to s3
 def send_json_to_cdn(schema_data, file_path, filename):
     if "cdn" in os.getcwd():
         os.chdir("..")
     os.chdir("./cdn")
 
-    with open(filename, 'w') as f:
-        f.write(schema_data)
+    with open(filename, "w", encoding="utf-8") as f:
+        json.dump(schema_data, f, ensure_ascii=False, indent=4)
+        f.close()
 
-        pass
-    return
+    s3_client = boto3.client("s3")
+    path = file_path + "/" + filename
+    s3_client.upload_file(filename, S3_CDN_BUCKET, path)
+    url = "https://d36nt3c422j20i.cloudfront.net/" + path
+
+    if "cdn" in os.getcwd():
+        os.remove(filename)
+
+    return url
 
 
 # Function to write to the files from github

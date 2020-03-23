@@ -8,6 +8,7 @@ from backend.cards.decorators import card_exists, card_exists_in_activity, card_
     valid_card_form
 from backend.cards.schemas import card_schema
 from backend.cards.utils import create_card, edit_card
+from backend.general_utils import create_schema_json
 from backend.hints.schemas import hint_status_schemas
 from backend.hints.utils import sort_hint_status
 from backend.models import Activity, ActivityProgress, Card, HintStatus, Student
@@ -25,6 +26,7 @@ class CardCRUD(Resource):
         data = request.get_json()
         activity = Activity.query.filter_by(filename=data["activity_filename"]).first()
         card = create_card(data, activity.id)
+        card.content_url = create_schema_json(card, "card")
 
         db.session.add(card)
         db.session.commit()
@@ -40,6 +42,7 @@ class CardCRUD(Resource):
         activity = Activity.query.filter_by(filename=data["activity_filename"]).first()
         card.activity_id = activity.id
         edit_card(card, data)
+        card.content_url = create_schema_json(card, "card")
 
         db.session.commit()
 

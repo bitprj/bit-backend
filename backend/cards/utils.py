@@ -21,14 +21,6 @@ def edit_card(card, data):
     card.gems = data["gems"]
     card.github_raw_data = data["github_raw_data"]
 
-    # if "checkpoint" in data["parameters"]:
-    #     checkpoint = Checkpoint.query.filter_by(
-    #         id=data["parameters"]["checkpoint"]["en-US"]["sys"]["id"]).first()
-    #     card.checkpoint_id = checkpoint.id
-    #
-    # if "concepts" in data["parameters"]:
-    #     card.concepts = get_concepts(data["parameters"]["concepts"]["en-US"])
-
     return
 
 
