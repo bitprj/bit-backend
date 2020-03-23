@@ -108,6 +108,7 @@ def send_graded_activity_email(email):
 
     return
 
+
 # Function to store the new users in the database
 def store_user(userinfo):
     user = create_user("Student", userinfo)
