@@ -8,7 +8,7 @@ from backend.cards.decorators import card_exists, card_exists_in_activity, card_
     valid_card_form
 from backend.cards.schemas import card_schema
 from backend.cards.utils import create_card, edit_card
-from backend.hints.schemas import hint_status_schemas
+from backend.hints.schemas import hint_status_schema
 from backend.hints.utils import sort_hint_status
 from backend.models import Activity, ActivityProgress, Card, HintStatus, Student
 
@@ -72,16 +72,16 @@ class CardGetSpecific(Resource):
 class CardGetHints(Resource):
     method_decorators = [roles_accepted("Student"), card_exists, card_exists_in_activity]
 
-    # Function to return data on the HintStatus
-    def get(self, activity_id, card_id):
-        username = get_jwt_identity()
-        student = Student.query.filter_by(username=username).first()
-        student_activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
-                                                                 activity_id=activity_id).first()
-        hints = HintStatus.query.filter_by(activity_progress_id=student_activity_prog.id, card_id=card_id).all()
-        sort_hint_status(hints)
-
-        return hint_status_schemas.dump(hints)
+    # # Function to return data on the HintStatus
+    # def get(self, activity_id, card_id):
+    #     username = get_jwt_identity()
+    #     student = Student.query.filter_by(username=username).first()
+    #     student_activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
+    #                                                              activity_id=activity_id).first()
+    #     hints = HintStatus.query.filter_by(activity_progress_id=student_activity_prog.id, card_id=card_id).all()
+    #     sort_hint_status(hints)
+    #
+    #     return hint_status_schema.dump(hints)
 
     # Function to unlock the next card
     @card_is_unlockable

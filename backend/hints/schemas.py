@@ -37,16 +37,15 @@ class HintSchema(ma.ModelSchema):
 
 
 class HintStatusSchema(ma.ModelSchema):
-    hint = fields.Nested("HintSchema", only=("id", "contentful_id"), many=False, required=True)
-    hints = fields.Nested("HintStatusSchema", only=("is_unlocked", "hint", "hints"), many=True)
+    hint_id = fields.Int(required=True)
     is_unlocked = fields.Boolean(required=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("hint", "hints", "is_unlocked")
+        fields = ("hint_id", "is_unlocked")
         ordered = True
 
 
 hint_form_schema = HintFormSchema()
 hint_schema = HintSchema()
-hint_status_schemas = HintStatusSchema(many=True)
+hint_status_schema = HintStatusSchema()
