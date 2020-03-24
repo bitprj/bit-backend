@@ -106,6 +106,19 @@ def send_tests_zip(filename):
     return zip_link
 
 
+# Function to give a checkpoint a test.zip link if the checkpoint is an Autograder checkpoint
+def send_json_to_cdn(schema_data, file_path, filename):
+    if "cdn" in os.getcwd():
+        os.chdir("..")
+    os.chdir("./cdn")
+
+    with open(filename, 'w') as f:
+        f.write(schema_data)
+
+        pass
+    return
+
+
 # Function to write to the files from github
 def write_files(files):
     files_to_send = []
