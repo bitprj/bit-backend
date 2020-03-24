@@ -40,7 +40,9 @@ def update_cdn_data(file):
 
 def update_hint_cdn(hints):
     for hint in hints:
-        hint.content_url = create_md_file(hint)
+        hint.content_md_url = create_md_file(hint)
+        hint.content_url = create_schema_json(hint, "hint")
+
         if hint.hints:
             update_hint_cdn(hint.hints)
 

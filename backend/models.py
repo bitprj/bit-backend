@@ -290,6 +290,7 @@ class Card(db.Model):
 class Checkpoint(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     contentful_id = db.Column(db.Text, nullable=True)
+    content_url = db.Column(db.Text, nullable=True)
     name = db.Column(db.Text, nullable=True)
     instruction = db.Column(db.Text, nullable=True)
     checkpoint_type = db.Column(db.Text, nullable=True)
