@@ -1,7 +1,7 @@
 from flask import (Blueprint, request)
-from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 from backend import api, db
+from backend.authentication.decorators import auth0_auth
 from backend.models import Topic
 from backend.topics.decorators import topic_exists, topic_exists_in_github, valid_topic_form
 from backend.topics.schemas import topic_schema
@@ -51,7 +51,7 @@ class TopicCRUD(Resource):
 
 # Function to get a specific Topic based on topic id
 class TopicGetSpecific(Resource):
-    method_decorators = [jwt_required, topic_exists]
+    method_decorators = [auth0_auth, topic_exists]
 
     def get(self, topic_id):
         topic = Topic.query.get(topic_id)
