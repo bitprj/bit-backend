@@ -10,6 +10,7 @@ import boto3
 import io
 import json
 import os
+import requests
 import urllib.parse
 import urllib.request
 
@@ -65,7 +66,7 @@ def create_schema_json(data, schema_type):
     data_filename = data.filename.split("/")
     data_path = "/".join(data_filename[:-1])
     filename = data.name.replace(" ", "_") + ".json"
-    url = send_json_to_cdn(schema_data, data_path, filename)
+    url = send_file_to_cdn(schema_data, data_path, filename)
 
     return url
 
@@ -129,15 +130,20 @@ def send_tests_zip(filename):
     return zip_link
 
 
-# Function to store json data into a file and send them to s3
-def send_json_to_cdn(schema_data, file_path, filename):
+# Function to store file data into a file and send them to s3
+# This is used for md and json files
+def send_file_to_cdn(data, file_path, filename):
     if "cdn" in os.getcwd():
         os.chdir("..")
     os.chdir("./cdn")
 
-    with open(filename, "w", encoding="utf-8") as f:
-        json.dump(schema_data, f, ensure_ascii=False, indent=4)
-        f.close()
+    if isinstance(data, dict):
+        with open(filename, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+    elif isinstance(data, str):
+        with open(filename, "w") as f:
+            content = requests.get(data)
+            f.write(content.text)
 
     s3_client = boto3.client("s3")
     path = file_path + "/" + filename

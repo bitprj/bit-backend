@@ -252,6 +252,7 @@ class Card(db.Model):
     github_raw_data = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
     content_url = db.Column(db.Text, nullable=True)
+    content_md_url = db.Column(db.Text, nullable=True)
     name = db.Column(db.Text, nullable=True)
     gems = db.Column(db.Integer, nullable=True)
     # order is a number to keep track of the order in which this card will be displayed
@@ -274,12 +275,13 @@ class Card(db.Model):
                                               secondary="activity_progress_unlocked_cards_rel",
                                               back_populates="cards_unlocked")
 
-    # def __init__(self, github_raw_data, name, gems, order, filename):
-    #     self.github_raw_data = github_raw_data
-    #     self.name = name
-    #     self.gems = gems
-    #     self.order = order
-    #     self.filename = filename
+    def __init__(self, github_raw_data, name, gems, order, filename, activity_id):
+        self.github_raw_data = github_raw_data
+        self.name = name
+        self.gems = gems
+        self.order = order
+        self.filename = filename
+        self.activity_id = activity_id
 
     def __repr__(self):
         return f"Card('{self.name}')"
