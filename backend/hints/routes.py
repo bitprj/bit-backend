@@ -1,7 +1,7 @@
 from flask import (Blueprint, request)
-from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 from backend import api, db
+from backend.authentication.decorators import auth0_auth
 from backend.models import Hint
 from backend.hints.decorators import hint_exists, hint_exists_in_github, valid_hint_form
 from backend.hints.schemas import hint_schema
@@ -55,7 +55,7 @@ class HintCRUD(Resource):
 
 # Function to get a specific Hint based on hint id
 class HintGetSpecific(Resource):
-    method_decorators = [jwt_required, hint_exists]
+    method_decorators = [auth0_auth, hint_exists]
 
     def get(self, hint_id):
         hint = Hint.query.get(hint_id)
