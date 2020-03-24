@@ -414,6 +414,7 @@ class Gem(db.Model):
 class Hint(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     contentful_id = db.Column(db.Text, nullable=True)
+    content_url = db.Column(db.Text, nullable=True)
     github_raw_data = db.Column(db.Text, nullable=True)
     name = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
@@ -563,6 +564,7 @@ class Organization(db.Model):
 class Step(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text, nullable=True)
+    content_url = db.Column(db.Text, nullable=True)
     md_content = db.Column(db.Text, nullable=True)
     code_snippet = db.Column(db.Text, nullable=True)
     image = db.Column(db.Text, nullable=True)

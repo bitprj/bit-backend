@@ -60,12 +60,12 @@ def create_image_obj(image_name, image_path, folder):
 
 
 # Function to create a json file based on the schema type and send it to s3
-def create_schema_json(data, schema_type):
+def create_schema_json(model_obj, schema_type):
     schema = get_schema(schema_type)
-    schema_data = schema.dump(data)
-    data_filename = data.filename.split("/")
+    schema_data = schema.dump(model_obj)
+    data_filename = model_obj.filename.split("/")
     data_path = "/".join(data_filename[:-1])
-    filename = data.name.replace(" ", "_") + ".json"
+    filename = model_obj.name.replace(" ", "_") + ".json"
     url = send_file_to_cdn(schema_data, data_path, filename)
 
     return url
