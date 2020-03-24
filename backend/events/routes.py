@@ -1,7 +1,8 @@
 from flask import (Blueprint, request)
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import get_jwt_identity
 from flask_restful import Resource
 from backend import api, db
+from backend.authentication.decorators import auth0_auth
 from backend.events.decorators import event_exists, has_rsvp, in_rsvp, owns_event, valid_event_form
 from backend.events.schemas import event_schema
 from backend.events.utils import create_event, edit_event
@@ -14,7 +15,7 @@ events_bp = Blueprint("events", __name__)
 
 # Class for event CRUD routes
 class EventCRUD(Resource):
-    method_decorators = [jwt_required, event_exists]
+    method_decorators = [auth0_auth, event_exists]
 
     def get(self, event_id):
         event = Event.query.get(event_id)
@@ -48,7 +49,7 @@ class EventCRUD(Resource):
 
 # This class is used to delete an event with a POST request
 class EventCreate(Resource):
-    method_decorators = [jwt_required, organization_exists, valid_event_form]
+    method_decorators = [auth0_auth, organization_exists, valid_event_form]
 
     # Function to create a event
     def post(self, organization_id):
@@ -65,7 +66,7 @@ class EventCreate(Resource):
 
 # Class to control when a user RSVPs for an event
 class EventJoin(Resource):
-    method_decorators = [jwt_required, event_exists]
+    method_decorators = [auth0_auth, event_exists]
 
     # Function to let a user rsvp for an event
     @has_rsvp
