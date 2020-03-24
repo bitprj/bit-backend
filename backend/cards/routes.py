@@ -1,9 +1,9 @@
 from flask import (Blueprint, request)
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import get_jwt_identity
 from flask_restful import Resource
 from backend import api, db
-from backend.authentication.decorators import roles_accepted
 from backend.activity_progresses.utils import unlock_card
+from backend.authentication.decorators import roles_accepted, auth0_auth
 from backend.cards.decorators import card_exists, card_exists_in_activity, card_exists_in_github, card_is_unlockable, \
     valid_card_form
 from backend.cards.schemas import card_schema
@@ -59,7 +59,7 @@ class CardCRUD(Resource):
 
 # This class is used to get a specific card based on id
 class CardGetSpecific(Resource):
-    method_decorators = [jwt_required, card_exists]
+    method_decorators = [auth0_auth, card_exists]
 
     # Function to return data on a single card
     def get(self, card_id):
