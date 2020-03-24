@@ -1,4 +1,4 @@
-from backend.general_utils import send_file_to_cdn
+from backend.general_utils import create_schema_json, send_file_to_cdn
 from backend.models import Card
 
 
@@ -11,6 +11,8 @@ def create_card(data, activity_id):
                 filename=data["filename"],
                 activity_id=activity_id
                 )
+    card.content_url = create_schema_json(card, "card")
+    card.content_md_url = create_md_file(card)
 
     return card
 

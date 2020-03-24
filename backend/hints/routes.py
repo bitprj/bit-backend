@@ -2,6 +2,7 @@ from flask import (Blueprint, request)
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 from backend import api, db
+from backend.general_utils import create_schema_json
 from backend.models import Hint
 from backend.hints.decorators import hint_exists, hint_exists_in_github, valid_hint_form
 from backend.hints.schemas import hint_schema
@@ -25,6 +26,7 @@ class HintCRUD(Resource):
         db.session.commit()
         assign_hint_to_parent(hint, data)
         call_step_routes(data["content"]["steps"], hint.id, "hint", data["content"]["image_folder"])
+        hint.content_url = create_schema_json(hint, "hint")
         db.session.commit()
 
         return {"message": "Hint successfully created"}, 201

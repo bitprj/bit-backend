@@ -1,5 +1,5 @@
 from backend import db
-from backend.cards.utils import create_md_file
+from backend.general_utils import create_schema_json
 from backend.hooks.utils import call_step_routes
 from backend.models import Card, Hint, HintStatus
 
@@ -54,9 +54,9 @@ def edit_hint(hint, data):
     hint.order = data["order"]
     hint.filename = data["filename"]
     hint.github_raw_data = data["github_raw_data"]
-    hint.content_url = create_md_file(hint)
     assign_hint_to_parent(hint, data)
     call_step_routes(data["content"]["steps"], hint.id, "hint", data["content"]["image_folder"])
+    hint.content_url = create_schema_json(hint, "hint")
 
     return
 
