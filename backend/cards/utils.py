@@ -11,7 +11,6 @@ def create_card(data, activity_id):
                 filename=data["filename"],
                 activity_id=activity_id
                 )
-    card.content_md_url = create_md_file(card)
 
     return card
 

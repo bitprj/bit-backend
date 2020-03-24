@@ -35,7 +35,6 @@ class ActivityCRUD(Resource):
         activity = Activity.query.filter_by(filename=data["filename"]).first()
         edit_activity(activity, data)
         activity.content_url = create_schema_json(activity, "activity")
-
         db.session.commit()
 
         return {"message": "Activity successfully updated"}, 200

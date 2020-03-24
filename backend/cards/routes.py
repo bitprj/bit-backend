@@ -26,7 +26,6 @@ class CardCRUD(Resource):
         data = request.get_json()
         activity = Activity.query.filter_by(filename=data["activity_filename"]).first()
         card = create_card(data, activity.id)
-        card.content_url = create_schema_json(card, "card")
 
         db.session.add(card)
         db.session.commit()
