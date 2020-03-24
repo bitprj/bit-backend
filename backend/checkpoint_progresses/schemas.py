@@ -4,13 +4,14 @@ from marshmallow import fields
 
 # This schema is used to display data for an autograder checkpoint
 class AutograderCheckpointSchema(ma.ModelSchema):
+    checkpoint_id = fields.Int(required=True)
     student_comment = fields.Str(required=True)
     checkpoint = fields.Nested("CheckpointSchema", only=("checkpoint_type",))
     submissions = fields.Nested("SubmissionSchema", many=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("student_comment", "checkpoint", "submissions")
+        fields = ("checkpoint_id", "student_comment", "checkpoint", "submissions")
         ordered = True
 
 
@@ -52,24 +53,26 @@ class CheckpointSubmissionSchema(ma.Schema):
 
 # This schema is used to display data for Image, Video and Short Answer Checkpoints
 class ContentCheckpointSchema(ma.ModelSchema):
+    checkpoint_id = fields.Int(required=True)
     content = fields.Str(required=True)
     student_comment = fields.Str(required=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("content", "student_comment")
+        fields = ("checkpoint_id", "content", "student_comment")
         ordered = True
 
 
 # This schema is used to display data for a Multiple Choice Checkpoint
 class MCCheckpointSchema(ma.ModelSchema):
+    checkpoint_id = fields.Int(required=True)
     content = fields.Str(required=True)
     student_comment = fields.Str(required=True)
     multiple_choice_is_correct = fields.Bool(required=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("content", "student_comment", "multiple_choice_is_correct")
+        fields = ("checkpoint_id", "content", "student_comment", "multiple_choice_is_correct")
         ordered = True
 
 
