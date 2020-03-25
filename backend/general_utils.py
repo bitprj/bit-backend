@@ -1,6 +1,7 @@
 from backend import repo
 from backend.activities.schemas import activity_schema
 from backend.cards.schemas import card_schema
+from backend.checkpoints.schemas import checkpoint_schema
 from backend.config import S3_BUCKET, S3_CDN_BUCKET
 from backend.hints.schemas import hint_schema
 from bs4 import BeautifulSoup as BS
@@ -105,6 +106,8 @@ def get_schema(schema_type):
         return card_schema
     elif schema_type == "hint":
         return hint_schema
+    elif schema_type == "checkpoint":
+        return checkpoint_schema
 
 
 # Function to parse an image tag for its name
