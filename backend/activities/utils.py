@@ -44,7 +44,7 @@ def edit_activity(activity, data):
         card_path = "/".join(card_filename_path)
         for card_name, card_data in data["cards"].items():
             card_filename = card_path + "/Cards/" + card_name + ".md"
-            update_card(card_path, card_name, card_filename)
+            update_card(card_data, card_name, card_filename)
 
     return
 

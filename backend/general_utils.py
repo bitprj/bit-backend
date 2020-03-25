@@ -4,6 +4,7 @@ from backend.cards.schemas import card_schema
 from backend.checkpoints.schemas import checkpoint_schema
 from backend.config import S3_BUCKET, S3_CDN_BUCKET
 from backend.hints.schemas import hint_schema
+from backend.modules.schemas import module_schema
 from bs4 import BeautifulSoup as BS
 from PIL import Image
 from urllib.request import urlopen
@@ -100,7 +101,9 @@ def delete_files(files):
 
 # Function to choose a schema to return data
 def get_schema(schema_type):
-    if schema_type == "activity":
+    if schema_type == "module":
+        return module_schema
+    elif schema_type == "activity":
         return activity_schema
     elif schema_type == "card":
         return card_schema
