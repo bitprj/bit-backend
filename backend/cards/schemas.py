@@ -22,6 +22,7 @@ class CardSchema(ma.ModelSchema):
     id = fields.Int(required=True)
     activity_id = fields.Int(required=True)
     github_raw_data = fields.Str(required=True)
+    gems = fields.Int(required=True)
     name = fields.Str(required=True)
     order = fields.Int(required=True)
     # activity is used to keep track of which activity that the card belongs to
@@ -31,7 +32,7 @@ class CardSchema(ma.ModelSchema):
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "activity_id", "github_raw_data", "name", "order", "concepts", "hints", "checkpoint")
+        fields = ("id", "activity_id", "github_raw_data", "gems", "name", "order", "concepts", "hints", "checkpoint")
         ordered = True
 
 
