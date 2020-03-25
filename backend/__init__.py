@@ -59,11 +59,11 @@ pusher_client = pusher.Pusher(
     ssl=True)
 auth0 = oauth.register(
     'auth0',
-    client_id='TW6496jNDAkANSIJwG1muLznFxz1Fj11',
-    client_secret='vHeT3U3pAFM1oHjsa9IjJq-aCuGgVAj9qkQnFuGDTADCmD-Gel79S6iahgJORzmx',
-    api_base_url='https://bitprj.auth0.com',
-    access_token_url='https://bitprj.auth0.com/oauth/token',
-    authorize_url='https://bitprj.auth0.com/authorize',
+    client_id=AUTH0_CLIENT_ID,
+    client_secret=AUTH0_CLIENT_SECRET,
+    api_base_url=AUTH0_URL,
+    access_token_url=AUTH0_ACCESS_TOK_URL,
+    authorize_url=AUTH0_AUTH_URL,
     client_kwargs={
         'scope': 'openid profile email',
     },
