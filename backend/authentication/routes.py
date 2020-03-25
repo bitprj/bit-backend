@@ -179,7 +179,7 @@ class UserIsTeacher(Resource):
 
 class Ping(Resource):
     def get(self):
-        userinfo = session['profile']
+        userinfo = session["profile"]["username"]
         return userinfo
         #return jsonify({"message": "pong"})
 

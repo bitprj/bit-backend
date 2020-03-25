@@ -18,7 +18,7 @@ class ModuleProgress(Resource):
 
     # Function to display a student's module progress
     def get(self, module_id):
-        username = session["username"]
+        username = session["profile"]["username"]
         student = Student.query.filter_by(username=username).first()
         module_progress = get_module_progress(student, module_id)
 
@@ -28,7 +28,7 @@ class ModuleProgress(Resource):
     @activity_exists_in_student_prog
     def put(self):
         activity_completed = request.get_json()
-        username = session["username"]
+        username = session["profile"]["username"]
         student = Student.query.filter_by(username=username).first()
         activity_id = activity_completed["complete"]["id"]
         activity = Activity.query.get(activity_id)

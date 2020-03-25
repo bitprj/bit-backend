@@ -18,7 +18,7 @@ class TopicProgress(Resource):
 
     # Function to retrieve the module progress for a student given an id
     def get(self, topic_id):
-        username = session["username"]
+        username = session["profile"]["username"]
         student = Student.query.filter_by(username=username).first()
         topic_progress = get_topic_progress(student.id, topic_id)
 
@@ -32,7 +32,7 @@ class TopicProgressAdd(Resource):
     # Function to add a module to a student's inprogress_modules
     @module_is_incomplete
     def put(self, topic_id, module_id):
-        username = session["username"]
+        username = session["profile"]["username"]
         student = Student.query.filter_by(username=username).first()
         module = Module.query.get(module_id)
         student.inprogress_modules.append(module)
@@ -53,7 +53,7 @@ class TopicProgressUpdate(Resource):
     @module_is_complete
     @module_in_inprogress
     def put(self, topic_id, module_id):
-        username = session["username"]
+        username = session["profile"]["username"]
         student = Student.query.filter_by(username=username).first()
         module = Module.query.get(module_id)
         student.completed_modules.append(module)

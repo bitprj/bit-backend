@@ -18,7 +18,7 @@ class TrackProgress(Resource):
 
     # Function to retrieve the students track progress
     def get(self, track_id):
-        username = session["username"]
+        username = session["profile"]["username"]
         student = Student.query.filter_by(username=username).first()
 
         track_progress = get_track_progress(student.id, track_id)
@@ -33,7 +33,7 @@ class TrackProgressAdd(Resource):
     @can_add_topic
     @topic_is_incomplete
     def put(self, topic_id):
-        username = session["username"]
+        username = session["profile"]["username"]
         student = Student.query.filter_by(username=username).first()
         topic = Topic.query.get(topic_id)
         student.inprogress_topics.append(topic)
@@ -54,7 +54,7 @@ class TrackProgressUpdate(Resource):
     @can_complete_topic
     @has_completed_topic
     def put(self, topic_id):
-        username = session["username"]
+        username = session["profile"]["username"]
         student = Student.query.filter_by(username=username).first()
         topic = Topic.query.get(topic_id)
         student.completed_topics.append(topic)

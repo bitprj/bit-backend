@@ -20,7 +20,7 @@ class CheckpointProgressSubmit(Resource):
     # Function to retrieve data from a checkpoint progress
     @checkpoint_progress_exist
     def get(self, checkpoint_id):
-        username = session["username"]
+        username = session["profile"]["username"]
         student = Student.query.filter_by(username=username).first()
         checkpoint_prog = CheckpointProgress.query.filter_by(checkpoint_id=checkpoint_id,
                                                              student_id=student.id).first()
@@ -35,7 +35,7 @@ class CheckpointProgressSubmit(Resource):
     @multiple_choice_is_completed
     def put(self, checkpoint_id):
         data = request.form
-        username = session["username"]
+        username = session["profile"]["username"]
         student = Student.query.filter_by(username=username).first()
         checkpoint_prog = CheckpointProgress.query.filter_by(checkpoint_id=checkpoint_id,
                                                              student_id=student.id).first()

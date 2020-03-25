@@ -51,7 +51,7 @@ class ClassroomCreate(Resource):
     # Function to create a classroom
     def post(self):
         form_data = request.get_json()
-        username = session["username"]
+        username = session["profile"]["username"]
         teacher = Teacher.query.filter_by(username=username).first()
         classroom = create_classroom(form_data, teacher.id)
 

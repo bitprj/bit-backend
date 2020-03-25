@@ -73,7 +73,7 @@ class CardGetHints(Resource):
 
     # Function to return data on the HintStatus
     def get(self, activity_id, card_id):
-        username = session["username"]
+        username = session["profile"]["username"]
         student = Student.query.filter_by(username=username).first()
         student_activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
                                                                  activity_id=activity_id).first()
@@ -85,7 +85,7 @@ class CardGetHints(Resource):
     # Function to unlock the next card
     @card_is_unlockable
     def put(self, activity_id, card_id):
-        username = session["username"]
+        username = session["profile"]["username"]
         student = Student.query.filter_by(username=username).first()
         card = Card.query.get(card_id)
         student_activity_prog = ActivityProgress.query.filter_by(student_id=student.id,

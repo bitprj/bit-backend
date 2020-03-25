@@ -15,7 +15,7 @@ class StudentInfo(Resource):
 
     # Function to display student data
     def get(self):
-        username = session["username"]
+        username = session["profile"]["username"]
         student = Student.query.filter_by(username=username).first()
 
         return student_schema.dump(student)

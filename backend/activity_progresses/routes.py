@@ -22,7 +22,7 @@ class ActivityProgressUpdate(Resource):
     # Function to return the last card completed on an activity
     @cards_exist_in_activity
     def get(self, activity_id):
-        username = session["username"]
+        username = session["profile"]["username"]
         student = Student.query.filter_by(username=username).first()
         student_activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
                                                                  activity_id=activity_id).first()
@@ -50,7 +50,7 @@ class ActivityProgressUpdate(Resource):
 
     @activity_prog_exists
     def delete(self, activity_id):
-        username = session["username"]
+        username = session["profile"]["username"]
         student = Student.query.filter_by(username=username).first()
         student_activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
                                                                  activity_id=activity_id).first()
@@ -69,7 +69,7 @@ class ActivityProgressHints(Resource):
     # Function to unlock a hint by its hint_id
     @activity_prog_exists
     def put(self, activity_id, hint_id):
-        username = session["username"]
+        username = session["profile"]["username"]
         student = Student.query.filter_by(username=username).first()
         student_activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
                                                                  activity_id=activity_id).first()

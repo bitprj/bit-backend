@@ -54,7 +54,7 @@ class OrganizationCreate(Resource):
     def post(self):
         form_data = request.form
         form_files = request.files
-        username = session["username"]
+        username = session["profile"]["username"]
         user = User.query.filter_by(username=username).first()
         organization = create_organization(form_data, form_files, user)
 
@@ -115,7 +115,7 @@ class OrganizationMembership(Resource):
     # Function to let a user join an organization
     @has_joined_already
     def put(self, organization_id):
-        username = session["username"]
+        username = session["profile"]["username"]
         user = User.query.filter_by(username=username).first()
         organization = Organization.query.get(organization_id)
         organization.active_users.append(user)
@@ -128,7 +128,7 @@ class OrganizationMembership(Resource):
     # Function to let a user leave an organization
     @exist_in_organization
     def delete(self, organization_id):
-        username = session["username"]
+        username = session["profile"]["username"]
         user = User.query.filter_by(username=username).first()
         organization = Organization.query.get(organization_id)
         remove_user(organization, user)
