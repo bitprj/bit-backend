@@ -181,6 +181,7 @@ class Activity(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     github_id = db.Column(db.Integer, nullable=True)
     contentful_id = db.Column(db.Text, nullable=True)
+    content_url = db.Column(db.Text, nullable=True)
     name = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
     description = db.Column(db.Text, nullable=True)
@@ -250,6 +251,8 @@ class Card(db.Model):
     contentful_id = db.Column(db.Text(), nullable=True)
     github_raw_data = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
+    content_url = db.Column(db.Text, nullable=True)
+    content_md_url = db.Column(db.Text, nullable=True)
     name = db.Column(db.Text, nullable=True)
     gems = db.Column(db.Integer, nullable=True)
     # order is a number to keep track of the order in which this card will be displayed
@@ -272,12 +275,13 @@ class Card(db.Model):
                                               secondary="activity_progress_unlocked_cards_rel",
                                               back_populates="cards_unlocked")
 
-    # def __init__(self, github_raw_data, name, gems, order, filename):
-    #     self.github_raw_data = github_raw_data
-    #     self.name = name
-    #     self.gems = gems
-    #     self.order = order
-    #     self.filename = filename
+    def __init__(self, github_raw_data, name, gems, order, filename, activity_id):
+        self.github_raw_data = github_raw_data
+        self.name = name
+        self.gems = gems
+        self.order = order
+        self.filename = filename
+        self.activity_id = activity_id
 
     def __repr__(self):
         return f"Card('{self.name}')"
@@ -286,6 +290,7 @@ class Card(db.Model):
 class Checkpoint(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     contentful_id = db.Column(db.Text, nullable=True)
+    content_url = db.Column(db.Text, nullable=True)
     name = db.Column(db.Text, nullable=True)
     instruction = db.Column(db.Text, nullable=True)
     checkpoint_type = db.Column(db.Text, nullable=True)
@@ -410,6 +415,7 @@ class Gem(db.Model):
 class Hint(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     contentful_id = db.Column(db.Text, nullable=True)
+    content_url = db.Column(db.Text, nullable=True)
     github_raw_data = db.Column(db.Text, nullable=True)
     name = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
@@ -559,6 +565,7 @@ class Organization(db.Model):
 class Step(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text, nullable=True)
+    content_url = db.Column(db.Text, nullable=True)
     md_content = db.Column(db.Text, nullable=True)
     code_snippet = db.Column(db.Text, nullable=True)
     image = db.Column(db.Text, nullable=True)

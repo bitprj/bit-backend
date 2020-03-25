@@ -1,7 +1,7 @@
 from backend import repo
 from backend.hooks.utils import md_to_json, parse_activity, parse_card, parse_checkpoint, parse_concept, parse_module, \
     parse_topic
-from backend.hooks.update_utils import update_test_cases
+from backend.hooks.update_utils import update_cdn_data, update_test_cases
 
 
 # Function to take all the files changed from commits into specific lists
@@ -87,5 +87,9 @@ def parse_files(topic_files, module_files, activity_files, concept_files, card_f
 
     for file in checkpoint_files:
         parse_checkpoint(file)
+
+    # Update the activity, card, hints,  cdn data
+    for file in activity_files:
+        update_cdn_data(file)
 
     return

@@ -1,6 +1,7 @@
 from backend import db
-from backend.general_utils import create_zip, delete_files, parse_img_tag, send_tests_zip
-from backend.models import Checkpoint
+from backend.cards.utils import create_md_file
+from backend.general_utils import create_zip, delete_files, parse_img_tag, create_schema_json, send_tests_zip
+from backend.models import Activity, Checkpoint
 
 
 # Function to update card data
@@ -17,6 +18,35 @@ def update_card_data(file, activity_cards):
     card_data["github_raw_data"] = file.raw_url
 
     return card_data, card_name
+
+
+# Function to update cdn data
+# When all models are done updating, then the activity, cards,
+# concepts and checkpoints get updated
+def update_cdn_data(file):
+    activity = Activity.query.filter_by(filename=file.filename).first()
+    activity.content_url = create_schema_json(activity, "activity")
+
+    for card in activity.cards:
+        card.content_md_url = create_md_file(card)
+        card.content_url = create_schema_json(card, "card")
+        if card.hints:
+            update_hint_cdn(card.hints)
+
+    db.session.commit()
+
+    return
+
+
+def update_hint_cdn(hints):
+    for hint in hints:
+        hint.content_md_url = create_md_file(hint)
+        hint.content_url = create_schema_json(hint, "hint")
+
+        if hint.hints:
+            update_hint_cdn(hint.hints)
+
+    return
 
 
 # Function to update hint data

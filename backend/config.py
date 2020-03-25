@@ -6,7 +6,7 @@ dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 
 S3_BUCKET = os.environ.get('S3_BUCKET')
-S3_BUCKET = os.environ.get('S3_CDN_BUCKET')
+S3_CDN_BUCKET = os.environ.get('S3_CDN_BUCKET')
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 AWS_LOCATION = os.environ.get('AWS_LOCATION')

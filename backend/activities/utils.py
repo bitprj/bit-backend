@@ -1,4 +1,3 @@
-from backend.general_utils import send_json_to_cdn
 from backend.models import Activity, Card, Hint, Module
 
 
@@ -27,12 +26,6 @@ def create_activity(data):
     assign_activity_to_module(data["filename"], activity)
 
     return activity
-
-
-# Function to create a activity json file and send to s3
-def create_activity_json():
-    
-    pass
 
 
 # Function to edit an activity
