@@ -1,5 +1,4 @@
-from flask import (Blueprint, request)
-from flask_jwt_extended import get_jwt_identity
+from flask import (Blueprint, request, session)
 from flask_restful import Resource
 from backend import api, db
 from backend.activity_progresses.utils import unlock_card
@@ -74,7 +73,7 @@ class CardGetHints(Resource):
 
     # Function to return data on the HintStatus
     def get(self, activity_id, card_id):
-        username = get_jwt_identity()
+        username = session["username"]
         student = Student.query.filter_by(username=username).first()
         student_activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
                                                                  activity_id=activity_id).first()
@@ -86,7 +85,7 @@ class CardGetHints(Resource):
     # Function to unlock the next card
     @card_is_unlockable
     def put(self, activity_id, card_id):
-        username = get_jwt_identity()
+        username = session["username"]
         student = Student.query.filter_by(username=username).first()
         card = Card.query.get(card_id)
         student_activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
