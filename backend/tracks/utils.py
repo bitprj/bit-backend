@@ -1,5 +1,7 @@
+from backend.general_utils import send_file_to_cdn
 from backend.models import Student, Topic, Track
 from backend.prereqs.fetch import get_topics
+from backend.tracks.schemas import track_schema
 
 
 # Function to create a track
@@ -32,6 +34,9 @@ def edit_track(form_data, track):
     track.name = form_data["name"]
     track.description = form_data["description"]
     track.topics = get_topics(form_data["topics"])
+    track_name = track.name.replace(" ", "_") + ".json"
+    track_data = track_schema.dump(track)
+    track.content_url = send_file_to_cdn(track_data, "tracks", track_name)
     # track.required_topics = get_topics(form_data["required_topics"])
 
     return

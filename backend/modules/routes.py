@@ -5,7 +5,7 @@ from backend import api, db
 from backend.general_utils import create_schema_json
 from backend.modules.decorators import module_exists, module_exists_in_github, valid_module_form
 from backend.modules.schemas import module_schema
-from backend.modules.utils import create_module, edit_module, update_module_topics
+from backend.modules.utils import create_module, edit_module
 from backend.models import Module
 
 # Blueprint for modules

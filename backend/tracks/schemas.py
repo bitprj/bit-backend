@@ -7,7 +7,7 @@ class TrackFormSchema(ma.Schema):
     github_id = fields.Int(required=True)
     name = fields.Str(required=True)
     description = fields.Str(required=True)
-    topics = fields.List(fields.Dict(), required=True)
+    topics = fields.List(fields.Int, required=True)
     # required_topics = fields.Nested("TopicSchema", only=("id", "contentful_id"), many=True)
 
     class Meta:
