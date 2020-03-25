@@ -1,5 +1,4 @@
-from flask import request
-from flask_jwt_extended import get_jwt_identity
+from flask import (request, session)
 from backend.cards.schemas import card_form_schema
 from backend.models import Activity, ActivityProgress, Card, Student
 from functools import wraps
@@ -59,7 +58,7 @@ def card_exists_in_activity(f):
 def card_is_unlockable(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        username = get_jwt_identity()
+        username = session["profile"]["username"]
         student = Student.query.filter_by(username=username).first()
         card = Card.query.get(kwargs['card_id'])
         student_activity_prog = ActivityProgress.query.filter_by(student_id=student.id,

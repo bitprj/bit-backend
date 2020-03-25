@@ -1,5 +1,4 @@
-from flask import request
-from flask_jwt_extended import get_jwt_identity
+from flask import (request, session)
 from backend.events.schemas import event_form_schema
 from backend.models import Event, User
 from functools import wraps
@@ -27,7 +26,7 @@ def has_rsvp(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         event = Event.query.get(kwargs['event_id'])
-        username = get_jwt_identity()
+        username = session["profile"]["username"]
         user = User.query.filter_by(username=username).first()
 
         if user in event.rsvp_list:
@@ -46,7 +45,7 @@ def in_rsvp(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         event = Event.query.get(kwargs['event_id'])
-        username = get_jwt_identity()
+        username = session["profile"]["username"]
         user = User.query.filter_by(username=username).first()
         if user in event.rsvp_list:
             return f(*args, **kwargs)
@@ -64,7 +63,7 @@ def owns_event(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         event = Event.query.get(kwargs['event_id'])
-        username = get_jwt_identity()
+        username = session["profile"]["username"]
         user = User.query.filter_by(username=username).first()
 
         if user in event.organization.owners or user in event.presenters:
