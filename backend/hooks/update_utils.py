@@ -27,6 +27,9 @@ def update_cdn_data(file):
     activity = Activity.query.filter_by(filename=file.filename).first()
     activity.content_url = create_schema_json(activity, "activity")
 
+    for module in activity.modules:
+        module.content_url = create_schema_json(module, "module")
+
     for card in activity.cards:
         card.content_md_url = create_md_file(card)
         card.content_url = create_schema_json(card, "card")

@@ -20,9 +20,10 @@ class ActivityCRUD(Resource):
     def post(self):
         data = request.get_json()
         activity = create_activity(data)
-        activity.content_url = create_schema_json(activity, "activity")
 
         db.session.add(activity)
+        db.session.commit()
+        activity.content_url = create_schema_json(activity, "activity")
         db.session.commit()
 
         return {"message": "Activity successfully created"}, 201
