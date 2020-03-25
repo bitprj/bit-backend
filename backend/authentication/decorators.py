@@ -1,4 +1,4 @@
-from flask import request, session
+from flask import request, redirect, session
 from flask_praetorian.exceptions import MissingRoleError
 from backend import guard
 from backend.authentication.schemas import user_form_schema, user_login_schema
