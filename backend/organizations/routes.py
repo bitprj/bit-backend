@@ -1,5 +1,4 @@
-from flask import (Blueprint, request)
-from flask_jwt_extended import get_jwt_identity
+from flask import (Blueprint, request, session)
 from flask_restful import Resource
 from backend import api, db, safe_url
 from backend.authentication.decorators import auth0_auth
@@ -55,7 +54,7 @@ class OrganizationCreate(Resource):
     def post(self):
         form_data = request.form
         form_files = request.files
-        username = get_jwt_identity()
+        username = session["username"]
         user = User.query.filter_by(username=username).first()
         organization = create_organization(form_data, form_files, user)
 
@@ -116,7 +115,7 @@ class OrganizationMembership(Resource):
     # Function to let a user join an organization
     @has_joined_already
     def put(self, organization_id):
-        username = get_jwt_identity()
+        username = session["username"]
         user = User.query.filter_by(username=username).first()
         organization = Organization.query.get(organization_id)
         organization.active_users.append(user)
@@ -129,7 +128,7 @@ class OrganizationMembership(Resource):
     # Function to let a user leave an organization
     @exist_in_organization
     def delete(self, organization_id):
-        username = get_jwt_identity()
+        username = session["username"]
         user = User.query.filter_by(username=username).first()
         organization = Organization.query.get(organization_id)
         remove_user(organization, user)

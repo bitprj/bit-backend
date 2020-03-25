@@ -1,5 +1,4 @@
-from flask import (Blueprint, request)
-from flask_jwt_extended import get_jwt_identity
+from flask import (Blueprint, request, session)
 from flask_restful import Resource
 from backend import api, db
 from backend.authentication.decorators import auth0_auth
@@ -72,7 +71,7 @@ class EventJoin(Resource):
     @has_rsvp
     def put(self, event_id):
         event = Event.query.get(event_id)
-        username = get_jwt_identity()
+        username = session["username"]
         user = User.query.filter_by(username=username).first()
         event.rsvp_list.append(user)
         db.session.commit()
@@ -85,7 +84,7 @@ class EventJoin(Resource):
     @in_rsvp
     def delete(self, event_id):
         event = Event.query.get(event_id)
-        username = get_jwt_identity()
+        username = session["username"]
         user = User.query.filter_by(username=username).first()
         event.rsvp_list.remove(user)
         db.session.commit()

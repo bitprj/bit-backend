@@ -1,5 +1,4 @@
-from flask import (Blueprint, request)
-from flask_jwt_extended import get_jwt_identity
+from flask import (Blueprint, request, session)
 from flask_restful import Resource
 from backend import api, db
 from backend.authentication.decorators import auth0_auth, roles_accepted
@@ -52,7 +51,7 @@ class ClassroomCreate(Resource):
     # Function to create a classroom
     def post(self):
         form_data = request.get_json()
-        username = get_jwt_identity()
+        username = session["username"]
         teacher = Teacher.query.filter_by(username=username).first()
         classroom = create_classroom(form_data, teacher.id)
 
