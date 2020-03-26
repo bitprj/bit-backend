@@ -24,7 +24,6 @@ class CardSchema(ma.ModelSchema):
     github_raw_data = fields.Str(required=True)
     gems = fields.Int(required=True)
     name = fields.Str(required=True)
-    order = fields.Int(required=True)
     # activity is used to keep track of which activity that the card belongs to
     concepts = ma.Nested("ConceptSchema", only=("id",), many=True)
     hints = ma.Nested("HintSchema", only=("id", "hints"), many=True)
@@ -32,7 +31,7 @@ class CardSchema(ma.ModelSchema):
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "activity_id", "github_raw_data", "gems", "name", "order", "concepts", "hints", "checkpoint")
+        fields = ("id", "activity_id", "github_raw_data", "gems", "name", "concepts", "hints", "checkpoint")
         ordered = True
 
 
