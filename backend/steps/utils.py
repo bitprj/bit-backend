@@ -33,9 +33,7 @@ def delete_steps(steps):
 # Function to edit a step
 def edit_step(step, step_data):
     name_length = len(step_data["name"]) - 4
-    md_content_length = len(step_data["md_content"]) - 4
     step.name = step_data["name"][4:name_length]
-    step.md_content = step_data["md_content"][3:md_content_length]
     fill_optional_fields(step, step_data)
     generate_step_cdn_url(step)
 
@@ -53,7 +51,7 @@ def fill_optional_fields(step, step_data):
 
     if "md_content" in step_data:
         md_content_length = len(step_data["md_content"]) - 4
-        step.md_content = step_data["md_content"][3:md_content_length]
+        step.content = step_data["md_content"][3:md_content_length]
 
     return
 

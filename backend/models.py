@@ -567,14 +567,11 @@ class Step(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text, nullable=True)
     content_url = db.Column(db.Text, nullable=True)
-    md_content = db.Column(db.Text, nullable=True)
+    content = db.Column(db.Text, nullable=True)
     code_snippet = db.Column(db.Text, nullable=True)
     image = db.Column(db.Text, nullable=True)
     # step_key is used to uniquely identify the step in the database
     step_key = db.Column(db.Text, nullable=True)
-    # Delete contentful and heading later
-    contentful_id = db.Column(db.Text, nullable=True)
-    heading = db.Column(db.Text, nullable=True)
     # concept keeps track of concept that a step belongs to
     concept_id = db.Column(db.Integer, db.ForeignKey("concept.id"))
     concept = db.relationship("Concept", back_populates="steps")
@@ -582,10 +579,9 @@ class Step(db.Model):
     hint_id = db.Column(db.Integer, db.ForeignKey("hint.id"))
     hint = db.relationship("Hint", back_populates="steps")
 
-    # def __init__(self, name, md_content, step_key):
-    #     self.name = name
-    #     self.md_content = md_content
-    #     self.step_key = step_key
+    def __init__(self, name, step_key):
+        self.name = name
+        self.step_key = step_key
 
     def __repr__(self):
         return f"Step('{self.name}')"
