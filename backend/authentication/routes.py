@@ -65,10 +65,10 @@ class UserCallBack(Resource):
         session['profile'] = {
             'name': userinfo['name'],
             'image': userinfo['picture'],
-            'username': userinfo['email'],
-            'roles': "Student"
+            'username': userinfo['email']
         }
 
+        session["roles"] = "Teacher"
         # Hard coding this data for now
         userinfo["track_id"] = 1
         userinfo["location"] = "Davis"
@@ -79,7 +79,9 @@ class UserCallBack(Resource):
         # If user doesn't exist store in db
         cur_user = User.query.filter_by(username=userinfo["email"]).first()
         if (cur_user is None):
-            store_user(userinfo)
+            cur_user = store_user(userinfo)
+        
+        #session["roles"] = cur_user.roles
 
         return redirect('/')
 
@@ -181,7 +183,7 @@ class UserIsTeacher(Resource):
 
 class Ping(Resource):
     def get(self):
-        userinfo = session["profile"]
+        userinfo = session["roles"]
         return userinfo
         #return jsonify({"message": "pong"})
 

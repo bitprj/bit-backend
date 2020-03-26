@@ -117,4 +117,4 @@ def store_user(userinfo):
     db.session.commit()
     send_verification_email(user.username)
 
-    return
+    return user
