@@ -1,7 +1,7 @@
-from flask import (Blueprint, request)
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask import (Blueprint, request, session)
 from flask_restful import Resource
 from backend import api, db, safe_url
+from backend.authentication.decorators import auth0_auth
 from backend.organizations.decorators import is_in_organization, exist_in_organization, has_joined_already, \
     organization_exists, owns_organization, valid_organization_form
 from backend.organizations.schemas import organization_schema
@@ -15,7 +15,7 @@ organizations_bp = Blueprint("organizations", __name__)
 
 # Class for organization CRUD routes
 class OrganizationCRUD(Resource):
-    method_decorators = [jwt_required, organization_exists]
+    method_decorators = [auth0_auth, organization_exists]
 
     def get(self, organization_id):
         organization = Organization.query.get(organization_id)
@@ -48,13 +48,13 @@ class OrganizationCRUD(Resource):
 
 # This class is used to delete an organization with a POST request
 class OrganizationCreate(Resource):
-    method_decorators = [jwt_required, valid_organization_form]
+    method_decorators = [auth0_auth, valid_organization_form]
 
     # Function to create a organization
     def post(self):
         form_data = request.form
         form_files = request.files
-        username = get_jwt_identity()
+        username = session["profile"]["username"]
         user = User.query.filter_by(username=username).first()
         organization = create_organization(form_data, form_files, user)
 
@@ -94,7 +94,7 @@ class OrganizationInviteConfirm(Resource):
 # This class allows owners of an organization to invite
 # other people to be owners of their organization
 class OrganizationInviteOwners(Resource):
-    method_decorators = [jwt_required, organization_exists]
+    method_decorators = [auth0_auth, organization_exists]
 
     # Function to invite other users to be owners of an organization
     @owns_organization
@@ -110,12 +110,12 @@ class OrganizationInviteOwners(Resource):
 
 # This class is used to allow people to join an organization
 class OrganizationMembership(Resource):
-    method_decorators = [jwt_required, organization_exists]
+    method_decorators = [auth0_auth, organization_exists]
 
     # Function to let a user join an organization
     @has_joined_already
     def put(self, organization_id):
-        username = get_jwt_identity()
+        username = session["profile"]["username"]
         user = User.query.filter_by(username=username).first()
         organization = Organization.query.get(organization_id)
         organization.active_users.append(user)
@@ -128,7 +128,7 @@ class OrganizationMembership(Resource):
     # Function to let a user leave an organization
     @exist_in_organization
     def delete(self, organization_id):
-        username = get_jwt_identity()
+        username = session["profile"]["username"]
         user = User.query.filter_by(username=username).first()
         organization = Organization.query.get(organization_id)
         remove_user(organization, user)
@@ -141,7 +141,7 @@ class OrganizationMembership(Resource):
 
 # This class is used to allow owners of an organization to kick people out of their organization
 class OrganizationRemove(Resource):
-    method_decorators = [jwt_required, organization_exists]
+    method_decorators = [auth0_auth, organization_exists]
 
     # Function to remove a user from an organization
     # Only owners can kick people out

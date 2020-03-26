@@ -1,3 +1,4 @@
+from backend.config import API, AUTH0_CLIENT_ID 
 from flask import (Blueprint, jsonify, redirect, request, session)
 from flask_jwt_extended import create_access_token, get_csrf_token, get_jwt_identity, jwt_required, set_access_cookies, \
     unset_jwt_cookies
@@ -20,14 +21,14 @@ authentication_bp = Blueprint("authentication", __name__)
 # Class to redirect to auth0
 class UserAuth0(Resource):
     def get(self):
-        return auth0.authorize_redirect(redirect_uri='http://localhost:5000/auth/callback')
+        return auth0.authorize_redirect(redirect_uri=API + "/auth/callback")
 
 
 # Class to logout using auth0
 class UserAuth0Logout(Resource):
     def get(self):
         session.clear()
-        params = {'returnTo': 'http://localhost:5000/auth', 'client_id': 'TW6496jNDAkANSIJwG1muLznFxz1Fj11'}
+        params = {'returnTo': API + "/auth", 'client_id': AUTH0_CLIENT_ID}
         return redirect(auth0.api_base_url + '/v2/logout?' + urlencode(params))
 
 
@@ -66,7 +67,6 @@ class UserCallBack(Resource):
             'image': userinfo['picture'],
             'username': userinfo['email']
         }
-
         # Hard coding this data for now
         userinfo["track_id"] = 1
         userinfo["location"] = "Davis"
@@ -77,7 +77,9 @@ class UserCallBack(Resource):
         # If user doesn't exist store in db
         cur_user = User.query.filter_by(username=userinfo["email"]).first()
         if (cur_user is None):
-            store_user(userinfo)
+            cur_user = store_user(userinfo)
+        
+        session["roles"] = cur_user.roles
 
         return redirect('/')
 
@@ -179,7 +181,7 @@ class UserIsTeacher(Resource):
 
 class Ping(Resource):
     def get(self):
-        userinfo = session['profile']
+        userinfo = session["roles"]
         return userinfo
         #return jsonify({"message": "pong"})
 

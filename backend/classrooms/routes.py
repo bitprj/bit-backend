@@ -1,8 +1,7 @@
-from flask import (Blueprint, request)
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask import (Blueprint, request, session)
 from flask_restful import Resource
 from backend import api, db
-from backend.authentication.decorators import roles_accepted
+from backend.authentication.decorators import auth0_auth, roles_accepted
 from backend.classrooms.decorators import classroom_exists, owns_classroom, valid_classroom_form
 from backend.classrooms.schemas import classroom_schema
 from backend.classrooms.utils import create_classroom, edit_classroom
@@ -14,7 +13,7 @@ classrooms_bp = Blueprint("classrooms", __name__)
 
 # Class for classroom CRUD routes
 class ClassroomCRUD(Resource):
-    method_decorators = [roles_accepted("Teacher"), jwt_required, classroom_exists]
+    method_decorators = [roles_accepted("Teacher"), auth0_auth, classroom_exists]
 
     @owns_classroom
     def get(self, classroom_id):
@@ -52,7 +51,7 @@ class ClassroomCreate(Resource):
     # Function to create a classroom
     def post(self):
         form_data = request.get_json()
-        username = get_jwt_identity()
+        username = session["profile"]["username"]
         teacher = Teacher.query.filter_by(username=username).first()
         classroom = create_classroom(form_data, teacher.id)
 

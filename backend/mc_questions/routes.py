@@ -1,7 +1,7 @@
 from flask import (Blueprint, request)
-from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 from backend import api, db
+from backend.authentication.decorators import auth0_auth
 from backend.mc_questions.decorators import mc_question_delete, mc_question_exists, mc_question_exists_in_contentful
 from backend.mc_questions.schemas import mc_question_schema
 from backend.mc_questions.utils import create_mc_question, edit_mc_question
@@ -53,7 +53,7 @@ class MCQuestionDelete(Resource):
 
 # This class is used to get a specific mc_question based on id
 class MCQuestionGetSpecific(Resource):
-    method_decorators = [jwt_required, mc_question_exists]
+    method_decorators = [auth0_auth, mc_question_exists]
 
     # Function to return data on a single mc_question
     def get(self, mc_question_id):

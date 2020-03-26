@@ -1,5 +1,4 @@
-from flask import request
-from flask_jwt_extended import verify_jwt_in_request, get_jwt_claims
+from flask import request, redirect, session
 from flask_praetorian.exceptions import MissingRoleError
 from backend import guard
 from backend.authentication.schemas import user_form_schema, user_login_schema
@@ -25,9 +24,7 @@ def roles_accepted(*accepted_rolenames):
         @wraps(method)
         def wrapper(*args, **kwargs):
             role_set = set([str(n) for n in accepted_rolenames])
-            verify_jwt_in_request()
-            claims = get_jwt_claims()
-            user_roles = set(r.strip() for r in claims['roles'].split(','))
+            user_roles = {session["roles"]}
             try:
                 MissingRoleError.require_condition(
                     not user_roles.isdisjoint(role_set),
@@ -48,9 +45,7 @@ def roles_required(*required_rolenames):
         @wraps(f)
         def wrapper(*args, **kwargs):
             role_set = set([str(n) for n in required_rolenames])
-            verify_jwt_in_request()
-            claims = get_jwt_claims()
-            user_roles = set(r.strip() for r in claims['roles'].split(','))
+            user_roles = {session["roles"]}
 
             try:
                 MissingRoleError.require_condition(
