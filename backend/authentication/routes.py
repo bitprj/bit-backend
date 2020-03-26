@@ -1,19 +1,34 @@
-from flask import (Blueprint, jsonify, request)
+from flask import (Blueprint, jsonify, redirect, request, session)
 from flask_jwt_extended import create_access_token, get_csrf_token, get_jwt_identity, jwt_required, set_access_cookies, \
     unset_jwt_cookies
 from flask_restful import Resource
-from backend import api, db, jwt, safe_url
-from backend.authentication.utils import create_user, send_verification_email
+from backend import api, auth0, db, jwt, oauth, safe_url
+from backend.authentication.utils import create_user, send_verification_email, store_user
 from backend.badges.utils import create_student_badges
 from backend.authentication.decorators import roles_required, user_exists, user_is_active, valid_user_form, \
     valid_user_type
 from backend.models import Badge, User
 from backend.modules.utils import create_module_progresses
 from itsdangerous import SignatureExpired
+from six.moves.urllib.parse import urlencode
 import requests
 
 # Blueprint for users
 authentication_bp = Blueprint("authentication", __name__)
+
+
+# Class to redirect to auth0
+class UserAuth0(Resource):
+    def get(self):
+        return auth0.authorize_redirect(redirect_uri='http://localhost:5000/auth/callback')
+
+
+# Class to logout using auth0
+class UserAuth0Logout(Resource):
+    def get(self):
+        session.clear()
+        params = {'returnTo': 'http://localhost:5000/auth', 'client_id': 'TW6496jNDAkANSIJwG1muLznFxz1Fj11'}
+        return redirect(auth0.api_base_url + '/v2/logout?' + urlencode(params))
 
 
 class UserAuthorize(Resource):
@@ -35,6 +50,36 @@ class UserAuthorize(Resource):
         return {
                    "message": "Your email has been verified. You can login now."
                }, 200
+
+
+# Callback route to get data from auth0
+class UserCallBack(Resource):
+    def get(self):
+        auth0.authorize_access_token()
+        resp = auth0.get('userinfo')
+        userinfo = resp.json()
+
+
+        session['jwt_payload'] = userinfo
+        session['profile'] = {
+            'name': userinfo['name'],
+            'image': userinfo['picture'],
+            'username': userinfo['email']
+        }
+
+        # Hard coding this data for now
+        userinfo["track_id"] = 1
+        userinfo["location"] = "Davis"
+        # I think is_active is now unneccessary
+        userinfo["is_active"] = True 
+        userinfo["password"] = "TemporaryPW"
+
+        # If user doesn't exist store in db
+        cur_user = User.query.filter_by(username=userinfo["email"]).first()
+        if (cur_user is None):
+            store_user(userinfo)
+
+        return redirect('/')
 
 
 # Class to create a user
@@ -134,7 +179,9 @@ class UserIsTeacher(Resource):
 
 class Ping(Resource):
     def get(self):
-        return jsonify({"message": "pong"})
+        userinfo = session['profile']
+        return userinfo
+        #return jsonify({"message": "pong"})
 
 
 @jwt.user_claims_loader
@@ -147,7 +194,10 @@ def add_claims_to_access_token(identity):
 
 
 # Creates the routes for the classes
+api.add_resource(UserAuth0, "/auth")
+api.add_resource(UserAuth0Logout, "/auth/logout")
 api.add_resource(UserAuthorize, "/confirm_email/<string:token>")
+api.add_resource(UserCallBack, "/auth/callback")
 api.add_resource(UserCreate, "/users/<string:user_type>/create")
 api.add_resource(UserLoginHandler, "/user/login")
 api.add_resource(UserLogoutHandler, "/user/logout")
