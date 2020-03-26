@@ -61,6 +61,15 @@ def edit_hint(hint, data):
     return
 
 
+# Function to get the activity id based on the hint
+def get_activity_id(hint):
+    if hint.card:
+        return hint.card.activity_id
+
+    if hint.parent_hint:
+        return get_activity_id(hint.parent_hint)
+
+
 # Function to sort a cards hints
 def sort_hints(hints):
     hints.sort(key=lambda x: x.order)

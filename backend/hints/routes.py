@@ -6,7 +6,7 @@ from backend.general_utils import create_schema_json
 from backend.models import ActivityProgress, Hint, HintStatus, Student
 from backend.hints.decorators import hint_exists, hint_exists_in_github, valid_hint_form
 from backend.hints.schemas import hint_schema, hint_status_schema
-from backend.hints.utils import assign_hint_to_parent, create_hint, edit_hint
+from backend.hints.utils import assign_hint_to_parent, create_hint, edit_hint, get_activity_id
 from backend.hooks.utils import call_step_routes
 
 # Blueprint for hints
@@ -73,9 +73,10 @@ class HintStatusData(Resource):
         username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()
         hint = Hint.query.get(hint_id)
+        activity_id = get_activity_id(hint)
         activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
-                                                         activity_id=hint.card.activity_id).first()
-        hint_status = HintStatus.query.filter_by(activity_progress_id=activity_prog.id, card_id=hint.card_id).first()
+                                                         activity_id=activity_id).first()
+        hint_status = HintStatus.query.filter_by(activity_progress_id=activity_prog.id, hint_id=hint_id).first()
 
         return hint_status_schema.dump(hint_status)
 
