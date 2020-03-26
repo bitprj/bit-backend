@@ -28,6 +28,7 @@ class CheckpointFormSchema(ma.Schema):
 # This schema is used to keep track of checkpoint data
 class CheckpointSchema(ma.ModelSchema):
     id = fields.Int(required=True)
+    content_url = fields.Str(required=True)
     instruction = fields.Str(required=True)
     name = fields.Str(required=True)
     checkpoint_type = fields.Str(required=True)
@@ -38,7 +39,7 @@ class CheckpointSchema(ma.ModelSchema):
     class Meta:
         # Fields to show when sending data
         fields = (
-            "id", "instruction", "name", "checkpoint_type", "criteria", "choices", "correct_choice")
+            "id", "content_url", "instruction", "name", "checkpoint_type", "criteria", "choices", "correct_choice")
         ordered = True
 
 

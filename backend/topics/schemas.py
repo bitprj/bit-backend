@@ -21,6 +21,7 @@ class TopicFormSchema(ma.Schema):
 # This schema is used to keep track
 class TopicSchema(ma.ModelSchema):
     id = fields.Int(required=True)
+    content_url = fields.Str(required=True)
     github_id = fields.Int(required=True)
     name = fields.Str(required=True)
     description = fields.Str(required=True)
@@ -34,7 +35,7 @@ class TopicSchema(ma.ModelSchema):
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "github_id", "name", "description", "modules")
+        fields = ("id", "content_url", "github_id", "name", "description", "modules")
         ordered = True
 
 

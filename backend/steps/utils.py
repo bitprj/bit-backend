@@ -64,7 +64,7 @@ def generate_step_cdn_url(step):
     if step.hint_id:
         filename = step.hint.filename
     elif step.concept_id:
-        filename = step.hint.concept.filename
+        filename = step.concept.filename
 
     parent_path = filename.split("/")
     step_path = "/".join(parent_path[:-1]) + "/steps"
