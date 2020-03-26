@@ -67,8 +67,6 @@ class UserCallBack(Resource):
             'image': userinfo['picture'],
             'username': userinfo['email']
         }
-
-        session["roles"] = "Teacher"
         # Hard coding this data for now
         userinfo["track_id"] = 1
         userinfo["location"] = "Davis"
@@ -81,7 +79,7 @@ class UserCallBack(Resource):
         if (cur_user is None):
             cur_user = store_user(userinfo)
         
-        #session["roles"] = cur_user.roles
+        session["roles"] = cur_user.roles
 
         return redirect('/')
 
