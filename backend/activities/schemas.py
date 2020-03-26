@@ -42,7 +42,6 @@ class ActivitySchema(ma.Schema):
 # This schema is used to display data for all activities
 class ActivitiesSchema(ma.ModelSchema):
     id = fields.Int(required=True)
-    contentful_id = fields.Str(required=True)
     name = fields.Str(required=True)
     description = fields.Str(required=True)
     difficulty = fields.Str(required=True)
@@ -50,7 +49,7 @@ class ActivitiesSchema(ma.ModelSchema):
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "contentful_id", "name", "description", "difficulty", "cards")
+        fields = ("id", "name", "description", "difficulty", "cards")
         ordered = True
 
 
