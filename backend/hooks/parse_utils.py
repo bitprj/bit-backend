@@ -60,14 +60,14 @@ def parse_files(topic_files, module_files, activity_files, concept_files, card_f
     for file in module_files:
         parse_module(file)
 
+    for file in concept_files:
+        parse_concept(file)
+
     for file in activity_files:
         cards = parse_activity(file)
         activity_name = file.filename.split("/")
         activity_path = "/".join(activity_name[:-1]) + "/README.md"
         activity_cards[activity_path] = cards
-
-    for file in concept_files:
-        parse_concept(file)
 
     for file in card_files:
         card_name = file.filename.split("/")

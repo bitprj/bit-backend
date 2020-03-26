@@ -247,9 +247,9 @@ class Badge(db.Model):
 
 class Card(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    content_url = db.Column(db.Text, nullable=True)
     github_raw_data = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
-    content_url = db.Column(db.Text, nullable=True)
     content_md_url = db.Column(db.Text, nullable=True)
     name = db.Column(db.Text, nullable=True)
     gems = db.Column(db.Integer, nullable=True)
@@ -340,6 +340,7 @@ class Classroom(db.Model):
 
 class Concept(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    # content_url = db.Column(db.Text, nullable=True)
     name = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
     # cards keep track of which cards that a concept belongs to
@@ -347,9 +348,9 @@ class Concept(db.Model):
     # steps keep track of which steps that a concept owns
     steps = db.relationship("Step", cascade="all,delete", lazy="joined", back_populates="concept")
 
-    # def __init__(self, name, filename):
-    #     self.name = name
-    #     self.filename = filename
+    def __init__(self, name, filename):
+        self.name = name
+        self.filename = filename
 
     def __repr__(self):
         return f"Concept('{self.name}')"
@@ -435,8 +436,8 @@ class Hint(db.Model):
 
 class Module(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    github_id = db.Column(db.Integer, nullable=True)
     content_url = db.Column(db.Text, nullable=True)
+    github_id = db.Column(db.Integer, nullable=True)
     name = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
     description = db.Column(db.Text, nullable=True)
@@ -525,8 +526,8 @@ class Organization(db.Model):
 
 class Step(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Text, nullable=True)
     content_url = db.Column(db.Text, nullable=True)
+    name = db.Column(db.Text, nullable=True)
     content = db.Column(db.Text, nullable=True)
     code_snippet = db.Column(db.Text, nullable=True)
     image = db.Column(db.Text, nullable=True)
@@ -565,8 +566,8 @@ class Submission(db.Model):
 
 class Topic(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    github_id = db.Column(db.Integer, nullable=True)
     content_url = db.Column(db.Text, nullable=True)
+    github_id = db.Column(db.Integer, nullable=True)
     name = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
     description = db.Column(db.Text, nullable=True)
@@ -605,8 +606,8 @@ class Topic(db.Model):
 
 class Track(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    github_id = db.Column(db.Integer, nullable=True)
     content_url = db.Column(db.Text, nullable=True)
+    github_id = db.Column(db.Integer, nullable=True)
     name = db.Column(db.Text, unique=True, nullable=True)
     description = db.Column(db.Text, nullable=True)
     # topics keep track of which topics belong to a track
