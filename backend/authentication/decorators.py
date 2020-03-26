@@ -24,7 +24,7 @@ def roles_accepted(*accepted_rolenames):
         @wraps(method)
         def wrapper(*args, **kwargs):
             role_set = set([str(n) for n in accepted_rolenames])
-            user_roles = session["roles"]
+            user_roles = session["profile"]["roles"]
             try:
                 MissingRoleError.require_condition(
                     not user_roles.isdisjoint(role_set),
@@ -45,7 +45,7 @@ def roles_required(*required_rolenames):
         @wraps(f)
         def wrapper(*args, **kwargs):
             role_set = set([str(n) for n in required_rolenames])
-            user_roles = session["roles"]
+            user_roles = session["profile"]["roles"]
 
             try:
                 MissingRoleError.require_condition(
