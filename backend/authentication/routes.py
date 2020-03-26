@@ -66,6 +66,7 @@ class UserCallBack(Resource):
             'name': userinfo['name'],
             'image': userinfo['picture'],
             'username': userinfo['email']
+            'roles': "Student"
         }
 
         # Hard coding this data for now
