@@ -65,7 +65,7 @@ class UserCallBack(Resource):
         session['profile'] = {
             'name': userinfo['name'],
             'image': userinfo['picture'],
-            'username': userinfo['email']
+            'username': userinfo['email'],
             'roles': "Student"
         }
 
