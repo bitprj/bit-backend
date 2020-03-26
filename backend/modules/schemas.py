@@ -22,6 +22,7 @@ class ModuleFormSchema(ma.Schema):
 # This schema is used to display data in the Module model
 class ModuleSchema(ma.Schema):
     id = fields.Int(required=True)
+    content_url = fields.Str(required=True)
     name = fields.Str(required=True)
     description = fields.Str(required=True)
     gems_needed = fields.Int(required=True)
@@ -35,7 +36,7 @@ class ModuleSchema(ma.Schema):
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "name", "description", "gems_needed", "activities")
+        fields = ("id", "content_url", "name", "description", "gems_needed", "activities")
         ordered = True
 
 

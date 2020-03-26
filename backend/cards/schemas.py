@@ -10,16 +10,18 @@ class CardFormSchema(ma.ModelSchema):
     filename = fields.Str(required=True)
     activity_filename = fields.Str(required=True)
     github_raw_data = fields.Str(required=True)
+    concepts = fields.List(fields.Int(), required=False)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("name", "order", "gems", "filename", "activity_filename", "github_raw_data")
+        fields = ("name", "order", "gems", "filename", "activity_filename", "github_raw_data", "concepts")
         ordered = True
 
 
 # This schema is used to keep track of card data
 class CardSchema(ma.ModelSchema):
     id = fields.Int(required=True)
+    content_url = fields.Str(required=True)
     activity_id = fields.Int(required=True)
     github_raw_data = fields.Str(required=True)
     gems = fields.Int(required=True)
@@ -31,7 +33,7 @@ class CardSchema(ma.ModelSchema):
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "activity_id", "github_raw_data", "gems", "name", "concepts", "hints", "checkpoint")
+        fields = ("id", "content_url", "activity_id", "github_raw_data", "gems", "name", "concepts", "hints", "checkpoint")
         ordered = True
 
 

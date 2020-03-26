@@ -23,6 +23,7 @@ class HintFormSchema(ma.ModelSchema):
 # This schema is used to keep track of hint data
 class HintSchema(ma.ModelSchema):
     id = fields.Int(required=True)
+    content_url = fields.Str(required=True)
     name = fields.Str(required=True)
     gems = fields.Int(required=True)
     order = fields.Int(required=True)
@@ -32,7 +33,7 @@ class HintSchema(ma.ModelSchema):
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "name", "gems", "order", "parent", "steps", "hints")
+        fields = ("id", "content_url", "name", "gems", "order", "parent", "steps", "hints")
         ordered = True
 
 

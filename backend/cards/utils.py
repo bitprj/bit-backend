@@ -1,3 +1,4 @@
+from backend import db
 from backend.general_utils import create_schema_json, send_file_to_cdn
 from backend.models import Card
 
@@ -11,7 +12,6 @@ def create_card(data, activity_id):
                 filename=data["filename"],
                 activity_id=activity_id
                 )
-    card.content_url = create_schema_json(card, "card")
     card.content_md_url = create_md_file(card)
 
     return card
@@ -34,6 +34,7 @@ def edit_card(card, data):
     card.gems = data["gems"]
     card.github_raw_data = data["github_raw_data"]
     card.content_md_url = create_md_file(card)
+    card.content_url = create_schema_json(card, "card")
 
     return
 
@@ -46,3 +47,13 @@ def get_cards_hints(cards):
         hints += card.hints
 
     return hints
+
+
+# Function to update all of the cards associated with a concept
+def update_card_cdn(cards):
+    for card in cards:
+        card.content_url = create_schema_json(card, "card")
+
+    db.session.commit()
+
+    return

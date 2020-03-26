@@ -18,13 +18,14 @@ class ConceptFormSchema(ma.Schema):
 # This schema is used to keep track
 class ConceptSchema(ma.ModelSchema):
     id = fields.Int(required=True)
+    content_url = fields.Str(required=True)
     name = fields.Str(required=True)
     filename = fields.Str(required=True)
     steps = fields.Nested("StepSchema", many=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "name", "steps")
+        fields = ("id", "content_url", "name", "steps")
         ordered = True
 
 

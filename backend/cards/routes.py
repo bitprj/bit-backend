@@ -27,6 +27,8 @@ class CardCRUD(Resource):
 
         db.session.add(card)
         db.session.commit()
+        card.content_url = create_schema_json(card, "card")
+        db.session.commit()
 
         return {"message": "Card successfully created"}, 201
 
@@ -39,7 +41,6 @@ class CardCRUD(Resource):
         activity = Activity.query.filter_by(filename=data["activity_filename"]).first()
         card.activity_id = activity.id
         edit_card(card, data)
-        card.content_url = create_schema_json(card, "card")
 
         db.session.commit()
 

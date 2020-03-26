@@ -25,6 +25,7 @@ class ActivityFormSchema(ma.Schema):
 # This schema is used to display data in the Activity model
 class ActivitySchema(ma.Schema):
     id = fields.Int(required=True)
+    content_url = fields.Str(required=True)
     name = fields.Str(required=True)
     description = fields.Str(required=True)
     summary = fields.Str(required=True)
@@ -35,7 +36,7 @@ class ActivitySchema(ma.Schema):
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "name", "description", "summary", "is_project", "image", "cards")
+        fields = ("id", "content_url", "name", "description", "summary", "is_project", "image", "cards")
         ordered = True
 
 

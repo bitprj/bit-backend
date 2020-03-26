@@ -24,6 +24,7 @@ class StepFormSchema(ma.ModelSchema):
 # This schema is used to display step data
 class StepSchema(ma.ModelSchema):
     id = fields.Int(required=False)
+    content_url = fields.Str(required=True)
     name = fields.Str(required=True)
     content = fields.Str(required=True)
     code_snippet = fields.Str(required=False)
@@ -31,7 +32,7 @@ class StepSchema(ma.ModelSchema):
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "name", "content", "code_snippet", "image")
+        fields = ("id", "content_url", "name", "content", "code_snippet", "image")
         ordered = True
 
 
