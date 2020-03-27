@@ -55,7 +55,7 @@ def edit_hint(hint, data):
     hint.filename = data["filename"]
     hint.github_raw_data = data["github_raw_data"]
     assign_hint_to_parent(hint, data)
-    call_step_routes(data["content"]["steps"], hint.id, "hint", data["content"]["image_folder"])
+    call_step_routes(data, hint.id, "hint")
     hint.content_url = create_schema_json(hint, "hint")
 
     return

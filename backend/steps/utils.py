@@ -45,7 +45,7 @@ def fill_optional_fields(step, step_data):
     if "code_snippet" in step_data:
         step.code_snippet = step_data["code_snippet"]
 
-    if "image" in step_data:
+    if "image" in step_data and "image_folder" in step_data:
         image = parse_img_tag(step_data["image"], step_data["image_folder"], "steps")
         step.image = image
 

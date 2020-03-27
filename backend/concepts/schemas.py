@@ -5,7 +5,7 @@ from marshmallow import fields
 # This schema is used to validate the concept form data
 class ConceptFormSchema(ma.Schema):
     concept_name = fields.Str(required=True)
-    image_folder = fields.Str(required=True)
+    image_folder = fields.Str(required=False)
     filename = fields.Str(required=True)
     steps = fields.Dict(required=True)
 

@@ -16,7 +16,7 @@ def create_concept(data):
 def edit_concept(concept, data):
     concept.name = data["concept_name"]
     concept.filename = data["filename"]
-    call_step_routes(data["steps"], concept.id, "concept", data["image_folder"])
+    call_step_routes(data, concept.id, "concept")
     concept.content_url = create_schema_json(concept, "concept")
 
     return
