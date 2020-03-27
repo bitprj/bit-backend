@@ -25,7 +25,9 @@ class HintCRUD(Resource):
         db.session.add(hint)
         db.session.commit()
         assign_hint_to_parent(hint, data)
-        call_step_routes(data["content"]["steps"], hint.id, "hint", data["content"]["image_folder"])
+        print(data)
+        call_step_routes(data, hint.id, "hint")
+        print(hint.id)
         hint.content_url = create_schema_json(hint, "hint")
         db.session.commit()
 
@@ -36,7 +38,9 @@ class HintCRUD(Resource):
     @hint_exists_in_github
     def put(self):
         data = request.get_json()
+        print(data)
         hint = Hint.query.filter_by(filename=data["filename"]).first()
+        print(hint.id)
         edit_hint(hint, data)
 
         db.session.commit()

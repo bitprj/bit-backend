@@ -83,7 +83,7 @@ def parse_files(topic_files, module_files, activity_files, concept_files, card_f
             parse_card(file, cards, parent_path)
 
     for file in test_case_files:
-        update_test_cases(file)
+        update_test_cases(file[:-1])
 
     for file in checkpoint_files:
         parse_checkpoint(file)

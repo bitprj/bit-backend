@@ -27,9 +27,9 @@ class CardSchema(ma.ModelSchema):
     gems = fields.Int(required=True)
     name = fields.Str(required=True)
     # activity is used to keep track of which activity that the card belongs to
-    concepts = ma.Nested("ConceptSchema", only=("id",), many=True)
-    hints = ma.Nested("HintSchema", only=("id", "hints"), many=True)
-    checkpoint = ma.Nested("CheckpointSchema", only=("id",))
+    concepts = ma.Nested("ConceptSchema", only=("id", "content_url"), many=True)
+    hints = ma.Nested("HintSchema", only=("id", "content_url", "hints"), many=True)
+    checkpoint = ma.Nested("CheckpointSchema", only=("id", "content_url"))
 
     class Meta:
         # Fields to show when sending data

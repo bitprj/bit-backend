@@ -24,7 +24,7 @@ class ConceptCRUD(Resource):
 
         db.session.add(concept)
         db.session.commit()
-        call_step_routes(data["steps"], concept.id, "concept", data["image_folder"])
+        call_step_routes(data, concept.id, "concept")
         concept.content_url = create_schema_json(concept, "concept")
         db.session.commit()
 

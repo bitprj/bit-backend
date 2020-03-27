@@ -36,7 +36,7 @@ def delete_files(files_to_delete):
         if "checkpoints" in file:
             delete_file(file, "/checkpoints")
 
-        if "Concept" in file:
+        if "concepts" in file:
             delete_file(file, "/concepts")
 
         if "Module" in file and "Activity" not in file and "Lab" not in file and "README.md" in file:

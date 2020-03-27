@@ -12,11 +12,13 @@ class HintFormSchema(ma.ModelSchema):
     parent_filename = fields.Str(required=True)
     is_card_hint = fields.Bool(required=True)
     github_raw_data = fields.Str(required=True)
-    content = fields.Dict(required=False)
+    steps = fields.Dict(required=True)
+    image_folder = fields.Str(required=False)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("name", "gems", "order", "filename", "parent_filename", "is_card_hint", "github_raw_data", "content")
+        fields = ("name", "gems", "order", "filename", "parent_filename", "is_card_hint", "github_raw_data", "steps",
+                  "image_folder")
         ordered = True
 
 
@@ -29,7 +31,7 @@ class HintSchema(ma.ModelSchema):
     order = fields.Int(required=True)
     parent = fields.Int(missing=None, required=False)
     steps = fields.Nested(StepSchema, many=True)
-    hints = fields.Nested("HintSchema", only=("id", "hints"), many=True)
+    hints = fields.Nested("HintSchema", only=("id", "content_url", "hints"), many=True)
 
     class Meta:
         # Fields to show when sending data
