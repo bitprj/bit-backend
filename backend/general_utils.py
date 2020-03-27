@@ -140,9 +140,10 @@ def parse_img_tag(image, image_folder, folder):
 
 # Function to submit a tests.zip file
 def send_tests_zip(filename):
-    s3_resource = boto3.resource('s3')
     path = 'Github/test_cases/' + filename + "/tests.zip"
-    s3_resource.meta.client.upload_file('tests.zip', S3_BUCKET, path)
+    with open('tests.zip', 'rb') as data:
+        s3 = boto3.client('s3')
+        s3.upload_fileobj(data, S3_BUCKET, path)
     zip_link = 'https://projectbit.s3-us-west-1.amazonaws.com/' + path
 
     return zip_link

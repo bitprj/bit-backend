@@ -32,7 +32,7 @@ class ActivitySchema(ma.Schema):
     is_project = fields.Bool(required=True)
     image = fields.Str(required=True)
     # We are referencing another Schema below. You do this in oder to avoid circular referencing
-    cards = fields.Nested("CardSchema", only=("id",), many=True)
+    cards = fields.Nested("CardSchema", only=("id", "content_url"), many=True)
 
     class Meta:
         # Fields to show when sending data

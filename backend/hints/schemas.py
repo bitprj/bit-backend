@@ -31,7 +31,7 @@ class HintSchema(ma.ModelSchema):
     order = fields.Int(required=True)
     parent = fields.Int(missing=None, required=False)
     steps = fields.Nested(StepSchema, many=True)
-    hints = fields.Nested("HintSchema", only=("id", "hints"), many=True)
+    hints = fields.Nested("HintSchema", only=("id", "content_url", "hints"), many=True)
 
     class Meta:
         # Fields to show when sending data
