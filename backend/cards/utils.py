@@ -1,6 +1,8 @@
 from backend import db
 from backend.general_utils import create_schema_json, send_file_to_cdn
+from backend.general_utils import create_schema_json
 from backend.models import Card
+import requests
 
 
 # Function to create a card
@@ -12,7 +14,8 @@ def create_card(data, activity_id):
                 filename=data["filename"],
                 activity_id=activity_id
                 )
-    card.content_md_url = create_md_file(card)
+    github_data = requests.get(data["github_raw_data"])
+    card.content = github_data.text
 
     return card
 
@@ -33,7 +36,8 @@ def edit_card(card, data):
     card.order = data["order"]
     card.gems = data["gems"]
     card.github_raw_data = data["github_raw_data"]
-    card.content_md_url = create_md_file(card)
+    github_data = requests.get(data["github_raw_data"])
+    card.content = github_data.text
     card.content_url = create_schema_json(card, "card")
 
     return

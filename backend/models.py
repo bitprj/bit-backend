@@ -54,11 +54,7 @@ student_topic_completed_rel = db.Table("student_topic_completed_rel",
                                        db.Column("topic_id", db.Integer, db.ForeignKey("topic.id"))
                                        )
 
-# This many to many relationship is used to keep track of all of the topics that a student has not completed
-student_topic_incomplete_rel = db.Table("student_topic_incomplete_rel",
-                                        db.Column("student_id", db.Integer, db.ForeignKey("student.id")),
-                                        db.Column("topic_id", db.Integer, db.ForeignKey("topic.id"))
-                                        )
+
 
 # This many to many relationship is used to keep track of all of the topics that a student is currently working on
 student_topic_inprogress_rel = db.Table("student_topic_inprogress_rel",
@@ -250,7 +246,7 @@ class Card(db.Model):
     content_url = db.Column(db.Text, nullable=True)
     github_raw_data = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
-    content_md_url = db.Column(db.Text, nullable=True)
+    content = db.Column(db.Text, nullable=True)
     name = db.Column(db.Text, nullable=True)
     gems = db.Column(db.Integer, nullable=True)
     # order is a number to keep track of the order in which this card will be displayed
@@ -587,9 +583,6 @@ class Topic(db.Model):
     # students_completed keeps track of which students have completed a topic
     students_completed = db.relationship("Student", secondary="student_topic_completed_rel",
                                          back_populates="completed_topics")
-    # students_incomplete keeps track of the students who have not completed a topic
-    students_incomplete = db.relationship("Student", secondary="student_topic_incomplete_rel",
-                                          back_populates="incomplete_topics")
     # students_inprogress keeps track of the students that are currently on a topic
     students_inprogress = db.relationship("Student", secondary="student_topic_inprogress_rel",
                                           back_populates="inprogress_topics")
@@ -702,9 +695,6 @@ class Student(User):
     # completed_topics keeps track of all the topics that a student has completed
     completed_topics = db.relationship("Topic", secondary="student_topic_completed_rel",
                                        back_populates="students_completed")
-    # incomplete_topics keeps track of all the topics that a student has not completed
-    incomplete_topics = db.relationship("Topic", secondary="student_topic_incomplete_rel",
-                                        back_populates="students_incomplete")
     # inprogress_topics keeps track of all the topics that a student has not completed
     inprogress_topics = db.relationship("Topic", secondary="student_topic_inprogress_rel",
                                         back_populates="students_inprogress")
