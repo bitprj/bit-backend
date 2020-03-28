@@ -35,6 +35,7 @@ class CheckpointProgressSubmit(Resource):
     @multiple_choice_is_completed
     def put(self, checkpoint_id):
         data = request.form
+        print(data)
         username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()
         checkpoint_prog = CheckpointProgress.query.filter_by(checkpoint_id=checkpoint_id,
