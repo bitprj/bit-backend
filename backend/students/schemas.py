@@ -7,7 +7,7 @@ from backend import ma
 class StudentSchema(ma.Schema):
     id = fields.Str(required=True)
     name = fields.Str(required=True)
-    current_activities = fields.Nested("ActivitySchema", only=("id",), many=True)
+    current_activities = fields.Nested("ActivitySchema", only=("id", "content_url"), many=True)
     inprogress_modules = fields.Nested("ModuleSchema", only=("id", "name"), many=True)
     inprogress_topics = fields.Nested("TopicSchema", only=("id", "name"), many=True)
     current_topic = fields.Nested("TopicSchema", only=("id",), many=False)
