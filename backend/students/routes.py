@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-from flask import (Blueprint, request, session)
-=======
 from flask import Blueprint
->>>>>>> parent of cf3cf07... Bryan w (#56)
 from flask_jwt_extended import get_jwt_identity
 from flask_restful import Resource
 from backend import api
