@@ -1,4 +1,5 @@
-from flask import (request, session)
+from flask import request
+from flask_jwt_extended import get_jwt_identity
 from backend.models import Student, Topic
 from backend.topics.schemas import topic_form_schema
 from backend.topics.utils import completed_modules
@@ -9,7 +10,7 @@ from functools import wraps
 def can_add_topic(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        username = session["profile"]["username"]
+        username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()
         topic = Topic.query.get(kwargs['topic_id'])
         can_add = completed_modules(student, topic.module_prereqs)
@@ -28,7 +29,7 @@ def can_add_topic(f):
 def can_complete_topic(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        username = session["profile"]["username"]
+        username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()
         topic = Topic.query.get(kwargs['topic_id'])
         can_complete = completed_modules(student, topic.modules)
@@ -47,7 +48,7 @@ def can_complete_topic(f):
 def has_completed_topic(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        username = session["profile"]["username"]
+        username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()
         topic = Topic.query.get(kwargs['topic_id'])
 
@@ -98,7 +99,7 @@ def topic_exists_in_github(f):
 def topic_is_incomplete(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        username = session["profile"]["username"]
+        username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()
         topic = Topic.query.get(kwargs["topic_id"])
 

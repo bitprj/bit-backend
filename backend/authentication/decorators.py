@@ -1,20 +1,11 @@
-from flask import request, redirect, session
+from flask import request
+from flask_jwt_extended import verify_jwt_in_request, get_jwt_claims
 from flask_praetorian.exceptions import MissingRoleError
 from backend import guard
 from backend.authentication.schemas import user_form_schema, user_login_schema
 from backend.authentication.validators import check_user_existence
 from backend.models import User
 from functools import wraps
-
-
-# Used to authenticate users signing in with auth0
-def auth0_auth(f):
-    @wraps(f)
-    def decorator(*args, **kwargs):
-        if 'profile' not in session:
-            return redirect('/auth')
-        return f(*args, **kwargs)
-    return decorator
 
 
 # Took inspiration from flask praetorian roles accepted decorator
@@ -24,7 +15,9 @@ def roles_accepted(*accepted_rolenames):
         @wraps(method)
         def wrapper(*args, **kwargs):
             role_set = set([str(n) for n in accepted_rolenames])
-            user_roles = {session["roles"]}
+            verify_jwt_in_request()
+            claims = get_jwt_claims()
+            user_roles = set(r.strip() for r in claims['roles'].split(','))
             try:
                 MissingRoleError.require_condition(
                     not user_roles.isdisjoint(role_set),
@@ -45,7 +38,9 @@ def roles_required(*required_rolenames):
         @wraps(f)
         def wrapper(*args, **kwargs):
             role_set = set([str(n) for n in required_rolenames])
-            user_roles = {session["roles"]}
+            verify_jwt_in_request()
+            claims = get_jwt_claims()
+            user_roles = set(r.strip() for r in claims['roles'].split(','))
 
             try:
                 MissingRoleError.require_condition(

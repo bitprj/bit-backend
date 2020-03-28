@@ -1,4 +1,5 @@
-from flask import (Blueprint, session)
+from flask import Blueprint
+from flask_jwt_extended import get_jwt_identity
 from flask_restful import Resource
 from backend import api, db
 from backend.authentication.decorators import roles_accepted
@@ -18,7 +19,7 @@ class TopicProgress(Resource):
 
     # Function to retrieve the module progress for a student given an id
     def get(self, topic_id):
-        username = session["profile"]["username"]
+        username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()
         topic_progress = get_topic_progress(student.id, topic_id)
 
@@ -32,7 +33,7 @@ class TopicProgressAdd(Resource):
     # Function to add a module to a student's inprogress_modules
     @module_is_incomplete
     def put(self, topic_id, module_id):
-        username = session["profile"]["username"]
+        username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()
         module = Module.query.get(module_id)
         student.inprogress_modules.append(module)
@@ -53,7 +54,7 @@ class TopicProgressUpdate(Resource):
     @module_is_complete
     @module_in_inprogress
     def put(self, topic_id, module_id):
-        username = session["profile"]["username"]
+        username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()
         module = Module.query.get(module_id)
         student.completed_modules.append(module)

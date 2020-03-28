@@ -1,4 +1,5 @@
-from flask import (request, session)
+from flask import request
+from flask_jwt_extended import get_jwt_identity
 from backend.activities.schemas import activity_form_schema
 from backend.models import Activity, Student
 from functools import wraps
@@ -42,7 +43,7 @@ def activity_exists_in_student_prog(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         activity_completed = request.get_json()
-        username = session["profile"]["username"]
+        username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()
         activity_id = activity_completed["complete"]["id"]
         activity = Activity.query.get(activity_id)

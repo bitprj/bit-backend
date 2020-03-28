@@ -1,11 +1,10 @@
 from flask import (Blueprint, request)
+from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 from backend import api, db
 from backend.activities.decorators import activity_exists, activity_exists_in_github, valid_activity_form
 from backend.activities.schemas import activity_schema, activities_schema
 from backend.activities.utils import create_activity, edit_activity
-from backend.authentication.decorators import auth0_auth
-from backend.hints.utils import sort_hints
 from backend.general_utils import create_schema_json
 from backend.models import Activity
 
@@ -55,7 +54,7 @@ class ActivityCRUD(Resource):
 
 # Class to get all tracks
 class ActivityFetchAll(Resource):
-    method_decorators = [auth0_auth]
+    method_decorators = [jwt_required]
 
     # Function to get all activities
     def get(self):
@@ -66,7 +65,7 @@ class ActivityFetchAll(Resource):
 
 # This class is used to get a specific activity based on id
 class ActivityGetSpecific(Resource):
-    method_decorators = [auth0_auth, activity_exists]
+    method_decorators = [jwt_required, activity_exists]
 
     def get(self, activity_id):
         activity = Activity.query.get(activity_id)

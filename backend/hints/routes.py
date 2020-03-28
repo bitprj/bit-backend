@@ -1,7 +1,7 @@
 from flask import (Blueprint, request)
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource
 from backend import api, db
-from backend.authentication.decorators import auth0_auth
 from backend.general_utils import create_schema_json
 from backend.models import ActivityProgress, Hint, HintStatus, Student
 from backend.hints.decorators import hint_exists, hint_exists_in_github, valid_hint_form
@@ -25,7 +25,9 @@ class HintCRUD(Resource):
         db.session.add(hint)
         db.session.commit()
         assign_hint_to_parent(hint, data)
+        print(data)
         call_step_routes(data, hint.id, "hint")
+        print(hint.id)
         hint.content_url = create_schema_json(hint, "hint")
         db.session.commit()
 
@@ -59,7 +61,7 @@ class HintCRUD(Resource):
 
 # Function to get a specific Hint based on hint id
 class HintGetSpecific(Resource):
-    method_decorators = [auth0_auth, hint_exists]
+    method_decorators = [jwt_required, hint_exists]
 
     def get(self, hint_id):
         hint = Hint.query.get(hint_id)
@@ -69,7 +71,7 @@ class HintGetSpecific(Resource):
 
 # Function to handle data on HintStatus
 class HintStatusData(Resource):
-    method_decorators = [auth0_auth, hint_exists]
+    method_decorators = [jwt_required, hint_exists]
 
     def get(self, hint_id):
         username = get_jwt_identity()

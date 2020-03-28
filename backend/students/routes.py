@@ -16,7 +16,7 @@ class StudentInfo(Resource):
 
     # Function to display student data
     def get(self):
-        username = session["profile"]["username"]
+        username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()
 
         return student_schema.dump(student)
