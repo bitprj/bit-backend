@@ -55,37 +55,3 @@ def valid_classroom_form(f):
             return f(*args, **kwargs)
 
     return wrap
-
-
-def valid_classroom_code(f):
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        data = request.get_json()
-        classroom = Classroom.query.filter_by(class_code=data["class_code"]).first()
-
-        if classroom:
-            return f(*args, **kwargs)
-        else:
-            return {
-                       "message": "Classroom does not exist"
-                   }, 404
-
-    return wrap
-
-
-# Function to validate a classroom code
-def valid_classroom_code_form(f):
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        data = request.get_json()
-        errors = classroom_code_schema.validate(data)
-
-        # If form data is not validated by the classroom_schema, then return a 500 error
-        if errors:
-            return {
-                       "message": "Incorrect data sent over"
-                   }, 500
-        else:
-            return f(*args, **kwargs)
-
-    return wrap
