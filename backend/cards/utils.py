@@ -1,6 +1,7 @@
 from backend import db
-from backend.general_utils import create_schema_json, send_file_to_cdn
+from backend.general_utils import create_schema_json
 from backend.models import Card
+import requests
 
 
 # Function to create a card
@@ -12,19 +13,10 @@ def create_card(data, activity_id):
                 filename=data["filename"],
                 activity_id=activity_id
                 )
-    card.content_md_url = create_md_file(card)
+    github_data = requests.get(data["github_raw_data"])
+    card.content_md = github_data.text
 
     return card
-
-
-# Function to create a card's md file and send them to s3
-def create_md_file(card):
-    file_path = card.filename.split("/")
-    card_path = "/".join(file_path[:-1])
-    card_name = file_path[-1]
-    content_md_url = send_file_to_cdn(card.github_raw_data, card_path, card_name)
-
-    return content_md_url
 
 
 # Function to edit a card
@@ -33,7 +25,8 @@ def edit_card(card, data):
     card.order = data["order"]
     card.gems = data["gems"]
     card.github_raw_data = data["github_raw_data"]
-    card.content_md_url = create_md_file(card)
+    github_data = requests.get(data["github_raw_data"])
+    card.content_md = github_data.text
     card.content_url = create_schema_json(card, "card")
 
     return
