@@ -116,3 +116,13 @@ def get_modules(module_ids):
         modules.append(module)
 
     return modules
+
+
+# This function is used when a module is added to a classroom
+# So the newly added module gets added to the student's incomple_modules
+def add_modules_to_students(modules, students):
+    for module in modules:
+        for student in students:
+            student.incomplete_modules.append(module)
+
+    return
