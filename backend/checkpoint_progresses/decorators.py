@@ -1,5 +1,4 @@
-from flask import request
-from flask_jwt_extended import get_jwt_identity
+from flask import (request, session)
 from backend.checkpoint_progresses.schemas import checkpoint_submission_schema
 from backend.models import CheckpointProgress, Student
 from functools import wraps
@@ -9,7 +8,7 @@ from functools import wraps
 def checkpoint_progress_exist(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        username = get_jwt_identity()
+        username = session["profile"]["username"]
         student = Student.query.filter_by(username=username).first()
         checkpoint_prog = CheckpointProgress.query.filter_by(checkpoint_id=kwargs['checkpoint_id'],
                                                              student_id=student.id).first()
@@ -27,7 +26,7 @@ def checkpoint_progress_exist(f):
 def multiple_choice_is_completed(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        username = get_jwt_identity()
+        username = session["profile"]["username"]
         student = Student.query.filter_by(username=username).first()
         checkpoint_prog = CheckpointProgress.query.filter_by(checkpoint_id=kwargs['checkpoint_id'],
                                                              student_id=student.id).first()

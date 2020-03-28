@@ -34,6 +34,12 @@ CONTENT_MANGEMENT_API_KEY = os.environ.get("CONTENT_MANGEMENT_API_KEY")
 CONTENT_DELIVERY_API_KEY = os.environ.get("CONTENT_DELIVERY_API_KEY")
 SPACE_ID = os.environ.get("SPACE_ID")
 
+AUTH0_CLIENT_ID = os.environ.get("AUTH0_CLIENT_ID")
+AUTH0_CLIENT_SECRET = os.environ.get("AUTH0_CLIENT_SECRET")
+AUTH0_URL = os.environ.get("AUTH0_URL")
+AUTH0_ACCESS_TOK_URL = os.environ.get("AUTH0_ACCESS_TOK_URL")
+AUTH0_AUTH_URL = os.environ.get("AUTH0_AUTH_URL")
+
 GITHUB_ACCESS_TOKEN = os.environ.get("GITHUB_ACCESS_TOKEN")
 GITHUB_REPO = os.environ.get("GITHUB_REPO")
 API = os.environ.get("API")

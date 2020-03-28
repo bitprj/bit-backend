@@ -1,5 +1,4 @@
-from flask import request
-from flask_jwt_extended import get_jwt_identity
+from flask import (request, session)
 from backend.classrooms.schemas import classroom_modules_schema
 from backend.models import Module, Student
 from backend.modules.schemas import module_form_schema
@@ -44,7 +43,7 @@ def module_exists_in_github(f):
 def module_is_incomplete(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        username = get_jwt_identity()
+        username = session["profile"]["username"]
         student = Student.query.filter_by(username=username).first()
         module = Module.query.get(kwargs["module_id"])
 
@@ -62,7 +61,7 @@ def module_is_incomplete(f):
 def module_in_inprogress(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        username = get_jwt_identity()
+        username = session["profile"]["username"]
         student = Student.query.filter_by(username=username).first()
         module = Module.query.get(kwargs["module_id"])
 
@@ -80,7 +79,7 @@ def module_in_inprogress(f):
 def module_is_complete(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        username = get_jwt_identity()
+        username = session["profile"]["username"]
         student = Student.query.filter_by(username=username).first()
         module = Module.query.get(kwargs["module_id"])
 

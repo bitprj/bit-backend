@@ -1,5 +1,4 @@
-from flask import request
-from flask_jwt_extended import get_jwt_identity
+from flask import (request, session)
 from backend.activity_progresses.schemas import activity_progress_grading_schema
 from backend.models import Activity, ActivityProgress, Student
 from functools import wraps
@@ -9,7 +8,7 @@ from functools import wraps
 def activity_prog_exists(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        username = get_jwt_identity()
+        username = session["profile"]["username"]
         student = Student.query.filter_by(username=username).first()
         student_activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
                                                                  activity_id=kwargs['activity_id']).first()

@@ -1,5 +1,4 @@
-from flask import request
-from flask_jwt_extended import get_jwt_identity
+from flask import (request, session)
 from backend import safe_url
 from backend.organizations.schemas import organization_file_schema, organization_form_schema
 from backend.models import Organization, User
@@ -40,7 +39,7 @@ def exist_in_organization(f):
         if data:
             user = User.query.filter_by(username=data["username"]).first()
         else:
-            username = get_jwt_identity()
+            username = session["profile"]["username"]
             user = User.query.filter_by(username=username).first()
         organization = Organization.query.get(kwargs['organization_id'])
 
@@ -59,7 +58,7 @@ def exist_in_organization(f):
 def has_joined_already(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        username = get_jwt_identity()
+        username = session["profile"]["username"]
         user = User.query.filter_by(username=username).first()
         organization = Organization.query.get(kwargs['organization_id'])
 
@@ -94,7 +93,7 @@ def owns_organization(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         organization = Organization.query.get(kwargs['organization_id'])
-        username = get_jwt_identity()
+        username = session["profile"]["username"]
         user = User.query.filter_by(username=username).first()
 
         if user in organization.owners:
