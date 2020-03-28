@@ -1,4 +1,7 @@
+from backend import db
+from backend.cards.utils import get_cards_hints
 from backend.checkpoint_progresses.utils import create_checkpoint_progresses
+from backend.hints.utils import create_hint_status
 from backend.models import Activity, ActivityProgress, CheckpointProgress, HintStatus
 
 
@@ -18,6 +21,20 @@ def create_progress(activity_id, current_user_id):
     activity_prog.accumulated_gems += next_card.gems
 
     return activity_prog
+
+
+# Function to fill in the activity_progress' relationships
+def fill_in_rels(student_activity_prog, student):
+    if student_activity_prog.activity in student.incomplete_activities:
+        student.incomplete_activities.remove(student_activity_prog.activity)
+
+    db.session.add(student_activity_prog)
+    db.session.commit()
+    # Fills in the hints and cards as locked in the activity progress
+    hints = get_cards_hints(student_activity_prog.activity.cards)
+    create_hint_status(student_activity_prog, hints)
+
+    return
 
 
 # Function to check if the ActivityProgress is completed by checking if all the checkpoints are completed
