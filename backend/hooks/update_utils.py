@@ -32,7 +32,7 @@ def update_cdn_data(file):
 
     for card in activity.cards:
         github_data = requests.get(card.github_raw_data)
-        card.content_md = github_data.text
+        card.content = github_data.text
         card.content_url = create_schema_json(card, "card")
         if card.hints:
             update_hint_cdn(card.hints)

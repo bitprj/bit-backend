@@ -14,7 +14,7 @@ def create_card(data, activity_id):
                 activity_id=activity_id
                 )
     github_data = requests.get(data["github_raw_data"])
-    card.content_md = github_data.text
+    card.content = github_data.text
 
     return card
 
@@ -26,7 +26,7 @@ def edit_card(card, data):
     card.gems = data["gems"]
     card.github_raw_data = data["github_raw_data"]
     github_data = requests.get(data["github_raw_data"])
-    card.content_md = github_data.text
+    card.content = github_data.text
     card.content_url = create_schema_json(card, "card")
 
     return
