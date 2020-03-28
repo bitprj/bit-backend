@@ -1,5 +1,5 @@
 from backend import ma
-from marshmallow import fields
+from marshmallow import fields, validate
 
 
 # This schema is used to validate the badge form data
@@ -41,6 +41,17 @@ class ClassroomModulesSchema(ma.Schema):
         ordered = True
 
 
+# This schema is used to validate a classroom code when a student signs up for a classroom
+class ClassroomCodeSchema(ma.Schema):
+    class_code = fields.Str(required=True, validate=[validate.Length(min=5, max=5)])
+
+    class Meta:
+        # Fields to show when sending data
+        fields = ("class_code",)
+        ordered = True
+
+
+classroom_code_schema = ClassroomCodeSchema()
 classroom_schema = ClassroomSchema()
 classroom_form_schema = ClassroomFormSchema()
 classroom_modules_schema = ClassroomModulesSchema()
