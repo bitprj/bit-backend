@@ -61,10 +61,11 @@ def cards_exist_in_activity(f):
 def is_activity_graded(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        form_data = request.get_json()
-        activity_progress = ActivityProgress.query.get(form_data["activity_progress_id"])
+        data = request.get_json()
+        student_activity_prog = ActivityProgress.query.filter_by(activity_id=kwargs["activity_id"],
+                                                                 student_id=data["student_id"]).first()
 
-        if not activity_progress.is_graded:
+        if not student_activity_prog.is_graded:
             return f(*args, **kwargs)
         else:
             return {
@@ -78,8 +79,9 @@ def is_activity_graded(f):
 def submitted_activity_prog_exist(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        form_data = request.get_json()
-        student_activity_prog = ActivityProgress.query.get(form_data["activity_progress_id"])
+        data = request.get_json()
+        student_activity_prog = ActivityProgress.query.filter_by(activity_id=kwargs["activity_id"],
+                                                                 student_id=data["student_id"])
 
         if student_activity_prog:
             return f(*args, **kwargs)

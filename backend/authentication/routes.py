@@ -21,6 +21,11 @@ authentication_bp = Blueprint("authentication", __name__)
 # Class to redirect to auth0
 class UserAuth0(Resource):
     def get(self):
+        if (request.json is not None):
+            request_content = request.json
+            session["profile"] = request_content["profile"]
+            session["roles"] = request_content["roles"]
+            return session["profile"]
         return auth0.authorize_redirect(redirect_uri=API + "/auth/callback")
 
 
@@ -181,8 +186,7 @@ class UserIsTeacher(Resource):
 
 class Ping(Resource):
     def get(self):
-        userinfo = session["roles"]
-        return userinfo
+        return session["profile"]
         #return jsonify({"message": "pong"})
 
 

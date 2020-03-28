@@ -7,7 +7,8 @@ from backend.checkpoints.decorators import checkpoint_exists, checkpoint_exists_
 from backend.checkpoints.schemas import checkpoint_schema
 from backend.checkpoints.utils import assign_checkpoint_to_card, create_checkpoint, edit_checkpoint, \
     fill_optional_checkpoint_fields
-from backend.models import Checkpoint
+from backend.general_utils import create_schema_json
+from backend.models import Card, Checkpoint
 
 # Blueprint for checkpoints
 checkpoints_bp = Blueprint("checkpoints", __name__)
@@ -27,6 +28,9 @@ class CheckpointCRUD(Resource):
         db.session.commit()
         assign_checkpoint_to_card(checkpoint, data)
         fill_optional_checkpoint_fields(checkpoint, data)
+        checkpoint.content_url = create_schema_json(checkpoint, "checkpoint")
+        card = Card.query.filter_by(checkpoint_id=checkpoint.id).first()
+        card.content_url = create_schema_json(card, "card")
         db.session.commit()
 
         return {"message": "Checkpoint successfully created"}, 201

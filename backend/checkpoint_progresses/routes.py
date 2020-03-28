@@ -24,7 +24,6 @@ class CheckpointProgressSubmit(Resource):
         student = Student.query.filter_by(username=username).first()
         checkpoint_prog = CheckpointProgress.query.filter_by(checkpoint_id=checkpoint_id,
                                                              student_id=student.id).first()
-        checkpoint_prog.submissions.sort(key=lambda x: x.date_time)
         schema = get_checkpoint_data(checkpoint_prog)
 
         return schema.dump(checkpoint_prog)

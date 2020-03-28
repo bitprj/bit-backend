@@ -5,7 +5,7 @@ from backend.authentication.decorators import auth0_auth
 from backend.models import Step
 from backend.steps.decorators import step_exists, step_exists_in_github, valid_step_form
 from backend.steps.schemas import step_schema
-from backend.steps.utils import create_step, edit_step, get_step_from_patent
+from backend.steps.utils import create_step, edit_step, generate_step_cdn_url, get_step_from_patent
 
 # Blueprint for steps
 steps_bp = Blueprint("steps", __name__)
@@ -21,6 +21,8 @@ class StepCRUD(Resource):
         step = create_step(data)
 
         db.session.add(step)
+        db.session.commit()
+        generate_step_cdn_url(step)
         db.session.commit()
 
         return {"message": "Step successfully created"}, 201

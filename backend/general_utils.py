@@ -1,12 +1,22 @@
 from backend import repo
-from backend.config import S3_BUCKET
+from backend.activities.schemas import activity_schema
+from backend.cards.schemas import card_schema
+from backend.checkpoints.schemas import checkpoint_schema
+from backend.concepts.schemas import concept_schema
+from backend.config import S3_BUCKET, S3_CDN_BUCKET
+from backend.hints.schemas import hint_schema
+from backend.modules.schemas import module_schema
+from backend.topics.schemas import topic_schema
+from backend.tracks.schemas import track_schema
 from bs4 import BeautifulSoup as BS
 from PIL import Image
 from urllib.request import urlopen
 from zipfile import ZipFile
 import boto3
 import io
+import json
 import os
+import requests
 import urllib.parse
 import urllib.request
 
@@ -55,6 +65,18 @@ def create_image_obj(image_name, image_path, folder):
     return add_file(image_bytes, folder, image_name[7:])
 
 
+# Function to create a json file based on the schema type and send it to s3
+def create_schema_json(model_obj, schema_type):
+    schema = get_schema(schema_type)
+    schema_data = schema.dump(model_obj)
+    data_filename = model_obj.filename.split("/")
+    data_path = "/".join(data_filename[:-1])
+    filename = model_obj.name.replace(" ", "_") + ".json"
+    url = send_file_to_cdn(schema_data, data_path, filename)
+
+    return url
+
+
 # Function to parse files from github and save them locally
 def create_zip(test_file_location):
     files = repo.get_contents(test_file_location)
@@ -80,6 +102,26 @@ def delete_files(files):
     return
 
 
+# Function to choose a schema to return data
+def get_schema(schema_type):
+    if schema_type == "track":
+        return track_schema
+    elif schema_type == "topic":
+        return topic_schema
+    elif schema_type == "module":
+        return module_schema
+    elif schema_type == "activity":
+        return activity_schema
+    elif schema_type == "concept":
+        return concept_schema
+    elif schema_type == "card":
+        return card_schema
+    elif schema_type == "hint":
+        return hint_schema
+    elif schema_type == "checkpoint":
+        return checkpoint_schema
+
+
 # Function to parse an image tag for its name
 def parse_img_tag(image, image_folder, folder):
     # Gets the image path
@@ -98,12 +140,39 @@ def parse_img_tag(image, image_folder, folder):
 
 # Function to submit a tests.zip file
 def send_tests_zip(filename):
-    s3_resource = boto3.resource('s3')
     path = 'Github/test_cases/' + filename + "/tests.zip"
-    s3_resource.meta.client.upload_file('tests.zip', S3_BUCKET, path)
+    with open('tests.zip', 'rb') as data:
+        s3 = boto3.client('s3')
+        s3.upload_fileobj(data, S3_BUCKET, path)
     zip_link = 'https://projectbit.s3-us-west-1.amazonaws.com/' + path
 
     return zip_link
+
+
+# Function to store file data into a file and send them to s3
+# This is used for md and json files
+def send_file_to_cdn(data, file_path, filename):
+    if "cdn" in os.getcwd():
+        os.chdir("..")
+    os.chdir("./cdn")
+
+    if isinstance(data, dict):
+        with open(filename, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+    elif isinstance(data, str):
+        with open(filename, "w") as f:
+            content = requests.get(data)
+            f.write(content.text)
+
+    s3_client = boto3.client("s3")
+    path = file_path + "/" + filename
+    s3_client.upload_file(filename, S3_CDN_BUCKET, path)
+    url = "https://d36nt3c422j20i.cloudfront.net/" + path
+
+    if "cdn" in os.getcwd():
+        os.remove(filename)
+
+    return url
 
 
 # Function to write to the files from github

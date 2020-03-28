@@ -10,7 +10,7 @@ class TopicFormSchema(ma.Schema):
     description = fields.Str(required=True)
     image = fields.Str(required=True)
     image_folder = fields.Str(required=True)
-    modules = fields.List(fields.Str(), required=False)
+    modules = fields.List(fields.Int, required=False)
 
     class Meta:
         # Fields to show when sending data
@@ -21,7 +21,7 @@ class TopicFormSchema(ma.Schema):
 # This schema is used to keep track
 class TopicSchema(ma.ModelSchema):
     id = fields.Int(required=True)
-    contentful_id = fields.Str(required=False)
+    content_url = fields.Str(required=True)
     github_id = fields.Int(required=True)
     name = fields.Str(required=True)
     description = fields.Str(required=True)
@@ -35,7 +35,7 @@ class TopicSchema(ma.ModelSchema):
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "contentful_id", "github_id", "name", "description", "modules")
+        fields = ("id", "content_url", "github_id", "name", "description", "modules")
         ordered = True
 
 

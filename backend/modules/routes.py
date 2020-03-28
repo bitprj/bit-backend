@@ -2,10 +2,12 @@ from flask import (Blueprint, request)
 from flask_restful import Resource
 from backend import api, db
 from backend.authentication.decorators import auth0_auth
+from backend.general_utils import create_schema_json
+from backend.models import Module
 from backend.modules.decorators import module_exists, module_exists_in_github, valid_module_form
 from backend.modules.schemas import module_schema
 from backend.modules.utils import create_module, edit_module
-from backend.models import Module
+
 
 # Blueprint for modules
 modules_bp = Blueprint("modules", __name__)
@@ -21,6 +23,8 @@ class ModuleCRUD(Resource):
         module = create_module(data)
 
         db.session.add(module)
+        db.session.commit()
+        module.content_url = create_schema_json(module, "module")
         db.session.commit()
 
         return {"message": "Module successfully created"}, 201

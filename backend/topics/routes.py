@@ -2,6 +2,7 @@ from flask import (Blueprint, request)
 from flask_restful import Resource
 from backend import api, db
 from backend.authentication.decorators import auth0_auth
+from backend.general_utils import create_schema_json
 from backend.models import Topic
 from backend.topics.decorators import topic_exists, topic_exists_in_github, valid_topic_form
 from backend.topics.schemas import topic_schema
@@ -20,6 +21,8 @@ class TopicCRUD(Resource):
         topic = create_topic(data)
 
         db.session.add(topic)
+        db.session.commit()
+        topic.content_url = create_schema_json(topic, "topic")
         db.session.commit()
 
         return {"message": "Topic successfully created"}, 201

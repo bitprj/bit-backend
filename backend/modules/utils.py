@@ -1,7 +1,9 @@
 from backend import db
+from backend.general_utils import create_schema_json
 # from backend.badges.utils import add_badge_weights
 from backend.models import Activity, Module, ModuleProgress, StudentBadges
-# from backend.prereqs.fetch import get_activities
+
+
 # from backend.prereqs.utils import assign_badge_prereqs, delete_badge_prereqs
 
 
@@ -19,18 +21,17 @@ def create_module(data):
 
 
 # Function to add gems to module progress
-def add_gems_to_module_progress(student, activity_progress):
+def add_gems_to_module_progress(activity_progress):
     modules_completed = []
 
     for module in activity_progress.activity.modules:
-        if module in student.inprogress_modules:
-            module_prog = ModuleProgress.query.filter_by(module_id=module.id,
-                                                         student_id=activity_progress.student_id).first()
-            if module_prog:
-                module_prog.gems += activity_progress.accumulated_gems
-                # If the module progress has satisfied the gem requirement added it to the completed module list
-                if module_prog.gems >= module_prog.module.gems_needed:
-                    modules_completed.append(module_prog)
+        module_prog = ModuleProgress.query.filter_by(module_id=module.id,
+                                                     student_id=activity_progress.student_id).first()
+        if module_prog:
+            module_prog.gems += activity_progress.accumulated_gems
+            # If the module progress has satisfied the gem requirement added it to the completed module list
+            if module_prog.gems >= module_prog.module.gems_needed:
+                modules_completed.append(module_prog)
 
     return modules_completed
 
@@ -80,8 +81,8 @@ def edit_module(module, data):
     module.description = data["description"]
     module.gems_needed = data["gems_needed"]
     module.image = data["image"]
+    module.content_url = create_schema_json(module, "module")
 
-    # module.activities = get_activities(data[
     # delete_badge_weights(module.badge_weights)
     # module.badge_weights = add_badge_weights(contentful_data["parameters"]["badge_weights"]["en-US"], module.id)
     # delete_badge_prereqs(module)
@@ -104,3 +105,14 @@ def get_module_progress(student, module_id):
                          }
 
     return activity_progress
+
+
+# Function to return a list of modules based on the module ids
+def get_modules(module_ids):
+    modules = []
+
+    for module_id in module_ids:
+        module = Module.query.get(module_id)
+        modules.append(module)
+
+    return modules

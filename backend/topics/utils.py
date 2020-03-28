@@ -1,3 +1,4 @@
+from backend.general_utils import create_schema_json
 from backend.models import Module, Student, Topic
 from backend.prereqs.fetch import get_modules
 
@@ -51,7 +52,8 @@ def edit_topic(topic, data):
 
     if "modules" in data:
         topic.modules = get_modules(data["modules"])
-
+        
+    topic.content_url = create_schema_json(topic, "topic")
     # delete_badge_prereqs(topic)
     # assign_badge_prereqs(contentful_data, topic, "Topic")
 

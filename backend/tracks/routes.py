@@ -2,6 +2,7 @@ from flask import Blueprint, request
 from flask_restful import Resource
 from backend import api, db
 from backend.authentication.decorators import auth0_auth
+from backend.general_utils import send_file_to_cdn
 from backend.models import Track
 from backend.tracks.decorators import track_exists, track_exists_in_github, valid_track_form
 from backend.tracks.schemas import track_schema, tracks_schema
@@ -20,6 +21,10 @@ class TrackCRUD(Resource):
         track = create_track(data)
 
         db.session.add(track)
+        db.session.commit()
+        track_name = track.name.replace(" ", "_") + ".json"
+        track_data = track_schema.dump(track)
+        track.content_url = send_file_to_cdn(track_data, "tracks", track_name)
         db.session.commit()
 
         return {"message": "Track successfully created"}, 201

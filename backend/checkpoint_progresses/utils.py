@@ -54,6 +54,7 @@ def get_checkpoint_data(checkpoint_prog):
     if checkpoint_type == "Multiple Choice":
         return mc_checkpoint_schema
     elif checkpoint_type == "Autograder":
+        checkpoint_prog.submissions.sort(key=lambda x: x.date_time, reverse=True)
         return autograder_checkpoint_schema
     else:
         return content_progress_schema
