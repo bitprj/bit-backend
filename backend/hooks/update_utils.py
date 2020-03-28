@@ -1,8 +1,7 @@
 from backend import db
-from backend.cards.utils import create_md_file
 from backend.general_utils import create_zip, delete_files, parse_img_tag, create_schema_json, send_tests_zip
 from backend.models import Activity, Checkpoint
-import os
+import requests
 
 
 # Function to update card data
@@ -32,7 +31,8 @@ def update_cdn_data(file):
         module.content_url = create_schema_json(module, "module")
 
     for card in activity.cards:
-        card.content_md_url = create_md_file(card)
+        github_data = requests.get(card.github_raw_data)
+        card.content = github_data.text
         card.content_url = create_schema_json(card, "card")
         if card.hints:
             update_hint_cdn(card.hints)
@@ -44,7 +44,6 @@ def update_cdn_data(file):
 
 def update_hint_cdn(hints):
     for hint in hints:
-        hint.content_md_url = create_md_file(hint)
         hint.content_url = create_schema_json(hint, "hint")
 
         if hint.hints:

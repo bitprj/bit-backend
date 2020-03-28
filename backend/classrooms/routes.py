@@ -7,7 +7,7 @@ from backend.classrooms.decorators import classroom_exists, owns_classroom, vali
 from backend.classrooms.schemas import classroom_schema
 from backend.classrooms.utils import create_classroom, edit_classroom, get_classroom_activities
 from backend.models import Classroom, Teacher
-from backend.modules.utils import get_modules
+from backend.modules.utils import add_modules_to_students, get_modules
 from backend.modules.decorators import valid_modules_list
 from backend.teachers.utils import get_activities
 
@@ -75,6 +75,7 @@ class ClassroomModules(Resource):
         data = request.get_json()
         classroom = Classroom.query.get(classroom_id)
         modules = get_modules(data["module_ids"])
+        add_modules_to_students(modules, classroom.students)
         classroom.modules = modules
         db.session.commit()
 

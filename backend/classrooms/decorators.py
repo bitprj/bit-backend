@@ -1,5 +1,5 @@
 from flask import (request, session)
-from backend.classrooms.schemas import classroom_form_schema
+from backend.classrooms.schemas import classroom_code_schema, classroom_form_schema
 from backend.models import Classroom, Teacher
 from functools import wraps
 
@@ -50,6 +50,40 @@ def valid_classroom_form(f):
         if errors:
             return {
                        "message": "Missing or sending incorrect data to create a classroom. Double check the JSON data that it has everything needed to create a classroom."
+                   }, 500
+        else:
+            return f(*args, **kwargs)
+
+    return wrap
+
+
+def valid_classroom_code(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        data = request.get_json()
+        classroom = Classroom.query.filter_by(class_code=data["class_code"]).first()
+
+        if classroom:
+            return f(*args, **kwargs)
+        else:
+            return {
+                       "message": "Classroom does not exist"
+                   }, 404
+
+    return wrap
+
+
+# Function to validate a classroom code
+def valid_classroom_code_form(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        data = request.get_json()
+        errors = classroom_code_schema.validate(data)
+
+        # If form data is not validated by the classroom_schema, then return a 500 error
+        if errors:
+            return {
+                       "message": "Incorrect data sent over"
                    }, 500
         else:
             return f(*args, **kwargs)
