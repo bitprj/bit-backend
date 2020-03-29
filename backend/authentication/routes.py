@@ -10,7 +10,6 @@ from backend.authentication.decorators import roles_required, user_exists, user_
 from backend.models import Badge, User
 from backend.modules.utils import create_module_progresses
 from itsdangerous import SignatureExpired
-import requests
 
 # Blueprint for users
 authentication_bp = Blueprint("authentication", __name__)

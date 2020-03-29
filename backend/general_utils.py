@@ -71,7 +71,7 @@ def create_schema_json(model_obj, schema_type):
     schema_data = schema.dump(model_obj)
     data_filename = model_obj.filename.split("/")
     data_path = "/".join(data_filename[:-1])
-    filename = model_obj.name.replace(" ", "_") + ".json"
+    filename = model_obj.name.replace(" ", "_") + "_" + str(model_obj.id) + ".json"
     url = send_file_to_cdn(schema_data, data_path, filename)
 
     return url

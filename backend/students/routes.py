@@ -6,6 +6,7 @@ from backend.authentication.decorators import roles_accepted
 from backend.classrooms.decorators import valid_classroom_code, valid_classroom_code_form
 from backend.models import Classroom, Student
 from backend.students.schemas import student_schema
+from datetime import datetime
 
 # Blueprint for students
 students_bp = Blueprint("students", __name__)
@@ -35,8 +36,12 @@ class StudentInfo(Resource):
     def get(self):
         username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()
+        student.current_time = datetime.utcnow()
+        student_data = student_schema.dump(student)
+        student.last_seen = datetime.utcnow()
+        db.session.commit()
 
-        return student_schema.dump(student)
+        return student_data
 
 
 # Creates the routes for the classes
