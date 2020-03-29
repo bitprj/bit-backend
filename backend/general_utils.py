@@ -152,9 +152,9 @@ def send_tests_zip(filename):
 # Function to store file data into a file and send them to s3
 # This is used for md and json files
 def send_file_to_cdn(data, file_path, filename):
-    if "cdn" in os.getcwd():
-        os.chdir("..")
-    os.chdir("./cdn")
+    # if "cdn" in os.getcwd():
+    #     os.chdir("..")
+    # os.chdir("./cdn")
 
     if isinstance(data, dict):
         with open(filename, "w", encoding="utf-8") as f:
@@ -169,8 +169,8 @@ def send_file_to_cdn(data, file_path, filename):
     s3_client.upload_file(filename, S3_CDN_BUCKET, path)
     url = "https://d36nt3c422j20i.cloudfront.net/" + path
 
-    if "cdn" in os.getcwd():
-        os.remove(filename)
+    # if "cdn" in os.getcwd():
+    os.remove(filename)
 
     return url
 
