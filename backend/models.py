@@ -54,8 +54,6 @@ student_topic_completed_rel = db.Table("student_topic_completed_rel",
                                        db.Column("topic_id", db.Integer, db.ForeignKey("topic.id"))
                                        )
 
-
-
 # This many to many relationship is used to keep track of all of the topics that a student is currently working on
 student_topic_inprogress_rel = db.Table("student_topic_inprogress_rel",
                                         db.Column("student_id", db.Integer, db.ForeignKey("student.id")),
@@ -208,6 +206,8 @@ class Activity(db.Model):
                                     back_populates="activity_prereqs")
     # students keep track of the student's activity progress
     students = db.relationship("ActivityProgress", lazy="joined", back_populates="activity")
+    # This is used to keep track of the student's actions for an activity
+    actions = db.relationship("UserActivity", cascade="all,delete", back_populates="activity")
 
     def __init__(self, github_id, filename, name, description, summary, difficulty, image):
         self.github_id = github_id
@@ -300,6 +300,8 @@ class Checkpoint(db.Model):
                               foreign_keys="MCChoice.checkpoint_id")
     correct_choice = db.relationship("MCChoice", uselist=False, cascade="all,delete",
                                      back_populates="correct_checkpoint", foreign_keys="MCChoice.correct_checkpoint_id")
+    # This is used to keep track of the student's actions for a checkpoint
+    actions = db.relationship("UserCheckpoint", cascade="all,delete", back_populates="checkpoint")
 
     def __init__(self, name, instruction, checkpoint_type, filename):
         self.name = name
@@ -675,7 +677,6 @@ class Student(User):
     id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
     global_gems = db.Column(db.Integer, nullable=False, default=0)
     last_seen = db.Column(db.DateTime, nullable=True)
-    # curent_time = db.Column(db.DateTime, nullable=True)
     # completed_activities keeps track of all activities that a student has completed
     completed_activities = db.relationship("Activity", secondary="student_activity_completed_rel",
                                            back_populates="students_completed")
@@ -684,7 +685,7 @@ class Student(User):
                                             back_populates="students_incomplete")
     # current_activities keeps track of all the activities that a student is working on
     current_activities = db.relationship("Activity", secondary="student_activity_current_rel",
-                                         back_populates="students_current")
+                                         lazy="joined", back_populates="students_current")
     # completed_modules keeps track of all modules that a student has completed
     completed_modules = db.relationship("Module", secondary="student_module_completed_rel",
                                         back_populates="students_completed")
@@ -709,6 +710,7 @@ class Student(User):
     # classes keeps track of all the student's classes
     classes = db.relationship("Classroom", secondary=students_classes_rel, back_populates="students")
     badges = db.relationship("StudentBadges", cascade="all,delete", back_populates="student")
+    actions = db.relationship("UserAction", cascade="all,delete", back_populates="student")
 
     def __repr__(self):
         return f"Student('{self.id}')"
@@ -720,6 +722,39 @@ class Teacher(User):
 
     def __repr__(self):
         return f"Teacher('{self.id}')"
+
+
+class UserAction(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date_time = db.Column(db.DateTime, nullable=False)
+    action = db.Column(db.Text, nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
+    student = db.relationship("Student", back_populates="actions")
+
+    def __init__(self, date_time, action):
+        self.date_time = date_time
+        self.action = action
+
+    def __repr__(self):
+        return f"StudentActivity('{self.action}')"
+
+
+class UserActivity(UserAction):
+    id = db.Column(db.Integer, db.ForeignKey("user_action.id"), primary_key=True)
+    activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"))
+    activity = db.relationship("Activity", lazy="joined", back_populates="actions")
+
+    def __repr__(self):
+        return f"UserAction('{self.action}')"
+
+
+class UserCheckpoint(UserAction):
+    id = db.Column(db.Integer, db.ForeignKey("user_action.id"), primary_key=True)
+    checkpoint_id = db.Column(db.Integer, db.ForeignKey("checkpoint.id"))
+    checkpoint = db.relationship("Checkpoint", lazy="joined", back_populates="actions")
+
+    def __repr__(self):
+        return f"UserCheckpoint('{self.action}')"
 
 
 ################## Association Objects ########################

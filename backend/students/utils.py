@@ -1,3 +1,33 @@
+from backend.models import db, Activity, Checkpoint, UserActivity, UserCheckpoint
+from datetime import datetime
+
+
+# Function to create a student action based on the model type
+def create_student_activity(model_obj, student, action):
+    user_action = choose_action_type(model_obj, action)
+    user_action.student_id = student.id
+    db.session.add(user_action)
+    db.session.commit()
+
+    return user_action
+
+
+# Function to choose an action type
+def choose_action_type(model_obj, action):
+    user_action = None
+
+    if isinstance(model_obj, Activity):
+        user_action = UserActivity(date_time=datetime.utcnow(),
+                                   action=action)
+        user_action.activity_id = model_obj.id
+    elif isinstance(model_obj, Checkpoint):
+        user_action = UserCheckpoint(date_time=datetime.utcnow(),
+                                     action=action)
+        user_action.checkpoint_id = model_obj.id
+
+    return user_action
+
+
 # Function to update a student's module progresses
 def update_module_progresses(activity, student):
     topics = []
