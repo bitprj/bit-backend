@@ -53,12 +53,11 @@ def parse_files(topic_files, module_files, activity_files, concept_files, card_f
                 test_case_files):
     # Activity cards is used to get the card dictionary if their cards get updated
     activity_cards = {}
+    for file in module_files:
+        parse_module(file)
 
     for file in topic_files:
         parse_topic(file)
-
-    for file in module_files:
-        parse_module(file)
 
     for file in concept_files:
         parse_concept(file)
