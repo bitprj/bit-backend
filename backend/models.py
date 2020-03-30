@@ -208,6 +208,7 @@ class Activity(db.Model):
     students = db.relationship("ActivityProgress", lazy="joined", back_populates="activity")
     # This is used to keep track of the student's actions for an activity
     actions = db.relationship("UserActivity", cascade="all,delete", back_populates="activity")
+    suggested_students = db.relationship("Student", back_populates="suggested_activity")
 
     def __init__(self, github_id, filename, name, description, summary, difficulty, image):
         self.github_id = github_id
@@ -677,7 +678,6 @@ class Student(User):
     id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
     global_gems = db.Column(db.Integer, nullable=False, default=0)
     last_seen = db.Column(db.DateTime, nullable=True)
-    suggested_activity = db.Column(db.Integer, nullable=True)
     # completed_activities keeps track of all activities that a student has completed
     completed_activities = db.relationship("Activity", secondary="student_activity_completed_rel",
                                            back_populates="students_completed")
@@ -712,6 +712,8 @@ class Student(User):
     classes = db.relationship("Classroom", secondary=students_classes_rel, back_populates="students")
     badges = db.relationship("StudentBadges", cascade="all,delete", back_populates="student")
     actions = db.relationship("UserAction", cascade="all,delete", back_populates="student")
+    suggested_activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"), nullable=True)
+    suggested_activity = db.relationship("Activity", back_populates="suggested_students")
 
     def __repr__(self):
         return f"Student('{self.id}')"

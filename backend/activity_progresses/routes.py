@@ -35,7 +35,7 @@ class ActivityProgressUpdate(Resource):
             topics = update_module_progresses(student_activity_prog.activity, student)
             update_topic_progresses(topics, student)
 
-        student.suggested_activity = student_activity_prog.activity_id
+        student.suggested_activity_id = student_activity_prog.activity_id
         card = Card.query.get(student_activity_prog.last_card_unlocked)
         progress = activity_progress_schema.dump(student_activity_prog)
         progress["last_card_unlocked_id"] = card.id

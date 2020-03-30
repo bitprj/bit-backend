@@ -7,7 +7,7 @@ class StudentSchema(ma.Schema):
     id = fields.Str(required=True)
     name = fields.Str(required=True)
     last_seen = fields.DateTime(required=False)
-    suggested_activity = fields.Int(required=False)
+    suggested_activity = fields.Nested("ActivitySchema", only=("id",), many=False)
     current_activities = fields.Nested("ActivitySchema", only=("id", "content_url"), many=True)
     inprogress_modules = fields.Nested("ModuleSchema", only=("id", "name"), many=True)
     inprogress_topics = fields.Nested("TopicSchema", only=("id", "name"), many=True)
