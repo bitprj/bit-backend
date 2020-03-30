@@ -7,9 +7,7 @@ from backend.activities.decorators import activity_exists
 from backend.activity_progresses.decorators import activity_prog_exists, cards_exist_in_activity
 from backend.activity_progresses.schemas import activity_progress_schema
 from backend.activity_progresses.utils import create_progress, fill_in_rels, unlock_hint
-from backend.cards.utils import get_cards_hints
 from backend.hints.decorators import hint_exists
-from backend.hints.utils import create_hint_status
 from backend.models import ActivityProgress, Card, Hint, Student
 from backend.students.utils import update_module_progresses, update_topic_progresses
 

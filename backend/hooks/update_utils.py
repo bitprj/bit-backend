@@ -4,7 +4,6 @@ from backend.models import Activity, Checkpoint
 import requests
 
 
-
 # Function to update card data
 def update_card_data(file, activity_cards):
     # Gets the card name
@@ -123,7 +122,7 @@ def update_test_cases(test_case_location):
     return
 
 
-# Function to type case topic fields
+# Function to type cast topic fields
 def update_topic_data(data, file):
     data["github_id"] = int(data["github_id"])
     data["image"] = parse_img_tag(data["image"], data["image_folder"], "topics")

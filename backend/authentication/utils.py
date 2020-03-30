@@ -1,6 +1,5 @@
 from backend import guard, mail, safe_url
-from backend.models import Admin, Classroom, Student, Teacher, Track, User
-from backend.prereqs.utils import assign_incomcomplete_activities, assign_incomplete_modules
+from backend.models import Admin, Student, Teacher, User
 from flask_mail import Message
 from flask import url_for
 
@@ -31,16 +30,8 @@ def create_student(form_data):
                       roles="Student",
                       location=form_data["location"],
                       is_active=False,
-                      image=form_data["image"],
-                      current_track_id=form_data["track_id"]
+                      image=form_data["image"]
                       )
-
-    classroom = Classroom.query.filter_by(class_code=form_data["class_code"]).first()
-    student.classes.append(classroom)
-    track = Track.query.get(form_data["track_id"])
-    student.incomplete_topics = track.topics
-    student.incomplete_modules = assign_incomplete_modules(track.topics)
-    student.incomplete_activities = assign_incomcomplete_activities(track.topics)
 
     return student
 

@@ -43,7 +43,7 @@ class CheckpointGradingSchema(ma.Schema):
 # This schema is used to validate the data in a checkpoint submission
 class CheckpointSubmissionSchema(ma.Schema):
     content = fields.Field(required=True)
-    comment = fields.Str(required=True)
+    comment = fields.Str(required=False)
 
     class Meta:
         # Fields to show when sending data

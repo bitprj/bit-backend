@@ -25,9 +25,7 @@ class HintCRUD(Resource):
         db.session.add(hint)
         db.session.commit()
         assign_hint_to_parent(hint, data)
-        print(data)
         call_step_routes(data, hint.id, "hint")
-        print(hint.id)
         hint.content_url = create_schema_json(hint, "hint")
         db.session.commit()
 

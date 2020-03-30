@@ -4,13 +4,9 @@ from flask_jwt_extended import create_access_token, get_csrf_token, get_jwt_iden
 from flask_restful import Resource
 from backend import api, db, jwt, safe_url
 from backend.authentication.utils import create_user, send_verification_email
-from backend.badges.utils import create_student_badges
-from backend.authentication.decorators import roles_required, user_exists, user_is_active, valid_user_form, \
-    valid_user_type
-from backend.models import Badge, User
-from backend.modules.utils import create_module_progresses
+from backend.authentication.decorators import roles_required, user_exists, user_is_active, valid_user_form
+from backend.models import User
 from itsdangerous import SignatureExpired
-import requests
 
 # Blueprint for users
 authentication_bp = Blueprint("authentication", __name__)
@@ -39,24 +35,19 @@ class UserAuthorize(Resource):
 
 # Class to create a user
 class UserCreate(Resource):
-    method_decorators = [valid_user_form, valid_user_type]
+    method_decorators = [valid_user_form]
 
     # Function to return data on a single user
     def post(self, user_type):
         form_data = request.get_json()
+        form_data["user_type"] = user_type
         user = create_user(user_type, form_data)
 
         db.session.add(user)
         db.session.commit()
-
-        if user_type == "Student":
-            badges = Badge.query.all()
-            create_module_progresses(user.incomplete_modules, user)
-            create_student_badges(badges, user)
-            db.session.commit()
         send_verification_email(user.username)
 
-        return {"message": user_type + " successfully created"}, 202
+        return {"message": user_type + " successfully created"}, 201
 
 
 # Class to login in a user
