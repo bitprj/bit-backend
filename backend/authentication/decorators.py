@@ -39,8 +39,10 @@ def roles_required(*required_rolenames):
         @wraps(f)
         def wrapper(*args, **kwargs):
             role_set = set([str(n) for n in required_rolenames])
+            print(role_set)
             verify_jwt_in_request()
             claims = get_jwt_claims()
+            print(claims)
             user_roles = set(r.strip() for r in claims['roles'].split(','))
 
             try:

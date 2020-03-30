@@ -2,7 +2,7 @@ from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource
 from backend import api, db
-from backend.authentication.decorators import roles_accepted
+from backend.authentication.decorators import roles_required
 from backend.classrooms.decorators import valid_classroom_code, valid_classroom_code_form
 from backend.models import Classroom, Student
 from backend.students.decorators import student_exists
@@ -15,7 +15,7 @@ students_bp = Blueprint("students", __name__)
 
 # This class is used to update the student's classrooms
 class StudentClassroom(Resource):
-    method_decorators = [roles_accepted("Student"), valid_classroom_code, valid_classroom_code_form]
+    method_decorators = [roles_required("Student"), valid_classroom_code, valid_classroom_code_form]
 
     def put(self):
         data = request.get_json()
