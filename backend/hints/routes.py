@@ -36,9 +36,7 @@ class HintCRUD(Resource):
     @hint_exists_in_github
     def put(self):
         data = request.get_json()
-        print(data)
         hint = Hint.query.filter_by(filename=data["filename"]).first()
-        print(hint.id)
         edit_hint(hint, data)
 
         db.session.commit()

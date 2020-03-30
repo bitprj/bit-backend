@@ -19,6 +19,8 @@ def create_progress(activity_id, current_user_id):
     activity_prog.cards_unlocked.append(next_card)
     activity_prog.last_card_unlocked = next_card.id
     activity_prog.accumulated_gems += next_card.gems
+    db.session.add(activity_prog)
+    db.session.commit()
 
     return activity_prog
 
@@ -28,8 +30,6 @@ def fill_in_rels(student_activity_prog, student):
     if student_activity_prog.activity in student.incomplete_activities:
         student.incomplete_activities.remove(student_activity_prog.activity)
 
-    db.session.add(student_activity_prog)
-    db.session.commit()
     # Fills in the hints and cards as locked in the activity progress
     hints = get_cards_hints(student_activity_prog.activity.cards)
     create_hint_status(student_activity_prog, hints)

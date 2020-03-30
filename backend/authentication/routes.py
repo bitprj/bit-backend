@@ -45,9 +45,15 @@ class UserCreate(Resource):
 
         db.session.add(user)
         db.session.commit()
+        access_token = create_access_token(identity=user.username)
+        resp = jsonify({"username": user.username,
+                        "user_type": user.roles,
+                        "csrf_token": get_csrf_token(access_token),
+                        })
+        set_access_cookies(resp, access_token)
         # send_verification_email(user.username)
 
-        return {"message": user_type + " successfully created"}, 201
+        return resp
 
 
 # Class to login in a user

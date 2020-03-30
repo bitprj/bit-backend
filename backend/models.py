@@ -677,6 +677,7 @@ class Student(User):
     id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
     global_gems = db.Column(db.Integer, nullable=False, default=0)
     last_seen = db.Column(db.DateTime, nullable=True)
+    suggested_activity = db.Column(db.Integer, nullable=True)
     # completed_activities keeps track of all activities that a student has completed
     completed_activities = db.relationship("Activity", secondary="student_activity_completed_rel",
                                            back_populates="students_completed")
