@@ -45,7 +45,7 @@ class UserCreate(Resource):
 
         db.session.add(user)
         db.session.commit()
-        send_verification_email(user.username)
+        # send_verification_email(user.username)
 
         return {"message": user_type + " successfully created"}, 201
 
