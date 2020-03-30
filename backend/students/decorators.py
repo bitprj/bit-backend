@@ -7,14 +7,17 @@ from functools import wraps
 def student_exists(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        student_id = request.args.get("student_id")
-        student = Student.query.get(student_id)
+        if request.args:
+            student_id = request.args.get("student_id")
+            student = Student.query.get(student_id)
 
-        if student and student_id:
-            return f(*args, **kwargs)
+            if student and student_id:
+                return f(*args, **kwargs)
+            else:
+                return {
+                           "message": "Student does not exist"
+                       }, 404
         else:
-            return {
-                       "message": "Student does not exist"
-                   }, 404
+            return f(*args, **kwargs)
 
     return wrap

@@ -45,6 +45,10 @@ class StudentInfo(Resource):
         elif student_id and not classroom_id:
             student = Student.query.get(student_id)
             student_data = student_schema.dump(student)
+        elif not student_id and not classroom_id:
+            username = get_jwt_identity()
+            student = Student.query.filter_by(username=username).first()
+            student_data = student_schema.dump(student)
 
         student.last_seen = datetime.utcnow()
         db.session.commit()
