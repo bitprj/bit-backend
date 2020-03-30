@@ -40,6 +40,7 @@ def roles_required(*required_rolenames):
         def wrapper(*args, **kwargs):
             role_set = set([str(n) for n in required_rolenames])
             print(role_set)
+            print(verify_jwt_in_request())
             verify_jwt_in_request()
             claims = get_jwt_claims()
             print(claims)

@@ -26,7 +26,9 @@ class StudentClassroom(Resource):
         student.incomplete_modules += classroom.modules
         db.session.commit()
 
-        return
+        return {
+            "messaged": "Classroom joined"
+        }, 200
 
 
 # Class to display student data
