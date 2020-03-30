@@ -57,6 +57,7 @@ def valid_classroom_form(f):
 
     return wrap
 
+
 def valid_classroom_code(f):
     @wraps(f)
     def wrap(*args, **kwargs):
