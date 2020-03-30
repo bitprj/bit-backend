@@ -46,8 +46,8 @@ class StudentInfo(Resource):
             student = Student.query.get(student_id)
             student_data = student_schema.dump(student)
 
-        # student.last_seen = datetime.utcnow()
-        # db.session.commit()
+        student.last_seen = datetime.utcnow()
+        db.session.commit()
 
         return student_data
 
