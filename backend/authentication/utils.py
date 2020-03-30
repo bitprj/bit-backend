@@ -62,7 +62,7 @@ def create_user(user_type, form_data):
         user = create_teacher(form_data)
     elif user_type == "Student":
         user = create_student(form_data)
- 
+
     return user
 
 

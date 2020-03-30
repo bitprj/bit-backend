@@ -51,9 +51,13 @@ def get_checkpoint_data(checkpoint_prog):
     checkpoint_type = checkpoint_prog.checkpoint.checkpoint_type
 
     if checkpoint_type == "Multiple Choice":
-        return mc_checkpoint_schema
+        return mc_checkpoint_schema.dump(checkpoint_prog)
     elif checkpoint_type == "Autograder":
         checkpoint_prog.submissions.sort(key=lambda x: x.date_time, reverse=True)
-        return autograder_checkpoint_schema
+        data = autograder_checkpoint_schema.dump(checkpoint_prog)
+        data["content"] = {}
+        data["content"]["submissions"] = data["submissions"]
+        del data["submissions"]
+        return data
     else:
-        return content_progress_schema
+        return content_progress_schema.dump(checkpoint_prog)
