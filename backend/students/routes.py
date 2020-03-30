@@ -22,7 +22,7 @@ class StudentClassroom(Resource):
         username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()
         classroom = Classroom.query.filter_by(class_code=data["class_code"]).first()
-        student.classrooms.append(classroom)
+        student.classes.append(classroom)
         student.incomplete_modules += classroom.modules
         db.session.commit()
 
