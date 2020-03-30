@@ -6,12 +6,11 @@ from marshmallow import fields
 class AutograderCheckpointSchema(ma.ModelSchema):
     checkpoint_id = fields.Int(required=True)
     student_comment = fields.Str(required=True)
-    checkpoint = fields.Nested("CheckpointSchema", only=("checkpoint_type",))
     submissions = fields.Nested("SubmissionSchema", many=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("checkpoint_id", "student_comment", "checkpoint", "submissions")
+        fields = ("checkpoint_id", "student_comment", "submissions")
         ordered = True
 
 
