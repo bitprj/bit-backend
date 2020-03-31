@@ -1,14 +1,14 @@
 ---
 name: Route changes
-about: Suggest a route that you want changed
+about: Suggest a route that you want created/changed
 title: ''
 labels: ''
 assignees: ''
 
 ---
 
-**What feature would you like implemented**
-The feature that you want implemented
+**What feature would you like implemented/changed**
+The feature that you want implemented/changed
 
 **Type of Request**
 GET/POST/PUT/DELETE
