@@ -1,6 +1,6 @@
 ---
 name: Route changes
-about: Suggest an idea for this project
+about: Suggest a route that you want changed
 title: ''
 labels: ''
 assignees: ''
