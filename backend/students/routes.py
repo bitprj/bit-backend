@@ -33,9 +33,10 @@ class StudentClassroom(Resource):
 
 # Class to display student data
 class StudentInfo(Resource):
-    method_decorators = [jwt_required, student_exists]
+    method_decorators = [jwt_required]
 
     # Function to display student data
+    @student_exists
     def get(self):
         student_id = request.args.get("student_id")
         classroom_id = request.args.get("classroom_id")
@@ -51,9 +52,8 @@ class StudentInfo(Resource):
             username = get_jwt_identity()
             student = Student.query.filter_by(username=username).first()
             student_data = student_schema.dump(student)
-
-        student.last_seen = datetime.utcnow()
-        db.session.commit()
+            student.last_seen = datetime.utcnow()
+            db.session.commit()
 
         return student_data
 

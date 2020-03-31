@@ -1,5 +1,6 @@
 from backend.models import Student
 from flask import request
+from flask_jwt_extended import get_jwt_identity
 from functools import wraps
 
 
@@ -18,6 +19,14 @@ def student_exists(f):
                            "message": "Student does not exist"
                        }, 404
         else:
-            return f(*args, **kwargs)
+            username = get_jwt_identity()
+            student = Student.query.filter_by(username=username).first()
+
+            if student:
+                return f(*args, **kwargs)
+            else:
+                return {
+                           "message": "Student does not exist"
+                       }, 404
 
     return wrap
