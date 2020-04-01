@@ -10,28 +10,31 @@ class CardFormSchema(ma.ModelSchema):
     filename = fields.Str(required=True)
     activity_filename = fields.Str(required=True)
     github_raw_data = fields.Str(required=True)
+    concepts = fields.List(fields.Int(), required=False)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("name", "order", "gems", "filename", "activity_filename", "github_raw_data")
+        fields = ("name", "order", "gems", "filename", "activity_filename", "github_raw_data", "concepts")
         ordered = True
 
 
 # This schema is used to keep track of card data
 class CardSchema(ma.ModelSchema):
     id = fields.Int(required=True)
+    content_url = fields.Str(required=True)
     activity_id = fields.Int(required=True)
     github_raw_data = fields.Str(required=True)
+    content = fields.Str(required=True)
+    gems = fields.Int(required=True)
     name = fields.Str(required=True)
-    order = fields.Int(required=True)
     # activity is used to keep track of which activity that the card belongs to
-    concepts = ma.Nested("ConceptSchema", only=("id",), many=True)
-    hints = ma.Nested("HintSchema", only=("id", "hints"), many=True)
-    checkpoint = ma.Nested("CheckpointSchema", only=("id",))
+    concepts = ma.Nested("ConceptSchema", only=("id", "content_url"), many=True)
+    hints = ma.Nested("HintSchema", only=("id", "content_url", "hints"), many=True)
+    checkpoint = ma.Nested("CheckpointSchema", only=("id", "content_url"))
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "activity_id", "github_raw_data", "name", "order", "concepts", "hints", "checkpoint")
+        fields = ("id", "content_url", "activity_id", "content", "gems", "name", "concepts", "hints", "checkpoint")
         ordered = True
 
 

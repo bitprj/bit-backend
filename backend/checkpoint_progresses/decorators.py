@@ -48,12 +48,13 @@ def valid_checkpoint_progress_data(f):
     def wrap(*args, **kwargs):
         content_data = request.form
         files = request.files
-        data = {"comment": content_data["comment"]}
+        data = {}
 
         if "content" in content_data:
             data["content"] = content_data["content"]
         elif "content" in files:
             data["content"] = files["content"]
+            data["comment"] = content_data["comment"]
 
         errors = checkpoint_submission_schema.validate(data)
 

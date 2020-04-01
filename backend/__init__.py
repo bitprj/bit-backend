@@ -31,9 +31,10 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 app.config["JWT_ACCESS_COOKIE_PATH"] = "/"
 app.config["JWT_COOKIE_CSRF_PROTECT"] = True
-app.config["JWT_COOKIE_SECURE"] = False
+app.config["JWT_COOKIE_SECURE"] = bool(JWT_COOKIE_SECURE)
 app.config["JWT_SECRET_KEY"] = SECRET_KEY
 app.config["CORS_HEADERS"] = "Content-Type"
+app.config["PROPAGATE_EXCEPTIONS"] = True
 
 api = Api(app)
 db = SQLAlchemy(app)
@@ -74,7 +75,6 @@ from backend.gems.routes import gems_bp
 from backend.hints.routes import hints_bp
 from backend.hooks.routes import hooks_bp
 from backend.mc_choices.routes import mc_choices_bp
-from backend.mc_questions.routes import mc_questions_bp
 from backend.modules.routes import modules_bp
 from backend.organizations.routes import organizations_bp
 from backend.module_progresses.routes import module_progresses_bp
@@ -100,7 +100,6 @@ app.register_blueprint(events_bp)
 app.register_blueprint(gems_bp)
 app.register_blueprint(hints_bp)
 app.register_blueprint(hooks_bp)
-app.register_blueprint(mc_questions_bp)
 app.register_blueprint(mc_choices_bp)
 app.register_blueprint(modules_bp)
 app.register_blueprint(module_progresses_bp)

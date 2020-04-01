@@ -1,7 +1,17 @@
 from backend import db
+from backend.general_utils import create_schema_json
 # from backend.badges.utils import add_badge_weights
 from backend.models import Activity, Module, ModuleProgress, StudentBadges
-# from backend.prereqs.utils import assign_badge_prereqs, delete_badge_prereqs
+
+
+# This function is used when a module is added to a classroom
+# So the newly added module gets added to the student's incomplete_modules
+def add_modules_to_students(modules, students):
+    for module in modules:
+        for student in students:
+            student.incomplete_modules.append(module)
+
+    return
 
 
 # Function to create a module
@@ -78,6 +88,7 @@ def edit_module(module, data):
     module.description = data["description"]
     module.gems_needed = data["gems_needed"]
     module.image = data["image"]
+    module.content_url = create_schema_json(module, "module")
 
     # delete_badge_weights(module.badge_weights)
     # module.badge_weights = add_badge_weights(contentful_data["parameters"]["badge_weights"]["en-US"], module.id)

@@ -5,6 +5,7 @@ from backend import api, db
 from backend.activities.decorators import activity_exists, activity_exists_in_github, valid_activity_form
 from backend.activities.schemas import activity_schema, activities_schema
 from backend.activities.utils import create_activity, edit_activity
+from backend.general_utils import create_schema_json
 from backend.models import Activity
 
 # Blueprint for activities
@@ -22,10 +23,8 @@ class ActivityCRUD(Resource):
 
         db.session.add(activity)
         db.session.commit()
-        schema_data = activity_schema.dump(activity)
-        activity_filename = activity.filename.split("/")
-        activity_path = "/".join(activity_filename[:-1])
-
+        activity.content_url = create_schema_json(activity, "activity")
+        db.session.commit()
 
         return {"message": "Activity successfully created"}, 201
 
@@ -36,7 +35,7 @@ class ActivityCRUD(Resource):
         data = request.get_json()
         activity = Activity.query.filter_by(filename=data["filename"]).first()
         edit_activity(activity, data)
-
+        activity.content_url = create_schema_json(activity, "activity")
         db.session.commit()
 
         return {"message": "Activity successfully updated"}, 200
