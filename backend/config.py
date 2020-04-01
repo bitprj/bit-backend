@@ -15,7 +15,6 @@ SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
 SECRET_KEY = os.environ.get('SECRET_KEY')
 ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')
 
-
 PUSHER_APP_ID = os.environ.get('PUSHER_APP_ID')
 PUSHER_KEY = os.environ.get('PUSHER_KEY')
 PUSHER_SECRET = os.environ.get('PUSHER_SECRET')
@@ -37,3 +36,5 @@ SPACE_ID = os.environ.get("SPACE_ID")
 GITHUB_ACCESS_TOKEN = os.environ.get("GITHUB_ACCESS_TOKEN")
 GITHUB_REPO = os.environ.get("GITHUB_REPO")
 API = os.environ.get("API")
+
+JWT_COOKIE_SECURE = os.environ.get("JWT_COOKIE_SECURE")
