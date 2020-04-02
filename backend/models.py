@@ -244,6 +244,9 @@ class Activity(db.Model):
     students = db.relationship("ActivityProgress", lazy="joined", back_populates="activity")
     # This is used to keep track of the student's actions for an activity
     actions = db.relationship("UserActivity", cascade="all,delete", back_populates="activity")
+    parent_activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"), nullable=True)
+    prerequisite_activities = db.relationship("Activity",
+                                              backref=db.backref('parent_activity', remote_side='Activity.id'))
     suggested_students = db.relationship("Student", back_populates="suggested_activity")
 
     def __init__(self, github_id, filename, name, description, summary, difficulty, image):

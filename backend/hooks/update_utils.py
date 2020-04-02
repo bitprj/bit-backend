@@ -1,6 +1,8 @@
 from backend import db
 from backend.general_utils import create_zip, delete_files, parse_img_tag, create_schema_json, send_tests_zip
 from backend.models import Activity, Checkpoint
+import backend.activities.utils as activity_utils
+import backend.hooks.utils as hook_utils
 import requests
 
 
@@ -25,6 +27,11 @@ def update_card_data(file, activity_cards):
 # concepts and checkpoints get updated
 def update_cdn_data(file):
     activity = Activity.query.filter_by(filename=file.filename).first()
+    data = hook_utils.md_to_json(file.raw_url)
+
+    if "activity_prerequisites" in data:
+        activity.prerequisite_activities = activity_utils.update_prereqs(data["activity_prerequisites"])
+
     activity.content_url = create_schema_json(activity, "activity")
 
     for module in activity.modules:

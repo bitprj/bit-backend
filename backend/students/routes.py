@@ -71,6 +71,7 @@ class StudentInfo(Resource):
         username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()
         student_data = student_schema.dump(student)
+        student_data["suggested_activity"]["id"] = data["activity_id"]
         student_data["suggested_activity"]["module_id"] = data["module_id"]
 
         return student_data

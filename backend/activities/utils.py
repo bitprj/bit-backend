@@ -95,3 +95,15 @@ def update_card(card_data, card_name, card_filename):
             card.concepts = get_concepts(card_data["concepts"], card)
 
     return
+
+
+# Function to update activity_prereqs
+def update_prereqs(activities):
+    prereqs = []
+
+    for activity_id in activities:
+        activity = Activity.query.filter_by(github_id=int(activity_id)).first()
+        if activity:
+            prereqs.append(activity)
+
+    return prereqs

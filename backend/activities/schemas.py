@@ -13,12 +13,13 @@ class ActivityFormSchema(ma.Schema):
     image = fields.Str(required=True)
     image_folder = fields.Str(required=False)
     cards = fields.Dict(required=True)
+    activity_prerequisites = fields.List(fields.Str(), required=False)
 
     class Meta:
         # Fields to show when sending data
         fields = (
             "github_id", "filename", "name", "description", "summary", "difficulty", "image", "image_folder",
-            "cards")
+            "cards", "activity_prerequisites")
         ordered = True
 
 
@@ -33,10 +34,12 @@ class ActivitySchema(ma.Schema):
     image = fields.Str(required=True)
     # We are referencing another Schema below. You do this in oder to avoid circular referencing
     cards = fields.Nested("CardSchema", only=("id", "content_url"), many=True)
+    prerequisite_activities = fields.Nested("ActivitySchema", only=("id",), many=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "content_url", "name", "description", "summary", "is_project", "image", "cards")
+        fields = ("id", "content_url", "name", "description", "summary", "is_project", "image", "cards",
+                  "prerequisite_activities")
         ordered = True
 
 
