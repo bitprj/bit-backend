@@ -5,6 +5,7 @@ from backend import api, db
 from backend.authentication.decorators import roles_required
 from backend.classrooms.decorators import valid_classroom_code, valid_classroom_code_form
 from backend.models import Classroom, Student
+from backend.module_progresses.utils import can_create_module_progress
 from backend.students.decorators import student_exists
 from backend.students.schemas import student_classroom_schema, student_schema
 from datetime import datetime
@@ -13,7 +14,7 @@ from datetime import datetime
 students_bp = Blueprint("students", __name__)
 
 
-# This class is used to update the student's classrooms
+# This class is used to let a student join a classroom
 class StudentClassroom(Resource):
     method_decorators = [roles_required("Student"), valid_classroom_code, valid_classroom_code_form]
 
@@ -24,6 +25,12 @@ class StudentClassroom(Resource):
         classroom = Classroom.query.filter_by(class_code=data["class_code"]).first()
         student.classes.append(classroom)
         student.incomplete_modules += classroom.modules
+        module_progs = []
+
+        for module in classroom.modules:
+            module_prog = can_create_module_progress(student, module)
+            module_progs.append(module_prog)
+            db.session.add(module_prog)
         db.session.commit()
 
         return {

@@ -1,6 +1,6 @@
 from backend import pusher_client
 from backend.models import ActivityProgress, CheckpointProgress
-from backend.modules.utils import add_gems_to_module_progress
+from backend.module_progresses.utils import add_gems_to_module_progress
 from datetime import datetime
 
 

@@ -894,14 +894,15 @@ class ModuleProgress(db.Model):
     id = db.Column("id", db.Integer, primary_key=True)
     module_id = db.Column(db.Integer, db.ForeignKey('module.id'))
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
+    is_completed = db.Column(db.Boolean, nullable=False, default=False)
     gems = db.Column(db.Integer, nullable=False)
 
     # completed_activities keeps track of all activities completed
     completed_activities = db.relationship("Activity", secondary="module_progress_completed_activities_rel",
-                                           back_populates="modules_completed")
+                                           lazy='joined', back_populates="modules_completed")
     # incomplete_activities keeps track of all the activities have not been started
     incomplete_activities = db.relationship("Activity", secondary="module_progress_incomplete_activities_rel",
-                                            back_populates="modules_incomplete")
+                                            lazy='joined', back_populates="modules_incomplete")
     # inprogress_activities keeps track of all the activities that are currently being worked on
     inprogress_activities = db.relationship("Activity", secondary="module_progress_inprogress_activities_rel",
                                             lazy="joined", back_populates="modules_inprogress")

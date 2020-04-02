@@ -36,6 +36,7 @@ app.config["JWT_SECRET_KEY"] = SECRET_KEY
 app.config["CORS_HEADERS"] = "Content-Type"
 app.config["PROPAGATE_EXCEPTIONS"] = True
 
+
 api = Api(app)
 db = SQLAlchemy(app)
 jwt = JWTManager(app)
