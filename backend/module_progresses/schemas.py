@@ -4,13 +4,12 @@ from marshmallow import fields
 
 # This schema is used to return the module progress
 class ModuleProgressSchema(ma.Schema):
-    completed_activities = fields.Nested("ActivitySchema", only=("id", "name"), many=True)
-    incomplete_activities = fields.Nested("ActivitySchema", only=("id", "name"), many=True)
-    activity = fields.Nested("ActivitySchema", only=("id", "name", "description"), missing=None, many=False)
+    last_activity_unlocked = fields.Nested("ActivitySchema", only=("id",), many=False)
+    chosen_project = fields.Nested("ActivitySchema", only=("id",), many=False)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("completed_activities", "incomplete_activities", "activity")
+        fields = ("last_activity_unlocked", "chosen_project")
         ordered = True
 
 

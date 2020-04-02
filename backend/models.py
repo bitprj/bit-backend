@@ -234,6 +234,12 @@ class Activity(db.Model):
     # topic_prereqs keeps track of the activities that needs to be completed before accessing a topic
     topic_prereqs = db.relationship("Topic", secondary="topic_activity_prereqs", lazy="joined",
                                     back_populates="activity_prereqs")
+    # last_module is the module in which the module unlocked last
+    last_module = db.relationship("ModuleProgress", back_populates="last_activity_unlocked",
+                                  foreign_keys="ModuleProgress.last_activity_unlocked_id")
+    # chosen_module is the module in which the chosen_project is associated with
+    chosen_module = db.relationship("ModuleProgress", back_populates="chosen_project",
+                                    foreign_keys="ModuleProgress.chosen_project_id")
     # students keep track of the student's activity progress
     students = db.relationship("ActivityProgress", lazy="joined", back_populates="activity")
     # This is used to keep track of the student's actions for an activity
@@ -897,15 +903,24 @@ class ModuleProgress(db.Model):
     is_completed = db.Column(db.Boolean, nullable=False, default=False)
     gems = db.Column(db.Integer, nullable=False)
 
+    # last_activity is the last activity unlocked in a module
+    last_activity_unlocked_id = db.Column(db.Integer, db.ForeignKey('activity.id'))
+    last_activity_unlocked = db.relationship("Activity", back_populates="last_module",
+                                             foreign_keys=[last_activity_unlocked_id])
+    # chosen_project is the project chosen for a module
+    chosen_project_id = db.Column(db.Integer, db.ForeignKey('activity.id'))
+    chosen_project = db.relationship("Activity", back_populates="chosen_module",
+                                     foreign_keys=[chosen_project_id])
+
     # completed_activities keeps track of all activities completed
     completed_activities = db.relationship("Activity", secondary="module_progress_completed_activities_rel",
-                                           lazy='joined', back_populates="modules_completed")
+                                           back_populates="modules_completed")
     # incomplete_activities keeps track of all the activities have not been started
     incomplete_activities = db.relationship("Activity", secondary="module_progress_incomplete_activities_rel",
-                                            lazy='joined', back_populates="modules_incomplete")
+                                            back_populates="modules_incomplete")
     # inprogress_activities keeps track of all the activities that are currently being worked on
     inprogress_activities = db.relationship("Activity", secondary="module_progress_inprogress_activities_rel",
-                                            lazy="joined", back_populates="modules_inprogress")
+                                            back_populates="modules_inprogress")
     module = db.relationship("Module", back_populates="students")
     student = db.relationship("Student", back_populates="module_progresses")
 

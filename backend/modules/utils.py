@@ -1,8 +1,8 @@
 from backend import db
 from backend.general_utils import create_schema_json
 # from backend.badges.utils import add_badge_weights
-from backend.models import Activity, Module, ModuleProgress, StudentBadges
-from backend.module_progresses.utils import can_create_module_progress, create_module_progress
+from backend.models import Module, StudentBadges
+from backend.module_progresses.utils import can_create_module_progress
 
 
 # This function is used when a module is added to a classroom
@@ -75,19 +75,6 @@ def edit_module(module, data):
     #     module.activity_prereqs = get_activities(contentful_data["parameters"]["activity_prereqs"]["en-US"])
 
     return
-
-
-# Function to return a student's current module progress based on the module id
-def get_module_progress(student, module_id):
-    activities = set(Activity.query.filter(Activity.modules.any(id=module_id)).all())
-    completed_activities = set(student.completed_activities).intersection(activities)
-    incomplete_activities = set(student.incomplete_activities).intersection(activities)
-
-    activity_progress = {"completed_activities": completed_activities,
-                         "incomplete_activities": incomplete_activities
-                         }
-
-    return activity_progress
 
 
 # Function to return a list of modules based on the module ids

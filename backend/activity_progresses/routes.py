@@ -32,6 +32,7 @@ class ActivityProgressUpdate(Resource):
             student_activity_prog = create_progress(activity_id, student.id)
             student.current_activities.append(student_activity_prog.activity)
             fill_in_rels(student_activity_prog, student)
+            # TODO edit the relationship function later
             topics = update_module_progresses(student_activity_prog.activity, student)
             update_topic_progresses(topics, student)
 

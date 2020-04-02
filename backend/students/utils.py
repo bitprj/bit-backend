@@ -1,4 +1,4 @@
-from backend.models import db, Activity, Checkpoint, UserActivity, UserCheckpoint
+from backend.models import db, Activity, Checkpoint, ModuleProgress, UserActivity, UserCheckpoint
 from datetime import datetime
 
 
@@ -36,6 +36,12 @@ def update_module_progresses(activity, student):
     incomplete_modules = set(student.incomplete_modules)
 
     for module in activity.modules:
+        print(module.id)
+        module_prog = ModuleProgress.query.filter_by(module_id=module.id, student_id=student.id).first()
+
+        if module_prog:
+            module_prog.last_activity_unlocked_id = activity.id
+
         topics += module.topics
 
         if module in incomplete_modules:
