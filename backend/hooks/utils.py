@@ -202,8 +202,7 @@ def md_to_json(raw_url):
 
 # Function to take data from a README.md to Create/Update an activity
 def parse_activity(file):
-    raw_url = file.raw_url
-    data = md_to_json(raw_url)
+    data = md_to_json(file.raw_url)
     data["image"] = parse_img_tag(data["image"], data["image_folder"], "activities")
     data["filename"] = file.filename
     data["github_id"] = int(data["github_id"])

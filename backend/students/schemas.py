@@ -35,10 +35,11 @@ class StudentClassroomSchema(ma.ModelSchema):
 
 # This schema is used to validate the data sent for UpdateStudentData
 class UpdateDataSchema(ma.Schema):
+    activity_id = fields.Int(required=True)
     module_id = fields.Int(required=True)
 
     class Meta:
-        fields = ("module_id",)
+        fields = ("activity_id", "module_id")
         ordered = True
 
 
