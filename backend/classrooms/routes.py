@@ -18,9 +18,8 @@ classrooms_bp = Blueprint("classrooms", __name__)
 
 # Class for classroom CRUD routes
 class ClassroomCRUD(Resource):
-    method_decorators = [roles_accepted("Teacher"), jwt_required, classroom_exists]
+    method_decorators = [roles_accepted("Teacher", "Student"), jwt_required, classroom_exists]
 
-    @owns_classroom
     def get(self, classroom_id):
         classroom = Classroom.query.get(classroom_id)
 

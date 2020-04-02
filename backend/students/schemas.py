@@ -7,16 +7,19 @@ class StudentSchema(ma.Schema):
     id = fields.Str(required=True)
     name = fields.Str(required=True)
     last_seen = fields.DateTime(required=False)
+    classes = fields.Nested("ClassroomSchema", only=("id",), many=True, data_key="classrooms")
     suggested_activity = fields.Nested("ActivitySchema", only=("id",), many=False)
     current_activities = fields.Nested("ActivitySchema", only=("id", "content_url"), many=True)
+    completed_modules = fields.Nested("ModuleSchema", only=("id", "name"), many=True)
     inprogress_modules = fields.Nested("ModuleSchema", only=("id", "name"), many=True)
+    incomplete_modules = fields.Nested("ModuleSchema", only=("id", "name"), many=True)
     inprogress_topics = fields.Nested("TopicSchema", only=("id", "name"), many=True)
 
     class Meta:
         # Fields to show when sending data
         fields = (
-            "id", "name", "last_seen", "suggested_activity", "current_activities", "inprogress_modules",
-            "inprogress_topics")
+            "id", "name", "last_seen", "classes", "suggested_activity", "current_activities", "completed_modules",
+            "inprogress_modules", "incomplete_modules", "inprogress_topics")
         ordered = True
 
 
