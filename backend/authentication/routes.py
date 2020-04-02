@@ -146,7 +146,7 @@ def add_claims_to_access_token(identity):
 # Creates the routes for the classes
 api.add_resource(UserAuthorize, "/confirm_email/<string:token>")
 api.add_resource(UserCreate, "/users/<string:user_type>/create")
-api.add_resource(UserLoginHandler, "/user/login")
+api.add_resource(UserLoginHandler, "/auth")
 api.add_resource(UserLogoutHandler, "/user/logout")
 api.add_resource(Protected, "/protected")
 api.add_resource(UserIsAdmin, "/isAdmin")
