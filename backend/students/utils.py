@@ -36,7 +36,6 @@ def update_module_progresses(activity, student):
     incomplete_modules = set(student.incomplete_modules)
 
     for module in activity.modules:
-        print(module.id)
         module_prog = ModuleProgress.query.filter_by(module_id=module.id, student_id=student.id).first()
 
         if module_prog:

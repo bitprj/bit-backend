@@ -38,6 +38,9 @@ def create_module_progress(module, student):
 
     for activity in module.activities:
         add_activity_to_module_progress(student, activity, module_prog)
+        print(module_prog.completed_activities, "c")
+        print(module_prog.incomplete_activities, "inc")
+        print(module_prog.inprogress_activities, "inp")
     student.module_progresses.append(module_prog)
 
     return module_prog

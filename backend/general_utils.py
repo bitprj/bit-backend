@@ -33,16 +33,18 @@ def add_file(image_bytes, folder, filename):
 
 
 # Binary search function to search by object id
-def binary_search(array, l, r, target):
-    while l <= r:
-        mid = l + (r - l) // 2
+def binary_search(array, left, right, target):
+    if right >= left:
+        mid = left + (right - left) // 2
         if array[mid].id == target:
             return mid
-        elif array[mid].id < target:
-            l = mid + 1
+        elif array[mid].id > target:
+            return binary_search(array, left, mid - 1, target)
         else:
-            r = mid - 1
-    return -1
+            return binary_search(array, mid + 1, right, target)
+
+    else:
+        return -1
 
 
 # Function to remove white space in dictionary keys
