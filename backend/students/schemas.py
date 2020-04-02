@@ -15,7 +15,8 @@ class StudentSchema(ma.Schema):
     class Meta:
         # Fields to show when sending data
         fields = (
-            "id", "name", "last_seen", "suggested_activity", "current_activities", "inprogress_modules", "inprogress_topics")
+            "id", "name", "last_seen", "suggested_activity", "current_activities", "inprogress_modules",
+            "inprogress_topics")
         ordered = True
 
 
@@ -32,5 +33,15 @@ class StudentClassroomSchema(ma.ModelSchema):
         ordered = True
 
 
+# This schema is used to validate the data sent for UpdateStudentData
+class UpdateDataSchema(ma.Schema):
+    module_id = fields.Int(required=True)
+
+    class Meta:
+        fields = ("module_id",)
+        ordered = True
+
+
 student_schema = StudentSchema()
 student_classroom_schema = StudentClassroomSchema()
+update_data_schema = UpdateDataSchema()

@@ -11,7 +11,9 @@ def create_progress(activity_id, current_user_id):
                                      activity_id=activity_id,
                                      accumulated_gems=0)
     activity = Activity.query.get(activity_id)
+    # Create checkpoint progresses
     activity_prog.checkpoints = create_checkpoint_progresses(activity.cards, current_user_id)
+    # Sets the first card of the activity as the last card unlocked
     activity.cards.sort(key=lambda x: x.order)
     next_card = activity.cards[0]
     activity_prog.cards_locked = activity.cards

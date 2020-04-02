@@ -28,11 +28,7 @@ class ModuleSchema(ma.Schema):
     gems_needed = fields.Int(required=True)
     # badge_weights = ma.Nested("ModuleBadgeWeightSchema", many=True)
     # badge_prereqs = ma.Nested("BadgeRequirementSchema", many=True)
-    # We are referencing another Schema below. You do this in oder to avoid circular referencing
-    # The only keyword is used to show the id of the activity
-    activities = ma.Nested("ActivitySchema", only=("id",), many=True)
-
-    # activity_prereqs = ma.Nested("ActivitySchema", only=("id",), many=True)
+    activities = ma.Nested("ActivitySchema", only=("id", "is_project"), many=True)
 
     class Meta:
         # Fields to show when sending data

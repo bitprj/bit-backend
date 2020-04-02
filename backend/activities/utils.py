@@ -1,5 +1,21 @@
 from backend.concepts.utils import get_concepts
+from backend.general_utils import binary_search
 from backend.models import Activity, Card, Hint, Module
+
+
+# Function to add an to a module progress
+def add_activity_to_module_progress(student, activity, module_prog):
+    if binary_search(student.completed_activities, 0, len(student.completed_activities) - 1, activity.id):
+        module_prog.completed_activities.append(activity)
+    elif binary_search(student.incomplete_activities, 0, len(student.incomplete_activities) - 1, activity.id):
+        module_prog.incomplete_activities.append(activity)
+    elif binary_search(student.completed_activities, 0, len(student.current_activities) - 1, activity.id):
+        module_prog.inprogress_activities.append(activity)
+    else:
+        student.incomplete_activities.append(activity)
+        module_prog.incomplete_activities.append(activity)
+
+    return
 
 
 # Function to assign an activity to a module

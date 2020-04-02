@@ -5,7 +5,8 @@ from backend import api, db
 from backend.authentication.decorators import roles_required
 from backend.classrooms.decorators import valid_classroom_code, valid_classroom_code_form
 from backend.models import Classroom, Student
-from backend.students.decorators import student_exists
+from backend.module_progresses.utils import can_create_module_progress
+from backend.students.decorators import student_exists, valid_update_data
 from backend.students.schemas import student_classroom_schema, student_schema
 from datetime import datetime
 
@@ -13,7 +14,7 @@ from datetime import datetime
 students_bp = Blueprint("students", __name__)
 
 
-# This class is used to update the student's classrooms
+# This class is used to let a student join a classroom
 class StudentClassroom(Resource):
     method_decorators = [roles_required("Student"), valid_classroom_code, valid_classroom_code_form]
 
@@ -24,6 +25,10 @@ class StudentClassroom(Resource):
         classroom = Classroom.query.filter_by(class_code=data["class_code"]).first()
         student.classes.append(classroom)
         student.incomplete_modules += classroom.modules
+
+        for module in classroom.modules:
+            module_prog = can_create_module_progress(student, module)
+            db.session.add(module_prog)
         db.session.commit()
 
         return {
@@ -38,22 +43,35 @@ class StudentInfo(Resource):
     # Function to display student data
     @student_exists
     def get(self):
-        student_id = request.args.get("student_id")
-        classroom_id = request.args.get("classroom_id")
-        student_data = None
+        # Commented code is for future use
+        # student_id = request.args.get("student_id")
+        # classroom_id = request.args.get("classroom_id")
+        # student_data = None
 
-        if student_id and classroom_id:
-            student = Student.query.get(student_id)
-            student_data = student_classroom_schema.dump(student)
-        elif student_id and not classroom_id:
-            student = Student.query.get(student_id)
-            student_data = student_schema.dump(student)
-        elif not student_id and not classroom_id:
-            username = get_jwt_identity()
-            student = Student.query.filter_by(username=username).first()
-            student_data = student_schema.dump(student)
-            student.last_seen = datetime.utcnow()
-            db.session.commit()
+        # if student_id and classroom_id:
+        #     student = Student.query.get(student_id)
+        #     student_data = student_classroom_schema.dump(student)
+        # elif student_id and not classroom_id:
+        #     student = Student.query.get(student_id)
+        #     student_data = student_schema.dump(student)
+        # elif not student_id and not classroom_id:
+
+        username = get_jwt_identity()
+        student = Student.query.filter_by(username=username).first()
+        student_data = student_schema.dump(student)
+        student.last_seen = datetime.utcnow()
+        db.session.commit()
+
+        return student_data
+
+    # Function to edit student_data
+    @valid_update_data
+    def put(self):
+        data = request.get_json()
+        username = get_jwt_identity()
+        student = Student.query.filter_by(username=username).first()
+        student_data = student_schema.dump(student)
+        student_data["suggested_activity"]["module_id"] = data["module_id"]
 
         return student_data
 
