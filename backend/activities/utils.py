@@ -5,11 +5,11 @@ from backend.models import Activity, Card, Hint, Module
 
 # Function to add an to a module progress
 def add_activity_to_module_progress(student, activity, module_prog):
-    if binary_search(student.completed_activities, 0, len(student.completed_activities) - 1, activity.id):
+    if binary_search(student.completed_activities, 0, len(student.completed_activities) - 1, activity.id) != -1:
         module_prog.completed_activities.append(activity)
-    elif binary_search(student.incomplete_activities, 0, len(student.incomplete_activities) - 1, activity.id):
+    elif binary_search(student.incomplete_activities, 0, len(student.incomplete_activities) - 1, activity.id) != -1:
         module_prog.incomplete_activities.append(activity)
-    elif binary_search(student.completed_activities, 0, len(student.current_activities) - 1, activity.id):
+    elif binary_search(student.current_activities, 0, len(student.current_activities) - 1, activity.id) != -1:
         module_prog.inprogress_activities.append(activity)
     else:
         student.incomplete_activities.append(activity)
