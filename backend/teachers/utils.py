@@ -33,22 +33,20 @@ def get_activities(students, activities):
 # Function to grade a student's activity
 # If the user completes the gems requirement for the module, return it
 def grade_activity(activity_progress, data):
-    modules_prog_completed = []
     student = activity_progress.student
-    activity_progress.is_passed = pass_activity(data["checkpoints"])
-    assign_comments(data["checkpoints"])
     activity_progress.is_graded = True
     activity_progress.date_graded = datetime.now().date()
+    activity_progress.is_passed = pass_activity(data["checkpoints"])
+    # assign_comments(data["checkpoints"])
 
     if activity_progress.is_passed:
         activity_progress.student.global_gems += activity_progress.accumulated_gems
-        modules_prog_completed = add_gems_to_module_progress(activity_progress)
 
         if activity_progress.activity in student.current_activities:
             student.current_activities.remove(activity_progress.activity)
             student.completed_activities.append(activity_progress.activity)
 
-    return modules_prog_completed
+    return
 
 
 # Function to tell if the activity failed or not

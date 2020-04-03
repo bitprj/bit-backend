@@ -937,7 +937,8 @@ class ModuleProgress(db.Model):
     module_id = db.Column(db.Integer, db.ForeignKey('module.id'))
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
     is_completed = db.Column(db.Boolean, nullable=False, default=False)
-    gems = db.Column(db.Integer, nullable=False)
+    accumulated_gems = db.Column(db.Integer, nullable=False, default=0)
+    needed_gems = db.Column(db.Integer, nullable=False , default=0)
 
     # last_activity is the last activity unlocked in a module
     last_activity_unlocked_id = db.Column(db.Integer, db.ForeignKey('activity.id'))
