@@ -21,7 +21,7 @@ class ActivityProgressUpdate(Resource):
 
     # Function to return the last card completed on an activity
     @cards_exist_in_activity
-    @has_no_completed_activity_progress
+    # @has_no_completed_activity_progress
     def get(self, activity_id):
         username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()
