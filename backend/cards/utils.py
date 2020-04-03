@@ -39,7 +39,7 @@ def edit_card(card, data):
     card.github_raw_data = data["github_raw_data"]
     github_data = requests.get(data["github_raw_data"])
     card.content = update_card_images(github_data.text, data["filename"])
-    card.content_url = create_schema_json(card, "card")
+    create_schema_json(card, "cards")
 
     return
 
@@ -57,7 +57,7 @@ def get_cards_hints(cards):
 # Function to update all of the cards associated with a concept
 def update_card_cdn(cards):
     for card in cards:
-        card.content_url = create_schema_json(card, "card")
+        create_schema_json(card, "cards")
 
     db.session.commit()
 

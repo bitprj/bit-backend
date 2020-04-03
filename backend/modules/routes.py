@@ -23,7 +23,7 @@ class ModuleCRUD(Resource):
 
         db.session.add(module)
         db.session.commit()
-        module.content_url = create_schema_json(module, "module")
+        create_schema_json(module, "modules")
         db.session.commit()
 
         return {"message": "Module successfully created"}, 201

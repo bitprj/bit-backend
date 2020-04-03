@@ -34,9 +34,8 @@ def edit_track(form_data, track):
     track.name = form_data["name"]
     track.description = form_data["description"]
     track.topics = get_topics(form_data["topics"])
-    track_name = track.name.replace(" ", "_") + ".json"
     track_data = track_schema.dump(track)
-    track.content_url = send_file_to_cdn(track_data, "tracks", track_name)
+    track.content_url = send_file_to_cdn(track_data, track.filename, "tracks", track)
     # track.required_topics = get_topics(form_data["required_topics"])
 
     return

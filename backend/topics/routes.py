@@ -22,7 +22,7 @@ class TopicCRUD(Resource):
 
         db.session.add(topic)
         db.session.commit()
-        topic.content_url = create_schema_json(topic, "topic")
+        create_schema_json(topic, "topics")
         db.session.commit()
 
         return {"message": "Topic successfully created"}, 201

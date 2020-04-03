@@ -5,6 +5,7 @@ from backend.checkpoints.schemas import checkpoint_schema
 from backend.concepts.schemas import concept_schema
 from backend.config import S3_BUCKET, S3_CDN_BUCKET
 from backend.hints.schemas import hint_schema
+from backend.models import Activity, Card, Checkpoint, Concept, Hint, Module, Topic, Track
 from backend.modules.schemas import module_schema
 from backend.topics.schemas import topic_schema
 from backend.tracks.schemas import track_schema
@@ -82,10 +83,8 @@ def create_image_obj(image_name, image_path, folder):
 
 # Function to create a json file based on the schema type and send it to s3
 def create_schema_json(model_obj, schema_type):
-    schema = get_schema(schema_type)
+    schema = get_schema(model_obj)
     schema_data = schema.dump(model_obj)
-    data_filename = model_obj.filename.split("/")
-    data_path = "/".join(data_filename[:-1])
     filename = model_obj.name.replace(" ", "_") + "_" + str(model_obj.id) + ".json"
     url = send_file_to_cdn(schema_data, filename, schema_type, model_obj)
 
@@ -126,22 +125,22 @@ def get_base_folder(filename):
 
 
 # Function to choose a schema to return data
-def get_schema(schema_type):
-    if schema_type == "track":
+def get_schema(model_obj):
+    if isinstance(model_obj, Track):
         return track_schema
-    elif schema_type == "topic":
+    elif isinstance(model_obj, Topic):
         return topic_schema
-    elif schema_type == "module":
+    elif isinstance(model_obj, Module):
         return module_schema
-    elif schema_type == "activity":
+    elif isinstance(model_obj, Activity):
         return activity_schema
-    elif schema_type == "concept":
+    elif isinstance(model_obj, Concept):
         return concept_schema
-    elif schema_type == "card":
+    elif isinstance(model_obj, Card):
         return card_schema
-    elif schema_type == "hint":
+    elif isinstance(model_obj, Hint):
         return hint_schema
-    elif schema_type == "checkpoint":
+    elif isinstance(model_obj, Checkpoint):
         return checkpoint_schema
 
 
@@ -185,7 +184,7 @@ def send_file_to_cdn(data, filename, schema_type, model_obj):
 
     s3_client = boto3.client("s3")
     # model_name/model_id.json
-    path = schema_type + "s/" + model_obj.id + ".json"
+    path = schema_type + "/" + str(model_obj.id) + "/data.json"
     s3_client.upload_file(filename, S3_CDN_BUCKET, path)
     url = "https://d36nt3c422j20i.cloudfront.net/" + path
 

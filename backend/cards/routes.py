@@ -27,7 +27,7 @@ class CardCRUD(Resource):
 
         db.session.add(card)
         db.session.commit()
-        card.content_url = create_schema_json(card, "card")
+        create_schema_json(card, "cards")
         db.session.commit()
 
         return {"message": "Card successfully created"}, 201
