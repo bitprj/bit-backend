@@ -86,9 +86,9 @@ def create_schema_json(model_obj, schema_type):
     schema = get_schema(model_obj)
     schema_data = schema.dump(model_obj)
     filename = model_obj.name.replace(" ", "_") + "_" + str(model_obj.id) + ".json"
-    url = send_file_to_cdn(schema_data, filename, schema_type, model_obj)
+    send_file_to_cdn(schema_data, filename, schema_type, model_obj)
 
-    return url
+    return
 
 
 # Function to parse files from github and save them locally
@@ -183,14 +183,11 @@ def send_file_to_cdn(data, filename, schema_type, model_obj):
             f.write(content.text)
 
     s3_client = boto3.client("s3")
-    # model_name/model_id.json
     path = schema_type + "/" + str(model_obj.id) + "/data.json"
     s3_client.upload_file(filename, S3_CDN_BUCKET, path)
-    url = "https://d36nt3c422j20i.cloudfront.net/" + path
-
     os.remove(filename)
 
-    return url
+    return
 
 
 # Function to write to the files from github

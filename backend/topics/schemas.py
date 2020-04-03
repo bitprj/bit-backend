@@ -21,21 +21,14 @@ class TopicFormSchema(ma.Schema):
 # This schema is used to keep track
 class TopicSchema(ma.ModelSchema):
     id = fields.Int(required=True)
-    content_url = fields.Str(required=True)
     github_id = fields.Int(required=True)
     name = fields.Str(required=True)
     description = fields.Str(required=True)
-
-    # We are referencing another Schema below. You do this in oder to avoid circular referencing
-    # The only keyword is used to show the id of modules and badge requirements
-    # activity_prereqs = fields.Nested("ActivitySchema", only=("id", "contentful_id"), many=True)
-    # badge_prereqs = fields.Nested("BadgeRequirementSchema", many=True)
     modules = ma.Nested("ModuleSchema", only=("id", "name"), many=True)
-    # module_prereqs = ma.Nested("ModuleSchema", only=("id", "contentful_id"), many=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "content_url", "github_id", "name", "description", "modules")
+        fields = ("id", "github_id", "name", "description", "modules")
         ordered = True
 
 

@@ -35,7 +35,7 @@ def edit_track(form_data, track):
     track.description = form_data["description"]
     track.topics = get_topics(form_data["topics"])
     track_data = track_schema.dump(track)
-    track.content_url = send_file_to_cdn(track_data, track.filename, "tracks", track)
+    send_file_to_cdn(track_data, str(track.id), "tracks", track)
     # track.required_topics = get_topics(form_data["required_topics"])
 
     return

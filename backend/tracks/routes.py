@@ -23,7 +23,7 @@ class TrackCRUD(Resource):
         db.session.add(track)
         db.session.commit()
         track_data = track_schema.dump(track)
-        track.content_url = send_file_to_cdn(track_data, track.filename, "tracks", track)
+        send_file_to_cdn(track_data, str(track.id), "tracks", track)
         db.session.commit()
 
         return {"message": "Track successfully created"}, 201

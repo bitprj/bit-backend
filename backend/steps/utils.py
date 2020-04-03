@@ -59,7 +59,7 @@ def fill_optional_fields(step, step_data):
 # Function to generate the step cdn data
 def generate_step_cdn_url(step):
     step_content = step_schema.dump(step)
-    step.content_url = send_file_to_cdn(step_content, str(step.id), "steps", step)
+    send_file_to_cdn(step_content, str(step.id), "steps", step)
 
     return
 
