@@ -53,7 +53,7 @@ def edit_topic(topic, data):
     if "modules" in data:
         topic.modules = get_modules(data["modules"])
         
-    topic.content_url = create_schema_json(topic, "topic")
+    create_schema_json(topic, "topics")
     # delete_badge_prereqs(topic)
     # assign_badge_prereqs(contentful_data, topic, "Topic")
 

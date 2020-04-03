@@ -60,9 +60,9 @@ def edit_checkpoint(checkpoint, data):
     checkpoint.filename = data["filename"]
     assign_checkpoint_to_card(checkpoint, data)
     fill_optional_checkpoint_fields(checkpoint, data)
-    checkpoint.content_url = create_schema_json(checkpoint, "checkpoint")
+    create_schema_json(checkpoint, "checkpoints")
     card = Card.query.filter_by(checkpoint_id=checkpoint.id).first()
-    card.content_url = create_schema_json(card, "card")
+    create_schema_json(card, "cards")
 
     return
 

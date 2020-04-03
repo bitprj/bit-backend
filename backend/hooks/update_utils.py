@@ -32,15 +32,16 @@ def update_cdn_data(file):
     if "activity_prerequisites" in data:
         activity.prerequisite_activities = activity_utils.utils.update_prereqs(data["activity_prerequisites"])
 
-    activity.content_url = create_schema_json(activity, "activity")
+    create_schema_json(activity, "activities")
 
     for module in activity.modules:
-        module.content_url = create_schema_json(module, "module")
+        create_schema_json(module, "modules")
 
     for card in activity.cards:
         github_data = requests.get(card.github_raw_data)
         card.content = github_data.text
-        card.content_url = create_schema_json(card, "card")
+        create_schema_json(card, "cards")
+
         if card.hints:
             update_hint_cdn(card.hints)
 
@@ -51,7 +52,7 @@ def update_cdn_data(file):
 
 def update_hint_cdn(hints):
     for hint in hints:
-        hint.content_url = create_schema_json(hint, "hint")
+        create_schema_json(hint, "hints")
 
         if hint.hints:
             update_hint_cdn(hint.hints)
@@ -135,7 +136,8 @@ def update_topic_data(data, file):
     data["image"] = parse_img_tag(data["image"], data["image_folder"], "topics")
     data["filename"] = file.filename
 
-    for i in range(len(data["modules"]) - 1):
-        data["modules"][i] = int(data["modules"][i])
+    if "modules" in data:
+        for i in range(len(data["modules"]) - 1):
+            data["modules"][i] = int(data["modules"][i])
 
     return data

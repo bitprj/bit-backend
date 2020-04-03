@@ -41,7 +41,7 @@ class CheckpointProgressSubmit(Resource):
         fill_in_checkpoint_progress(data, checkpoint_prog)
 
         db.session.commit()
-        is_activity_completed(checkpoint_prog.activity_progress_id, student_id=checkpoint_prog.student_id)
+        is_activity_completed(checkpoint_prog.activity_progress_id, checkpoint_prog.student_id)
         db.session.commit()
 
         return get_checkpoint_data(checkpoint_prog)

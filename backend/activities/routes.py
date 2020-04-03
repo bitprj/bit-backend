@@ -23,7 +23,7 @@ class ActivityCRUD(Resource):
 
         db.session.add(activity)
         db.session.commit()
-        activity.content_url = create_schema_json(activity, "activity")
+        create_schema_json(activity, "activities")
         db.session.commit()
 
         return {"message": "Activity successfully created"}, 201
@@ -35,7 +35,7 @@ class ActivityCRUD(Resource):
         data = request.get_json()
         activity = Activity.query.filter_by(filename=data["filename"]).first()
         edit_activity(activity, data)
-        activity.content_url = create_schema_json(activity, "activity")
+        create_schema_json(activity, "activities")
         db.session.commit()
 
         return {"message": "Activity successfully updated"}, 200

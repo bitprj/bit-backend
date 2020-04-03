@@ -17,7 +17,7 @@ class AutograderCheckpointSchema(ma.ModelSchema):
 # This schema is used to keep track of checkpoint data
 class CheckpointProgressSchema(ma.ModelSchema):
     checkpoint_id = fields.Int(required=True)
-    checkpoint = fields.Nested("CheckpointSchema", only=("content_url",), required=True)
+    checkpoint = fields.Nested("CheckpointSchema", only=("id",), required=True)
     student_comment = fields.Str(missing=None, required=False)
     teacher_comment = fields.Str(missing=None, required=False)
     content = fields.Str(required=True)

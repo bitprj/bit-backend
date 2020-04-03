@@ -28,9 +28,9 @@ class CheckpointCRUD(Resource):
         db.session.commit()
         assign_checkpoint_to_card(checkpoint, data)
         fill_optional_checkpoint_fields(checkpoint, data)
-        checkpoint.content_url = create_schema_json(checkpoint, "checkpoint")
+        create_schema_json(checkpoint, "checkpoints")
         card = Card.query.filter_by(checkpoint_id=checkpoint.id).first()
-        card.content_url = create_schema_json(card, "card")
+        create_schema_json(card, "cards")
         db.session.commit()
 
         return {"message": "Checkpoint successfully created"}, 201
@@ -42,8 +42,8 @@ class CheckpointCRUD(Resource):
     def put(self):
         data = request.get_json()
         checkpoint = Checkpoint.query.filter_by(filename=data["filename"]).first()
-
         edit_checkpoint(checkpoint, data)
+
         db.session.commit()
 
         return {"message": "Checkpoint successfully updated"}, 200

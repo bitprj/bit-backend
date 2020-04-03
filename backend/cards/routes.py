@@ -3,7 +3,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource
 from backend import api, db
 from backend.authentication.decorators import roles_accepted
-from backend.activity_progresses.utils import unlock_card
+from backend.activity_progresses.utils import is_activity_completed, unlock_card
 from backend.cards.decorators import card_exists, card_exists_in_activity, card_exists_in_github, card_is_unlockable, \
     valid_card_form
 from backend.cards.schemas import card_schema
@@ -27,7 +27,7 @@ class CardCRUD(Resource):
 
         db.session.add(card)
         db.session.commit()
-        card.content_url = create_schema_json(card, "card")
+        create_schema_json(card, "cards")
         db.session.commit()
 
         return {"message": "Card successfully created"}, 201
@@ -94,6 +94,8 @@ class CardGetHints(Resource):
                                                                  activity_id=activity_id).first()
         unlock_card(student_activity_prog, card)
         student_activity_prog.last_card_unlocked = card.id
+        db.session.commit()
+        is_activity_completed(student_activity_prog.id, student.id)
         db.session.commit()
 
         return {

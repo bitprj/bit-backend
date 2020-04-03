@@ -216,7 +216,6 @@ topic_track_reqs = db.Table("track_topic_reqs",
 class Activity(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     github_id = db.Column(db.Integer, nullable=True)
-    content_url = db.Column(db.Text, nullable=True)
     name = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
     description = db.Column(db.Text, nullable=True)
@@ -304,7 +303,6 @@ class Badge(db.Model):
 
 class Card(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    content_url = db.Column(db.Text, nullable=True)
     github_raw_data = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
     content = db.Column(db.Text, nullable=True)
@@ -344,7 +342,6 @@ class Card(db.Model):
 
 class Checkpoint(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    content_url = db.Column(db.Text, nullable=True)
     name = db.Column(db.Text, nullable=True)
     instruction = db.Column(db.Text, nullable=True)
     checkpoint_type = db.Column(db.Text, nullable=True)
@@ -399,7 +396,6 @@ class Classroom(db.Model):
 
 class Concept(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    content_url = db.Column(db.Text, nullable=True)
     name = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
     # cards keep track of which cards that a concept belongs to
@@ -467,7 +463,6 @@ class Gem(db.Model):
 
 class Hint(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    content_url = db.Column(db.Text, nullable=True)
     github_raw_data = db.Column(db.Text, nullable=True)
     name = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
@@ -495,7 +490,6 @@ class Hint(db.Model):
 
 class Module(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    content_url = db.Column(db.Text, nullable=True)
     github_id = db.Column(db.Integer, nullable=True)
     name = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
@@ -536,12 +530,13 @@ class Module(db.Model):
     inprogress_topics = db.relationship("TopicProgress", secondary="topic_progress_inprogress_modules_rel",
                                         back_populates="inprogress_modules")
 
-    # def __init__(self, filename, name, description, gems_needed, image):
-    #     self.filename = filename
-    #     self.name = name
-    #     self.description = description
-    #     self.gems_needed = gems_needed
-    #     self.image = image
+    def __init__(self, github_id, filename, name, description, gems_needed, image):
+        self.github_id = github_id
+        self.filename = filename
+        self.name = name
+        self.description = description
+        self.gems_needed = gems_needed
+        self.image = image
 
     def __repr__(self):
         return f"Module('{self.name}')"
@@ -594,7 +589,6 @@ class Organization(db.Model):
 
 class Step(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    content_url = db.Column(db.Text, nullable=True)
     name = db.Column(db.Text, nullable=True)
     content = db.Column(db.Text, nullable=True)
     code_snippet = db.Column(db.Text, nullable=True)
@@ -634,7 +628,6 @@ class Submission(db.Model):
 
 class Topic(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    content_url = db.Column(db.Text, nullable=True)
     github_id = db.Column(db.Integer, nullable=True)
     name = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
@@ -660,11 +653,11 @@ class Topic(db.Model):
                                           back_populates="inprogress_topics")
     students = db.relationship("TopicProgress", cascade="all,delete", back_populates="topic")
 
-    # def __init__(self, github_id, name, description, image):
-    #     self.github_id = github_id
-    #     self.name = name
-    #     self.description = description
-    #     self.image = image
+    def __init__(self, github_id, name, description, image):
+        self.github_id = github_id
+        self.name = name
+        self.description = description
+        self.image = image
 
     def __repr__(self):
         return f"Topic('{self.name}')"
@@ -672,7 +665,6 @@ class Topic(db.Model):
 
 class Track(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    content_url = db.Column(db.Text, nullable=True)
     github_id = db.Column(db.Integer, nullable=True)
     name = db.Column(db.Text, unique=True, nullable=True)
     description = db.Column(db.Text, nullable=True)

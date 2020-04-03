@@ -59,18 +59,7 @@ def fill_optional_fields(step, step_data):
 # Function to generate the step cdn data
 def generate_step_cdn_url(step):
     step_content = step_schema.dump(step)
-    filename = None
-
-    if step.hint_id:
-        filename = step.hint.filename
-    elif step.concept_id:
-        filename = step.concept.filename
-
-    parent_path = filename.split("/")
-    step_path = "/".join(parent_path[:-1]) + "/steps"
-    step_name = step.name.replace(" ", "_")
-    step_name += ".json"
-    step.content_url = send_file_to_cdn(step_content, step_path, step_name)
+    send_file_to_cdn(step_content, str(step.id), "steps", step)
 
     return
 

@@ -18,12 +18,12 @@ def add_modules_to_students(modules, students):
 
 # Function to create a module
 def create_module(data):
-    module = Module(filename=data["filename"],
+    module = Module(github_id=data["github_id"],
+                    filename=data["filename"],
                     name=data["name"],
                     description=data["description"],
                     gems_needed=data["gems_needed"],
                     image=data["image"],
-                    github_id=data["github_id"]
                     )
 
     return module
@@ -66,7 +66,7 @@ def edit_module(module, data):
     module.description = data["description"]
     module.gems_needed = data["gems_needed"]
     module.image = data["image"]
-    module.content_url = create_schema_json(module, "module")
+    create_schema_json(module, "modules")
 
     # delete_badge_weights(module.badge_weights)
     # module.badge_weights = add_badge_weights(contentful_data["parameters"]["badge_weights"]["en-US"], module.id)
