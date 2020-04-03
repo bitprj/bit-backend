@@ -117,6 +117,14 @@ def delete_files(files):
     return
 
 
+# Function to get the image folder based on the filename
+def get_base_folder(filename):
+    path = filename.split("/")
+    image_folder = "/".join(path[:-1])
+
+    return image_folder
+
+
 # Function to choose a schema to return data
 def get_schema(schema_type):
     if schema_type == "track":

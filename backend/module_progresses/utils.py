@@ -2,22 +2,6 @@ from backend.models import ModuleProgress
 from backend.activities.utils import add_activity_to_module_progress
 
 
-# Function to add gems to module progress
-def add_gems_to_module_progress(activity_progress):
-    modules_completed = []
-
-    for module in activity_progress.activity.modules:
-        module_prog = ModuleProgress.query.filter_by(module_id=module.id,
-                                                     student_id=activity_progress.student_id).first()
-        if module_prog:
-            module_prog.gems += activity_progress.accumulated_gems
-            # If the module progress has satisfied the gem requirement added it to the completed module list
-            if module_prog.gems >= module_prog.module.gems_needed:
-                modules_completed.append(module_prog)
-
-    return modules_completed
-
-
 # Function to check if a module progress exists, if it does not then create it
 # This is usually used to create a ModuleProgress object for a student
 def can_create_module_progress(student, module):
