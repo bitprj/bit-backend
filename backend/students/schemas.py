@@ -38,11 +38,11 @@ class StudentClassroomSchema(ma.ModelSchema):
 
 # This schema is used to validate the data sent for UpdateStudentData
 class UpdateDataSchema(ma.Schema):
-    activity_id = fields.Int(required=True)
+    id = fields.Int(required=True)
     module_id = fields.Int(required=True)
 
     class Meta:
-        fields = ("activity_id", "module_id")
+        fields = ("id", "module_id")
         ordered = True
 
 
