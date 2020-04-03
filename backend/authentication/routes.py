@@ -1,9 +1,8 @@
 from flask import (Blueprint, jsonify, request)
-from flask_jwt_extended import create_access_token, get_csrf_token, get_jwt_identity, jwt_required, set_access_cookies, \
-    unset_jwt_cookies
+from flask_jwt_extended import create_access_token, get_csrf_token, get_jwt_identity, jwt_required, get_raw_jwt
 from flask_restful import Resource
-from backend import api, db, jwt, safe_url
-from backend.authentication.utils import create_user, send_verification_email
+from backend import api, blacklist, db, jwt, safe_url
+from backend.authentication.utils import create_user
 from backend.authentication.decorators import roles_required, user_exists, user_is_active, valid_user_form
 from backend.models import User
 from itsdangerous import SignatureExpired
@@ -50,7 +49,7 @@ class UserCreate(Resource):
                         "user_type": user.roles,
                         "csrf_token": get_csrf_token(access_token),
                         })
-        set_access_cookies(resp, access_token)
+        # set_access_cookies(resp, access_token)
         # send_verification_email(user.username)
 
         return resp
@@ -80,11 +79,16 @@ class UserLoginHandler(Resource):
 # Class to logout a user
 class UserLogoutHandler(Resource):
     # This function works by deleting the jwt cookies associated with the user
+    @jwt_required
     def delete(self):
-        resp = jsonify({"logout": True})
-        unset_jwt_cookies(resp)
+        jti = get_raw_jwt()["jti"]
+        blacklist.add(jti)
+        # resp = jsonify({"logout": True})
+        # unset_jwt_cookies(resp)
 
-        return resp
+        return {
+                   "msg": "Successfully logged out"
+               }, 200
 
 
 class Protected(Resource):

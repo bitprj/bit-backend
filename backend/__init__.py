@@ -25,6 +25,8 @@ app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
 app.config["SQLALCHEMY_POOL_SIZE"] = 70000
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = False
+app.config['JWT_BLACKLIST_ENABLED'] = True
+app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
 # app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 # app.config["JWT_ACCESS_COOKIE_PATH"] = "/"
 # app.config["JWT_COOKIE_CSRF_PROTECT"] = True
@@ -32,7 +34,7 @@ app.config["JWT_ACCESS_TOKEN_EXPIRES"] = False
 app.config["JWT_SECRET_KEY"] = SECRET_KEY
 app.config["CORS_HEADERS"] = "Content-Type"
 app.config["PROPAGATE_EXCEPTIONS"] = True
-
+blacklist = set()
 
 api = Api(app)
 db = SQLAlchemy(app)
@@ -45,7 +47,8 @@ migrate = Migrate(app, db)
 # CORS(app,  supports_credentials=True, resources={r"/*": {"origins": ["http://localhost:3000"]}})
 CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["*"]}})
 git = Github(GITHUB_ACCESS_TOKEN)
-repo = git.get_repo(GITHUB_REPO)
+# repo = git.get_repo(GITHUB_REPO)
+repo = ""
 contentful_client = Client(CONTENT_MANGEMENT_API_KEY)
 pusher_client = pusher.Pusher(
     app_id=PUSHER_APP_ID,
@@ -53,6 +56,13 @@ pusher_client = pusher.Pusher(
     secret=PUSHER_SECRET,
     cluster=PUSHER_CLUSTER,
     ssl=True)
+
+
+@jwt.token_in_blacklist_loader
+def check_if_token_in_blacklist(decrypted_token):
+    jti = decrypted_token['jti']
+    return jti in blacklist
+
 
 from backend.models import User
 
