@@ -92,7 +92,7 @@ def is_activity_graded(f):
         else:
             return {
                        "message": "Activity has already been graded."
-                   }, 500
+                   }, 403
 
     return wrap
 

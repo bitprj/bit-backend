@@ -1,7 +1,6 @@
 from backend import db
 from backend.general_utils import create_schema_json
-# from backend.badges.utils import add_badge_weights
-from backend.models import Module, StudentBadges
+from backend.models import Module, ModuleProgress, StudentBadges
 from backend.module_progresses.utils import can_create_module_progress
 
 
@@ -31,18 +30,21 @@ def create_module(data):
 
 
 # Function to complete modules. Converts gems from module_progresses to badge xp by weight
-def complete_modules(module_progs):
-    # Look through each ModuleProgress object
-    for prog in module_progs:
-        student = prog.student
-        # Implements the badge weight and gems to convert to xp
-        for badge_prog in prog.module.badge_weights:
-            student_badge = StudentBadges.query.filter_by(student_id=prog.student_id,
-                                                          badge_id=badge_prog.badge_id).first()
-            student_badge.xp += prog.gems * badge_prog.weight
-        # Adds module to student's completed list
-        student.inprogress_modules.remove(prog.module)
-        student.completed_modules.append(prog.module)
+def complete_modules(activity_prog):
+    activity = activity_prog.activity
+
+    for module in activity.modules:
+        module_prog = ModuleProgress.query.filter_by(module_id=module.id, student_id=activity_prog.student.id).first()
+
+        if module_prog:
+            module_prog.accumulated_gems += activity_prog.accumulated_gems
+
+            if module_prog.accumulated_gems >= module_prog.needed_gems:
+                module_prog.is_completed = True
+
+            if activity in module_prog.inprogress_activities:
+                module_prog.inprogress_activities.remove(activity)
+                module_prog.completed_activities.append(activity)
 
     return
 
