@@ -1,6 +1,5 @@
 from backend import pusher_client
 from backend.models import ActivityProgress, CheckpointProgress
-from backend.module_progresses.utils import add_gems_to_module_progress
 from datetime import datetime
 
 
@@ -37,7 +36,7 @@ def grade_activity(activity_progress, data):
     activity_progress.is_graded = True
     activity_progress.date_graded = datetime.now().date()
     activity_progress.is_passed = pass_activity(data["checkpoints"])
-    # assign_comments(data["checkpoints"])
+    assign_comments(data["checkpoints"])
 
     if activity_progress.is_passed:
         activity_progress.student.global_gems += activity_progress.accumulated_gems
