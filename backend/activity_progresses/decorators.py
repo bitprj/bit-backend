@@ -24,23 +24,23 @@ def activity_prog_exists(f):
     return wrap
 
 
-# Decorator to not let Student's do more than one ActivityProgress
-def has_no_completed_activity_progress(f):
+# Decorator to not let Student's do an Activity if they do not satisfy the prerequisites
+def has_completed_prerequisites(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()
-        activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
-                                                         activity_id=kwargs['activity_id']).first()
-        incomplete_prog = ActivityProgress.query.filter_by(student_id=student.id,
-                                                           is_completed=False).first()
+        activity = Activity.query.get(kwargs["activity_id"])
 
-        if incomplete_prog.activity_id == activity_prog.activity_id or activity_prog.is_completed:
-            return f(*args, **kwargs)
-        else:
-            return {
-                       "message": "You may not start another Activity until you completed your last one"
-                   }, 403
+        for activity_prereq in activity.prerequisite_activities:
+            activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
+                                                             activity_id=activity_prereq.id).first()
+            if not activity_prog.is_completed:
+                return {
+                           "message": "You do not satisfy the Activity prerequisites"
+                       }, 403
+
+        return f(*args, **kwargs)
 
     return wrap
 

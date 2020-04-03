@@ -8,7 +8,7 @@ class StudentSchema(ma.Schema):
     name = fields.Str(required=True)
     last_seen = fields.DateTime(required=False)
     classes = fields.Nested("ClassroomSchema", only=("id",), many=True, data_key="classrooms")
-    suggested_activity = fields.Nested("ActivitySchema", only=("id",), many=False)
+    suggested_activity = fields.Nested("SuggestedActivitySchema", required=True)
     current_activities = fields.Nested("ActivitySchema", only=("id", "content_url"), many=True)
     completed_modules = fields.Nested("ModuleSchema", only=("id", "name"), many=True)
     inprogress_modules = fields.Nested("ModuleSchema", only=("id", "name"), many=True)

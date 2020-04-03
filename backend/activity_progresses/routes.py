@@ -4,7 +4,7 @@ from flask_restful import Resource
 from backend import api, db
 from backend.authentication.decorators import roles_accepted
 from backend.activities.decorators import activity_exists
-from backend.activity_progresses.decorators import activity_prog_exists, cards_exist_in_activity, has_no_completed_activity_progress
+from backend.activity_progresses.decorators import activity_prog_exists, cards_exist_in_activity, has_completed_prerequisites
 from backend.activity_progresses.schemas import activity_progress_schema
 from backend.activity_progresses.utils import create_progress, fill_in_rels, unlock_hint
 from backend.hints.decorators import hint_exists
@@ -21,7 +21,7 @@ class ActivityProgressUpdate(Resource):
 
     # Function to return the last card completed on an activity
     @cards_exist_in_activity
-    # @has_no_completed_activity_progress
+    @has_completed_prerequisites
     def get(self, activity_id):
         username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()

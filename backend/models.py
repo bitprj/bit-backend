@@ -785,7 +785,7 @@ class Student(User):
     actions = db.relationship("UserAction", cascade="all,delete", back_populates="student")
     suggested_activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"), nullable=True)
     suggested_activity = db.relationship("Activity", back_populates="suggested_students")
-    suggested_module_id = db.Column(db.Integer, nullable=False)
+    suggested_module_id = db.Column(db.Integer, nullable=True)
 
     def __repr__(self):
         return f"Student('{self.id}')"

@@ -1,5 +1,6 @@
 from backend import ma
-from marshmallow import fields
+from backend.models import Activity, Module
+from marshmallow import fields, validates, ValidationError
 
 
 # This schema is used to validate the activity form data
@@ -61,6 +62,20 @@ class ActivitiesSchema(ma.ModelSchema):
 class SuggestedActivitySchema(ma.Schema):
     id = fields.Int(required=True)
     module_id = fields.Int(required=True)
+
+    @validates('id')
+    def validate_activity_existence(self, data):
+        activity = Activity.query.get(data)
+
+        if not activity:
+            raise ValidationError("Activity id does not exist")
+
+    @validates('module_id')
+    def validate_activity_existence(self, data):
+        module = Module.query.get(data)
+
+        if not module:
+            raise ValidationError("Module id does not exist")
 
     class Meta:
         fields = ("id", "module_id")
