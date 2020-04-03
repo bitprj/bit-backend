@@ -47,7 +47,7 @@ class UserCreate(Resource):
         access_token = create_access_token(identity=user.username)
         resp = jsonify({"username": user.username,
                         "user_type": user.roles,
-                        "csrf_token": get_csrf_token(access_token),
+                        "jwt_token": access_token
                         })
         # set_access_cookies(resp, access_token)
         # send_verification_email(user.username)
