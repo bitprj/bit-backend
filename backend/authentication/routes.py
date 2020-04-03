@@ -70,9 +70,9 @@ class UserLoginHandler(Resource):
         access_token = create_access_token(identity=username)
         resp = jsonify({"username": username,
                         "user_type": user.roles,
-                        "csrf_token": get_csrf_token(access_token),
+                        "jwt_token": access_token
                         })
-        set_access_cookies(resp, access_token)
+        # set_access_cookies(resp, access_token)
 
         return resp
 
