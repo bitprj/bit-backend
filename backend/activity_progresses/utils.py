@@ -2,7 +2,7 @@ from backend import db
 from backend.cards.utils import get_cards_hints
 from backend.checkpoint_progresses.utils import create_checkpoint_progresses
 from backend.hints.utils import create_hint_status
-from backend.models import Activity, ActivityProgress, CheckpointProgress, HintStatus
+from backend.models import Activity, ActivityProgress, CheckpointProgress, HintStatus, ModuleProgress
 
 
 # Function to create an ActivityProgress
@@ -46,12 +46,20 @@ def is_activity_completed(activity_progress_id, student_id):
                                                                           is_completed=False,
                                                                           student_id=student_id).all()
     # If there are any incomplete progresses, then return immediately, else mark activity_progress as completed
-    if incomplete_checkpoint_progresses:
+    if incomplete_checkpoint_progresses and not activity_progress.cards_locked:
         activity_progress.is_completed = False
         return
 
-    activity_progress.is_completed = True
-    activity_progress.is_graded = False
+    if not activity_progress.cards_locked:
+        activity_progress.is_completed = True
+        activity_progress.is_graded = False
+
+        for module in activity_progress.activity.modules:
+            module_prog = ModuleProgress.query.filter_by(module_id=module.id, student_id=student_id).first()
+
+            if activity_progress.activity in module_prog.inprogress_activities:
+                module_prog.inprogress_activities.remove(activity_progress.activity)
+                module_prog.completed_activities.append(activity_progress.activity)
 
     return
 

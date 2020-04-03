@@ -530,12 +530,13 @@ class Module(db.Model):
     inprogress_topics = db.relationship("TopicProgress", secondary="topic_progress_inprogress_modules_rel",
                                         back_populates="inprogress_modules")
 
-    # def __init__(self, filename, name, description, gems_needed, image):
-    #     self.filename = filename
-    #     self.name = name
-    #     self.description = description
-    #     self.gems_needed = gems_needed
-    #     self.image = image
+    def __init__(self, github_id, filename, name, description, gems_needed, image):
+        self.github_id = github_id
+        self.filename = filename
+        self.name = name
+        self.description = description
+        self.gems_needed = gems_needed
+        self.image = image
 
     def __repr__(self):
         return f"Module('{self.name}')"
@@ -652,11 +653,11 @@ class Topic(db.Model):
                                           back_populates="inprogress_topics")
     students = db.relationship("TopicProgress", cascade="all,delete", back_populates="topic")
 
-    # def __init__(self, github_id, name, description, image):
-    #     self.github_id = github_id
-    #     self.name = name
-    #     self.description = description
-    #     self.image = image
+    def __init__(self, github_id, name, description, image):
+        self.github_id = github_id
+        self.name = name
+        self.description = description
+        self.image = image
 
     def __repr__(self):
         return f"Topic('{self.name}')"

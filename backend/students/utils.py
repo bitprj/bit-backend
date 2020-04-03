@@ -36,12 +36,14 @@ def update_module_progresses(activity, student):
     incomplete_modules = set(student.incomplete_modules)
 
     for module in activity.modules:
+        topics += module.topics
         module_prog = ModuleProgress.query.filter_by(module_id=module.id, student_id=student.id).first()
 
         if module_prog:
             module_prog.last_activity_unlocked_id = activity.id
 
-        topics += module.topics
+        if activity in module_prog.incomplete_activities and activity not in module_prog.completed_activities:
+            module_prog.inprogress_activities.append(activity)
 
         if module in incomplete_modules:
             student.incomplete_modules.remove(module)

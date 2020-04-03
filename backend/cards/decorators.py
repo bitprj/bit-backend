@@ -70,7 +70,7 @@ def card_is_unlockable(f):
         else:
             return {
                        "message": "Card already unlocked"
-                   }, 404
+                   }, 403
 
     return wrap
 

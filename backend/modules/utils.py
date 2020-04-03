@@ -18,12 +18,12 @@ def add_modules_to_students(modules, students):
 
 # Function to create a module
 def create_module(data):
-    module = Module(filename=data["filename"],
+    module = Module(github_id=data["github_id"],
+                    filename=data["filename"],
                     name=data["name"],
                     description=data["description"],
                     gems_needed=data["gems_needed"],
                     image=data["image"],
-                    github_id=data["github_id"]
                     )
 
     return module
