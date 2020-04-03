@@ -1,7 +1,7 @@
 from backend import db
 from backend.general_utils import create_zip, delete_files, parse_img_tag, create_schema_json, send_tests_zip
 from backend.models import Activity, Checkpoint
-import backend.activities.utils as activity_utils
+import backend.activities.utils as activity_utils 
 import backend.hooks.utils as hook_utils
 import requests
 
