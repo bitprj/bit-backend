@@ -59,6 +59,9 @@ class StudentInfo(Resource):
         username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()
         student_data = student_schema.dump(student)
+        student_data["suggested_activity"] = {}
+        student_data["suggested_activity"]["id"] = student.suggested_activity_id
+        student_data["suggested_activity"]["module_id"] = student.suggested_module_id
         student.last_seen = datetime.utcnow()
         db.session.commit()
 
@@ -70,8 +73,11 @@ class StudentInfo(Resource):
         data = request.get_json()
         username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()
+        student.suggested_activity_id = data["suggested_activity"]["id"]
+        student.suggested_module_id = data["suggested_activity"]["module_id"]
         student_data = student_schema.dump(student)
         student_data["suggested_activity"] = data["suggested_activity"]
+        db.session.commit()
 
         return student_data
 
