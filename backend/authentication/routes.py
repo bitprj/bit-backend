@@ -87,7 +87,7 @@ class UserLogoutHandler(Resource):
         # unset_jwt_cookies(resp)
 
         return {
-                   "msg": "Successfully logged out"
+                   "message": "Successfully logged out"
                }, 200
 
 
