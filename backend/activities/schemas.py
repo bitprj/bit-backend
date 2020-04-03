@@ -57,6 +57,16 @@ class ActivitiesSchema(ma.ModelSchema):
         ordered = True
 
 
+# This schema is used to display data for a SuggestedActivity
+class SuggestedActivitySchema(ma.Schema):
+    id = fields.Int(required=True)
+    module_id = fields.Int(required=True)
+
+    class Meta:
+        fields = ("id", "module_id")
+        ordered = True
+
+
 activity_form_schema = ActivityFormSchema()
 activity_schema = ActivitySchema()
 activities_schema = ActivitiesSchema(many=True)
