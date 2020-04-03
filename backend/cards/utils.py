@@ -1,8 +1,10 @@
 from backend import db
-from backend.general_utils import create_schema_json, send_file_to_cdn
-from backend.general_utils import create_schema_json
+from backend.general_utils import create_image_obj, send_file_to_cdn
+from backend.general_utils import create_schema_json, get_base_folder
 from backend.models import Card
+from bs4 import BeautifulSoup
 import requests
+import uuid
 
 
 # Function to create a card
@@ -15,7 +17,7 @@ def create_card(data, activity_id):
                 activity_id=activity_id
                 )
     github_data = requests.get(data["github_raw_data"])
-    card.content = github_data.text
+    card.content = update_card_images(github_data.text, data["filename"])
 
     return card
 
@@ -37,7 +39,7 @@ def edit_card(card, data):
     card.gems = data["gems"]
     card.github_raw_data = data["github_raw_data"]
     github_data = requests.get(data["github_raw_data"])
-    card.content = github_data.text
+    card.content = update_card_images(github_data.text, data["filename"])
     card.content_url = create_schema_json(card, "card")
 
     return
@@ -61,3 +63,17 @@ def update_card_cdn(cards):
     db.session.commit()
 
     return
+
+
+# Function to update the cards images with S3 links
+def update_card_images(html, filename):
+    soup = BeautifulSoup(html, features="html.parser")
+    card_base_file = get_base_folder(filename)
+
+    for img in soup.findAll('img'):
+        image_path = img["src"].split("/")
+        image_folder = card_base_file + "/" + "/".join(image_path[1:3])
+        unique_str = str(uuid.uuid1())
+        img["src"] = create_image_obj(unique_str + image_path[2], image_folder, "cards")
+
+    return str(soup.prettify(formatter=None))
