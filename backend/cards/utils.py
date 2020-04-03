@@ -1,6 +1,5 @@
 from backend import db
-from backend.general_utils import create_image_obj, send_file_to_cdn
-from backend.general_utils import create_schema_json, get_base_folder
+from backend.general_utils import create_image_obj, create_schema_json, get_base_folder, send_file_to_cdn
 from backend.models import Card
 from bs4 import BeautifulSoup
 import requests

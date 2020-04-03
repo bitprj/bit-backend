@@ -87,7 +87,7 @@ def create_schema_json(model_obj, schema_type):
     data_filename = model_obj.filename.split("/")
     data_path = "/".join(data_filename[:-1])
     filename = model_obj.name.replace(" ", "_") + "_" + str(model_obj.id) + ".json"
-    url = send_file_to_cdn(schema_data, data_path, filename)
+    url = send_file_to_cdn(schema_data, filename, schema_type, model_obj)
 
     return url
 
@@ -174,11 +174,7 @@ def send_tests_zip(filename):
 
 # Function to store file data into a file and send them to s3
 # This is used for md and json files
-def send_file_to_cdn(data, file_path, filename):
-    # if "cdn" in os.getcwd():
-    #     os.chdir("..")
-    # os.chdir("./cdn")
-
+def send_file_to_cdn(data, filename, schema_type, model_obj):
     if isinstance(data, dict):
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
@@ -188,11 +184,11 @@ def send_file_to_cdn(data, file_path, filename):
             f.write(content.text)
 
     s3_client = boto3.client("s3")
-    path = file_path + "/" + filename
+    # model_name/model_id.json
+    path = schema_type + "s/" + model_obj.id + ".json"
     s3_client.upload_file(filename, S3_CDN_BUCKET, path)
     url = "https://d36nt3c422j20i.cloudfront.net/" + path
 
-    # if "cdn" in os.getcwd():
     os.remove(filename)
 
     return url
