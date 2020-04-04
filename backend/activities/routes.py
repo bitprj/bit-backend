@@ -23,6 +23,7 @@ class ActivityCRUD(Resource):
 
         db.session.add(activity)
         db.session.commit()
+        activity.cards.sort(key=lambda x: x.order)
         create_schema_json(activity, "activities")
         db.session.commit()
 
@@ -35,6 +36,7 @@ class ActivityCRUD(Resource):
         data = request.get_json()
         activity = Activity.query.filter_by(filename=data["filename"]).first()
         edit_activity(activity, data)
+        activity.cards.sort(key=lambda x: x.order)
         create_schema_json(activity, "activities")
         db.session.commit()
 
