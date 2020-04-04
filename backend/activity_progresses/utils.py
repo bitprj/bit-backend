@@ -68,9 +68,11 @@ def is_activity_completed(activity_progress_id, student_id):
 def unlock_card(student_activity_prog, next_card):
     locked_cards = student_activity_prog.cards_locked
     locked_cards.sort(key=lambda x: x.order)
-    locked_cards.remove(next_card)
-    student_activity_prog.cards_unlocked.append(next_card)
-    student_activity_prog.accumulated_gems += next_card.gems
+
+    if next_card in locked_cards:
+        locked_cards.remove(next_card)
+        student_activity_prog.cards_unlocked.append(next_card)
+        student_activity_prog.accumulated_gems += next_card.gems
 
     return
 

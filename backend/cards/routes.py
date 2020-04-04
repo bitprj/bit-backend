@@ -85,7 +85,7 @@ class CardGetHints(Resource):
     #     return hint_status_schema.dump(hints)
 
     # Function to unlock the next card
-    @card_is_unlockable
+    # @card_is_unlockable
     def put(self, activity_id, card_id):
         username = get_jwt_identity()
         student = Student.query.filter_by(username=username).first()
