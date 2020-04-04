@@ -64,9 +64,6 @@ def card_is_unlockable(f):
         card = Card.query.get(kwargs['card_id'])
         student_activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
                                                                  activity_id=kwargs['activity_id']).first()
-        print(kwargs['activity_id'])
-        print(card.id)
-        print(student.id)
         if card in student_activity_prog.cards_locked:
             return f(*args, **kwargs)
         else:
