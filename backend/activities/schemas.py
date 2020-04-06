@@ -1,6 +1,8 @@
 from backend import ma
+from backend.cards.schemas import CardSerializer
 from backend.models import Activity, Module
 from marshmallow import fields, validates, ValidationError
+from serpy import Serializer, IntField, StrField, MethodField, BoolField
 
 
 # This schema is used to validate the activity form data
@@ -43,18 +45,26 @@ class ActivitySchema(ma.Schema):
         ordered = True
 
 
-# This schema is used to display data for all activities
-class ActivitiesSchema(ma.ModelSchema):
-    id = fields.Int(required=True)
-    name = fields.Str(required=True)
-    description = fields.Str(required=True)
-    difficulty = fields.Str(required=True)
-    cards = fields.Nested("CardSchema", only=("name",), many=True)
+class ActivitySerializer(Serializer):
+    id = IntField(required=True)
+    name = StrField(required=True)
+    description = StrField(required=True)
+    summary = StrField(required=True)
+    difficulty = StrField(required=True)
+    image = StrField(required=True)
+    is_project = BoolField(required=True)
+    cards = MethodField("serialize_cards")
+    prerequisite_activities = MethodField("serialize_activities")
 
-    class Meta:
-        # Fields to show when sending data
-        fields = ("id", "name", "description", "difficulty", "cards")
-        ordered = True
+    def serialize_cards(self, activity):
+        if not activity.cards:
+            return []
+        return CardSerializer(activity.cards, many=True).data
+
+    def serialize_activities(self, activity):
+        if not activity.prerequisite_activities:
+            return []
+        return ActivitySerializer(activity.prerequisite_activities, many=True).data
 
 
 # This schema is used to display data for a SuggestedActivity
@@ -83,4 +93,3 @@ class SuggestedActivitySchema(ma.Schema):
 
 activity_form_schema = ActivityFormSchema()
 activity_schema = ActivitySchema()
-activities_schema = ActivitiesSchema(many=True)

@@ -1,12 +1,13 @@
-from flask import (Blueprint, request)
-from flask_jwt_extended import jwt_required
-from flask_restful import Resource
 from backend import api, db
 from backend.activities.decorators import activity_exists, activity_exists_in_github, valid_activity_form
-from backend.activities.schemas import activity_schema, activities_schema
+from backend.activities.schemas import ActivitySerializer
 from backend.activities.utils import create_activity, edit_activity
 from backend.general_utils import create_schema_json
 from backend.models import Activity
+from flask import (Blueprint, request)
+from flask_jwt_extended import jwt_required
+from flask_restful import Resource
+from serpy import Serializer, IntField, StrField, MethodField, BoolField
 
 # Blueprint for activities
 activities_bp = Blueprint("activities", __name__)
@@ -52,17 +53,6 @@ class ActivityCRUD(Resource):
         return {"message": "Activity successfully deleted"}, 200
 
 
-# Class to get all tracks
-class ActivityFetchAll(Resource):
-    method_decorators = [jwt_required]
-
-    # Function to get all activities
-    def get(self):
-        activities = Activity.query.all()
-
-        return activities_schema.dump(activities)
-
-
 # This class is used to get a specific activity based on id
 class ActivityGetSpecific(Resource):
     method_decorators = [jwt_required, activity_exists]
@@ -71,10 +61,10 @@ class ActivityGetSpecific(Resource):
         activity = Activity.query.get(activity_id)
         activity.cards.sort(key=lambda x: x.order)
 
-        return activity_schema.dump(activity)
+        return ActivitySerializer(activity).data
+        # return activity_schema.dump(activity)
 
 
 # Creates the routes for the classes
 api.add_resource(ActivityCRUD, "/activities")
-api.add_resource(ActivityFetchAll, "/activities/all")
 api.add_resource(ActivityGetSpecific, "/activities/<int:activity_id>")
