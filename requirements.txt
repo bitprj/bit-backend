@@ -1,3 +1,4 @@
+aiofiles==0.4.0
 alembic==1.4.2
 aniso8601==8.0.0
 asn1crypto==1.3.0
@@ -38,6 +39,11 @@ Flask-S3==0.3.3
 Flask-Script==2.0.6
 Flask-SQLAlchemy==2.4.1
 gunicorn==20.0.4
+h11==0.9.0
+h2==3.2.0
+hpack==3.0.0
+Hypercorn==0.9.4
+hyperframe==5.2.0
 idna==2.9
 inflection==0.3.1
 itsdangerous==1.1.0
@@ -53,6 +59,7 @@ ndg-httpsclient==0.5.1
 passlib==1.7.2
 pendulum==2.1.0
 Pillow==7.0.0
+priority==1.3.0
 psycopg2-binary==2.8.4
 pusher==2.1.4
 pusher-chatkit-server==1.0.4
@@ -72,10 +79,14 @@ PyYAML==5.3.1
 requests==2.23.0
 rsa==3.4.2
 s3transfer==0.3.3
+serpy==0.3.1
 six==1.14.0
 soupsieve==2.0
 SQLAlchemy==1.3.15
+toml==0.10.0
 tornado==6.0.4
+typing-extensions==3.7.4.2
 urllib3==1.25.8
 Werkzeug==1.0.1
 wrapt==1.12.1
+wsproto==0.15.0
