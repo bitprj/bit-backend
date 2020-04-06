@@ -70,9 +70,10 @@ def update_card_images(html, filename):
     card_base_file = get_base_folder(filename)
 
     for img in soup.findAll('img'):
-        image_path = img["src"].split("/")
-        image_folder = card_base_file + "/" + "/".join(image_path[1:3])
-        unique_str = str(uuid.uuid1())
-        img["src"] = create_image_obj(unique_str + image_path[2], image_folder, "cards")
+        if "https" not in img["src"]:
+            image_path = img["src"].split("/")
+            image_folder = card_base_file + "/" + "/".join(image_path[1:3])
+            unique_str = str(uuid.uuid1())
+            img["src"] = create_image_obj(unique_str + image_path[2], image_folder, "cards")
 
     return str(soup.prettify(formatter=None))
