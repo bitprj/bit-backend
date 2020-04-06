@@ -7,7 +7,6 @@ from backend.models import Activity
 from flask import (Blueprint, request)
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource
-from serpy import Serializer, IntField, StrField, MethodField, BoolField
 
 # Blueprint for activities
 activities_bp = Blueprint("activities", __name__)
