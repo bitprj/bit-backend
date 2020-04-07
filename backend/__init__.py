@@ -11,9 +11,11 @@ from backend.config import *
 from contentful_management import Client
 from github import Github
 from itsdangerous import URLSafeTimedSerializer
+from werkzeug.contrib.fixers import ProxyFix
 import pusher
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app)
 
 app.config["SECRET_KEY"] = SECRET_KEY
 app.config["MAIL_SERVER"] = MAIL_SERVER
