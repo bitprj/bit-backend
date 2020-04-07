@@ -3,7 +3,7 @@
   "builds": [
     {
       "src": "*.py",
-      "use": "@liudonghua123/now-flask",
+      "use": "@now/python",
       "config": {
         "maxLambdaSize": "30mb"
       }
