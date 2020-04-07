@@ -63,7 +63,6 @@ class ActivityGetSpecific(Resource):
         activity.cards.sort(key=lambda x: x.order)
 
         return ActivitySerializer(activity).data
-        # return activity_schema.dump(activity)
 
 
 # Creates the routes for the classes

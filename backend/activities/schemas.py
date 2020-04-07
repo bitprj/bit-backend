@@ -2,7 +2,7 @@ from backend import ma
 from backend.cards.schemas import CardSerializer
 from backend.models import Activity, Module
 from marshmallow import fields, validates, ValidationError
-from serpy import Serializer, IntField, StrField, MethodField, BoolField
+from serpy import BoolField, IntField, MethodField, Serializer, StrField
 
 
 # This schema is used to validate the activity form data
@@ -45,6 +45,12 @@ class ActivitySchema(ma.Schema):
         ordered = True
 
 
+# This is a serpy schema to use for Activity relationships
+class ActivityRelSerializer(Serializer):
+    id = IntField(required=True)
+
+
+# This is serpy schema to serialize models
 class ActivitySerializer(Serializer):
     id = IntField(required=True)
     name = StrField(required=True)

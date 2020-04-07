@@ -2,7 +2,7 @@ from backend import api, db
 from backend.activities.decorators import activity_project_exists
 from backend.authentication.decorators import roles_required
 from backend.module_progresses.decorators import module_prog_exists, valid_update_data
-from backend.module_progresses.schemas import module_progress_schema
+from backend.module_progresses.schemas import ModuleProgressSerializer
 from backend.models import ModuleProgress, Student
 from flask import (Blueprint, request)
 from flask_jwt_extended import get_jwt_identity
@@ -23,7 +23,7 @@ class ModuleProgressData(Resource):
         student = Student.query.filter_by(username=username).first()
         module_progress = ModuleProgress.query.filter_by(module_id=module_id, student_id=student.id).first()
 
-        return module_progress_schema.dump(module_progress)
+        return ModuleProgressSerializer(module_progress).data
 
     # Function to update a student's completed activities
     @module_prog_exists
@@ -37,7 +37,7 @@ class ModuleProgressData(Resource):
         module_progress.chosen_project_id = data["chosen_project_id"]
         db.session.commit()
 
-        return module_progress_schema.dump(module_progress)
+        return ModuleProgressSerializer(module_progress).data
 
 
 api.add_resource(ModuleProgressData, "/modules/<int:module_id>/progress")
