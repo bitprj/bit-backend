@@ -65,6 +65,12 @@ class ActivityGetSpecific(Resource):
         return ActivitySerializer(activity).data
 
 
+class HelloWorld(Resource):
+    def get(self):
+        return {'hello': 'world'}
+
+
 # Creates the routes for the classes
 api.add_resource(ActivityCRUD, "/activities")
 api.add_resource(ActivityGetSpecific, "/activities/<int:activity_id>")
+api.add_resource(HelloWorld, "/")

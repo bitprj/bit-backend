@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "*.py",
+      "use": "@liudonghua123/now-flask",
+      "config": {
+        "maxLambdaSize": "30mb"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/.*",
+      "dest": "/"
+    }
+  ]
+}
