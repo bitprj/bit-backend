@@ -56,7 +56,7 @@ class UserCreate(Resource):
 
 
 # Class to login in a user
-class UserLoginHandler(Resource):
+class UserAuthHandler(Resource):
     method_decorators = [user_exists]
 
     # Function to login a user through a jwt token
@@ -75,9 +75,6 @@ class UserLoginHandler(Resource):
 
         return resp
 
-
-# Class to logout a user
-class UserLogoutHandler(Resource):
     # This function works by deleting the jwt cookies associated with the user
     @jwt_required
     def delete(self):
@@ -89,7 +86,6 @@ class UserLogoutHandler(Resource):
         return {
                    "message": "Successfully logged out"
                }, 200
-
 
 class Protected(Resource):
     method_decorators = [jwt_required]
@@ -149,8 +145,7 @@ def add_claims_to_access_token(identity):
 # Creates the routes for the classes
 api.add_resource(UserAuthorize, "/confirm_email/<string:token>")
 api.add_resource(UserCreate, "/users/<string:user_type>/create")
-api.add_resource(UserLoginHandler, "/auth")
-api.add_resource(UserLogoutHandler, "/user/logout")
+api.add_resource(UserAuthHandler, "/auth")
 api.add_resource(Protected, "/protected")
 api.add_resource(UserIsAdmin, "/isAdmin")
 api.add_resource(UserIsStudent, "/isStudent")
