@@ -64,13 +64,12 @@ def card_is_unlockable(f):
         card = Card.query.get(kwargs['card_id'])
         student_activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
                                                                  activity_id=kwargs['activity_id']).first()
-
         if card in student_activity_prog.cards_locked:
             return f(*args, **kwargs)
         else:
             return {
                        "message": "Card already unlocked"
-                   }, 404
+                   }, 403
 
     return wrap
 

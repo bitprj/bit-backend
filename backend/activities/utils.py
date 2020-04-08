@@ -1,5 +1,21 @@
-from backend.general_utils import send_json_to_cdn
+from backend.concepts.utils import get_concepts
+from backend.general_utils import binary_search
 from backend.models import Activity, Card, Hint, Module
+
+
+# Function to add an to a module progress
+def add_activity_to_module_progress(student, activity, module_prog):
+    if binary_search(student.completed_activities, 0, len(student.completed_activities) - 1, activity.id) != -1:
+        module_prog.completed_activities.append(activity)
+    elif binary_search(student.incomplete_activities, 0, len(student.incomplete_activities) - 1, activity.id) != -1:
+        module_prog.incomplete_activities.append(activity)
+    elif binary_search(student.current_activities, 0, len(student.current_activities) - 1, activity.id) != -1:
+        module_prog.inprogress_activities.append(activity)
+    else:
+        student.incomplete_activities.append(activity)
+        module_prog.incomplete_activities.append(activity)
+
+    return
 
 
 # Function to assign an activity to a module
@@ -29,12 +45,6 @@ def create_activity(data):
     return activity
 
 
-# Function to create a activity json file and send to s3
-def create_activity_json():
-    
-    pass
-
-
 # Function to edit an activity
 def edit_activity(activity, data):
     activity.name = data["name"]
@@ -49,9 +59,10 @@ def edit_activity(activity, data):
     if "cards" in data:
         card_filename_path = activity.filename.split("/")[:-1]
         card_path = "/".join(card_filename_path)
+
         for card_name, card_data in data["cards"].items():
-            card_filename = card_path + "/Cards/" + card_name + ".md"
-            update_card(card_path, card_name, card_filename)
+            card_filename = card_path + "/cards/" + card_name + ".md"
+            update_card(card_data, card_name, card_filename)
 
     return
 
@@ -80,4 +91,19 @@ def update_card(card_data, card_name, card_filename):
         card.order = card_data["order"]
         card.gems = card_data["gems"]
 
+        if "concepts" in card_data:
+            card.concepts = get_concepts(card_data["concepts"], card)
+
     return
+
+
+# Function to update activity_prereqs
+def update_prereqs(activities):
+    prereqs = []
+
+    for activity_id in activities:
+        activity = Activity.query.filter_by(github_id=int(activity_id)).first()
+        if activity:
+            prereqs.append(activity)
+
+    return prereqs

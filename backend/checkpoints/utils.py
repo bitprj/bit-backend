@@ -1,4 +1,4 @@
-from backend.general_utils import create_zip, delete_files, parse_img_tag, send_tests_zip
+from backend.general_utils import create_schema_json, create_zip, delete_files, parse_img_tag, send_tests_zip
 from backend.hooks.utils import call_mc_choice_routes, call_criteria_routes
 from backend.models import Activity, Card, Checkpoint
 import os
@@ -60,6 +60,9 @@ def edit_checkpoint(checkpoint, data):
     checkpoint.filename = data["filename"]
     assign_checkpoint_to_card(checkpoint, data)
     fill_optional_checkpoint_fields(checkpoint, data)
+    create_schema_json(checkpoint, "checkpoints")
+    card = Card.query.filter_by(checkpoint_id=checkpoint.id).first()
+    create_schema_json(card, "cards")
 
     return
 

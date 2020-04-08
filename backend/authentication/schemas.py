@@ -1,5 +1,5 @@
 from backend import ma
-from marshmallow import fields
+from marshmallow import fields, validates, ValidationError
 
 
 # This schema is used to validate data to create a user
@@ -7,15 +7,18 @@ class UserFormSchema(ma.Schema):
     name = fields.Str(required=True)
     username = fields.Email(required=True)
     password = fields.Str(required=True)
-    roles = fields.Str(required=False)
+    roles = fields.Str(required=True)
     location = fields.Str(required=True)
     image = fields.Str(required=True)
-    track_id = fields.Int(required=False)
-    class_code = fields.Str(required=False)
+
+    @validates('roles')
+    def validate_user_type(self, data):
+        if data != "Student" and data != "Teacher":
+            raise ValidationError("Incorrect user type")
 
     class Meta:
         # Fields to show when sending data
-        fields = ("name", "username", "password", "roles", "location", "image", "track_id", "class_code")
+        fields = ("name", "username", "password", "roles", "location", "image")
         ordered = True
 
 

@@ -16,10 +16,6 @@ import pusher
 app = Flask(__name__)
 
 app.config["SECRET_KEY"] = SECRET_KEY
-# app.config["JWT_ACCESS_LIFESPAN"] = {"minutes": 45}
-# app.config["JWT_REFRESH_LIFESPAN"] = {"days": 1}
-# Change token expires later to some time
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = False
 app.config["MAIL_SERVER"] = MAIL_SERVER
 app.config["MAIL_USERNAME"] = MAIL_USERNAME
 app.config["MAIL_PASSWORD"] = MAIL_PASSWORD
@@ -28,12 +24,17 @@ app.config["MAIL_USE_TLS"] = MAIL_USE_TLS
 app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
 app.config["SQLALCHEMY_POOL_SIZE"] = 70000
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
-app.config["JWT_ACCESS_COOKIE_PATH"] = "/"
-app.config["JWT_COOKIE_CSRF_PROTECT"] = True
-app.config["JWT_COOKIE_SECURE"] = False
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = False
+app.config['JWT_BLACKLIST_ENABLED'] = True
+app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
+# app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
+# app.config["JWT_ACCESS_COOKIE_PATH"] = "/"
+# app.config["JWT_COOKIE_CSRF_PROTECT"] = True
+# app.config["JWT_COOKIE_SECURE"] = bool(JWT_COOKIE_SECURE)
 app.config["JWT_SECRET_KEY"] = SECRET_KEY
 app.config["CORS_HEADERS"] = "Content-Type"
+app.config["PROPAGATE_EXCEPTIONS"] = True
+blacklist = set()
 
 api = Api(app)
 db = SQLAlchemy(app)
@@ -55,6 +56,13 @@ pusher_client = pusher.Pusher(
     cluster=PUSHER_CLUSTER,
     ssl=True)
 
+
+@jwt.token_in_blacklist_loader
+def check_if_token_in_blacklist(decrypted_token):
+    jti = decrypted_token['jti']
+    return jti in blacklist
+
+
 from backend.models import User
 
 guard.init_app(app, User)
@@ -74,7 +82,6 @@ from backend.gems.routes import gems_bp
 from backend.hints.routes import hints_bp
 from backend.hooks.routes import hooks_bp
 from backend.mc_choices.routes import mc_choices_bp
-from backend.mc_questions.routes import mc_questions_bp
 from backend.modules.routes import modules_bp
 from backend.organizations.routes import organizations_bp
 from backend.module_progresses.routes import module_progresses_bp
@@ -100,7 +107,6 @@ app.register_blueprint(events_bp)
 app.register_blueprint(gems_bp)
 app.register_blueprint(hints_bp)
 app.register_blueprint(hooks_bp)
-app.register_blueprint(mc_questions_bp)
 app.register_blueprint(mc_choices_bp)
 app.register_blueprint(modules_bp)
 app.register_blueprint(module_progresses_bp)

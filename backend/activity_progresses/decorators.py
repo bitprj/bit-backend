@@ -24,6 +24,27 @@ def activity_prog_exists(f):
     return wrap
 
 
+# Decorator to not let Student's do an Activity if they do not satisfy the prerequisites
+def has_completed_prerequisites(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        username = get_jwt_identity()
+        student = Student.query.filter_by(username=username).first()
+        activity = Activity.query.get(kwargs["activity_id"])
+
+        for activity_prereq in activity.prerequisite_activities:
+            activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
+                                                             activity_id=activity_prereq.id).first()
+            if not activity_prog.is_completed:
+                return {
+                           "message": "You do not satisfy the Activity prerequisites"
+                       }, 403
+
+        return f(*args, **kwargs)
+
+    return wrap
+
+
 # Decorator to check if assignments are sent in the right format
 def activity_prog_grading_format(f):
     @wraps(f)
@@ -71,7 +92,7 @@ def is_activity_graded(f):
         else:
             return {
                        "message": "Activity has already been graded."
-                   }, 500
+                   }, 403
 
     return wrap
 

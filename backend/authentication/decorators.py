@@ -3,7 +3,6 @@ from flask_jwt_extended import verify_jwt_in_request, get_jwt_claims
 from flask_praetorian.exceptions import MissingRoleError
 from backend import guard
 from backend.authentication.schemas import user_form_schema, user_login_schema
-from backend.authentication.validators import check_user_existence
 from backend.models import User
 from functools import wraps
 
@@ -27,7 +26,9 @@ def roles_accepted(*accepted_rolenames):
                 return method(*args, **kwargs)
             finally:
                 print("Role requirement complete")
+
         return wrapper
+
     return decorator
 
 
@@ -51,7 +52,9 @@ def roles_required(*required_rolenames):
                 return f(*args, **kwargs)
             finally:
                 print("Role requirement complete")
+
         return wrapper
+
     return decorator
 
 
@@ -67,7 +70,7 @@ def user_exists(f):
         if errors:
             return {
                        "message": "Missing or sending incorrect login data. Double check the JSON data that it has everything needed to login."
-                   }, 500
+                   }, 422
         else:
             username = form_data["username"]
             password = form_data["password"]
@@ -96,8 +99,8 @@ def user_is_active(f):
             return f(*args, **kwargs)
         else:
             return {
-                "message": "Your account has not been activated. Go to your email to validate your email."
-            }, 500
+                       "message": "Your account has not been activated. Go to your email to validate your email."
+                   }, 500
 
     return wrap
 
@@ -107,37 +110,23 @@ def valid_user_form(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         form_data = request.get_json()
+        form_data["roles"] = kwargs["user_type"]
         errors = user_form_schema.validate(form_data)
 
         if errors:
             return {
-                       "message": "Missing or sending incorrect data to create a " + kwargs[
-                           "user_type"] + ". Double check the JSON data that it has everything needed to create a " + user_type + "."
-                   }, 500
+                       "message": "Missing or sending incorrect data to create a User"
+                   }, 422
         else:
-            user_already_exist = check_user_existence(form_data["username"])
+            user = User.query.filter_by(username=form_data["username"]).first()
 
             # If user exist in the database, then return an error message to
             # tell the user to choose a different email
-            if user_already_exist:
+            if user:
                 return {
                            "message": "Email already exists. Please choose another one."
-                       }, 500
+                       }, 401
             else:
                 return f(*args, **kwargs)
-
-    return wrap
-
-
-# Decorator to check if a user registration data is valid
-def valid_user_type(f):
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        if kwargs["user_type"] == "Student" or kwargs["user_type"] == "Teacher" or kwargs["user_type"] == "Admin":
-            return f(*args, **kwargs)
-        else:
-            return {
-                "message": "User type does not exist"
-            }
 
     return wrap

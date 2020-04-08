@@ -17,12 +17,13 @@ class ActivityProgressGradingSchema(ma.ModelSchema):
 class ActivityProgressSubmissionSchema(ma.ModelSchema):
     student_id = fields.Int(required=True)
     activity_id = fields.Int(required=True)
-    checkpoints = fields.Nested("CheckpointProgressSchema", only=("checkpoint_id", "content", "student_comment"), required=True,
-                                many=True)
+    activity = fields.Nested("ActivitySchema", only=("id",), required=True, many=False)
+    checkpoints = fields.Nested("CheckpointProgressSchema", only=("checkpoint_id", "checkpoint", "content", "student_comment"),
+                                required=True, many=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("student_id", "activity_id", "checkpoints")
+        fields = ("student_id", "activity_id", "activity", "checkpoints")
         ordered = True
 
 

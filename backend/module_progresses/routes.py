@@ -1,46 +1,41 @@
-from flask import (Blueprint, request)
-from flask_jwt_extended import get_jwt_identity
-from flask_restful import Resource
 from backend import api, db
-from backend.activities.decorators import activity_exists_in_student_prog
+from backend.activities.decorators import activity_project_exists
 from backend.authentication.decorators import roles_required
-from backend.modules.decorators import module_exists
-from backend.modules.utils import get_module_progress
-from backend.module_progresses.schemas import module_progress_schema
-from backend.models import Activity, Student
+from backend.module_progresses.decorators import module_prog_exists, valid_update_data
+from backend.module_progresses.schemas import ModuleProgressSerializer
+from backend.models import ModuleProgress
+from flask import (Blueprint, request)
+from flask_jwt_extended import get_jwt_claims
+from flask_restful import Resource
 
 # Blueprint for modules
 module_progresses_bp = Blueprint("module_progresses", __name__)
 
 
 # Class for module progress
-class ModuleProgress(Resource):
-    method_decorators = [roles_required("Student"), module_exists]
+class ModuleProgressData(Resource):
+    method_decorators = [roles_required("Student")]
 
     # Function to display a student's module progress
+    @module_prog_exists
     def get(self, module_id):
-        username = get_jwt_identity()
-        student = Student.query.filter_by(username=username).first()
-        module_progress = get_module_progress(student, module_id)
+        user_data = get_jwt_claims()
+        module_progress = ModuleProgress.query.filter_by(module_id=module_id, student_id=user_data["id"]).first()
 
-        return module_progress_schema.dump(module_progress)
+        return ModuleProgressSerializer(module_progress).data
 
     # Function to update a student's completed activities
-    @activity_exists_in_student_prog
-    def put(self):
-        activity_completed = request.get_json()
-        username = get_jwt_identity()
-        student = Student.query.filter_by(username=username).first()
-        activity_id = activity_completed["complete"]["id"]
-        activity = Activity.query.get(activity_id)
-        student.completed_activities.append(activity)
-        student.incomplete_activities.remove(activity)
-
+    @module_prog_exists
+    @valid_update_data
+    @activity_project_exists
+    def put(self, module_id):
+        data = request.get_json()
+        user_data = get_jwt_claims()
+        module_progress = ModuleProgress.query.filter_by(module_id=module_id, student_id=user_data["id"]).first()
+        module_progress.chosen_project_id = data["chosen_project_id"]
         db.session.commit()
 
-        return {
-                   "message": "Student's module progress successfully updated"
-               }, 202
+        return ModuleProgressSerializer(module_progress).data
 
 
-api.add_resource(ModuleProgress, "/modules/<int:module_id>/progress")
+api.add_resource(ModuleProgressData, "/modules/<int:module_id>/progress")

@@ -82,8 +82,8 @@ def get_steps(step_list):
 def get_topics(topic_list):
     topics = []
 
-    for topic in topic_list:
-        topic = Topic.query.filter_by(github_id=topic["github_id"]).first()
+    for github_id in topic_list:
+        topic = Topic.query.filter_by(github_id=github_id).first()
         topics.append(topic)
 
     return topics

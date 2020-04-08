@@ -22,21 +22,16 @@ class ModuleFormSchema(ma.Schema):
 # This schema is used to display data in the Module model
 class ModuleSchema(ma.Schema):
     id = fields.Int(required=True)
-    contentful_id = fields.Str(required=True)
     name = fields.Str(required=True)
     description = fields.Str(required=True)
     gems_needed = fields.Int(required=True)
     # badge_weights = ma.Nested("ModuleBadgeWeightSchema", many=True)
     # badge_prereqs = ma.Nested("BadgeRequirementSchema", many=True)
-    # We are referencing another Schema below. You do this in oder to avoid circular referencing
-    # The only keyword is used to show the id of the activity
-    activities = ma.Nested("ActivitySchema", only=("id",), many=True)
-
-    # activity_prereqs = ma.Nested("ActivitySchema", only=("id",), many=True)
+    activities = ma.Nested("ActivitySchema", only=("id", "is_project"), many=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("id", "contentful_id", "name", "description", "gems_needed", "activities")
+        fields = ("id", "name", "description", "gems_needed", "activities")
         ordered = True
 
 

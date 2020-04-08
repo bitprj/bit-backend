@@ -27,7 +27,8 @@ def call_card_routes(card_data, card_name, activity_filename, file):
             requests.post(API + "/cards", json=card_data)
     else:
         content = md_to_json(file.raw_url)
-        hint_data = update_hint_data(card_data, card_name, content)
+        card_data.update(content)
+        hint_data = update_hint_data(card_data, card_name)
         call_hint_routes(hint_data)
 
     return
@@ -101,7 +102,7 @@ def call_mc_choice_routes(choice_data, correct_choice, checkpoint_id):
 
 
 # Function to call the Step's Create/Update route
-def call_step_routes(step_data, parent_id, parent_type, image_folder):
+def call_step_routes(data, parent_id, parent_type):
     # Gets all the steps based on the parent
     steps = []
     if parent_type == "concept":
@@ -109,15 +110,15 @@ def call_step_routes(step_data, parent_id, parent_type, image_folder):
     elif parent_type == "hint":
         steps = Step.query.filter_by(hint_id=parent_id).all()
 
-    for key, data in step_data.items():
-        data = update_step_data(data, key, parent_id, parent_type, image_folder)
-        step = get_step_from_patent(data)
+    for key, step_data in data["steps"].items():
+        step_data = update_step_data(step_data, data, key, parent_id, parent_type)
+        step = get_step_from_patent(step_data)
 
         if step:
-            requests.put(API + "/steps", json=data)
+            requests.put(API + "/steps", json=step_data)
             steps.remove(step)
         else:
-            requests.post(API + "/steps", json=data)
+            requests.post(API + "/steps", json=step_data)
 
     delete_steps(steps)
 
@@ -201,8 +202,7 @@ def md_to_json(raw_url):
 
 # Function to take data from a README.md to Create/Update an activity
 def parse_activity(file):
-    raw_url = file.raw_url
-    data = md_to_json(raw_url)
+    data = md_to_json(file.raw_url)
     data["image"] = parse_img_tag(data["image"], data["image_folder"], "activities")
     data["filename"] = file.filename
     data["github_id"] = int(data["github_id"])
