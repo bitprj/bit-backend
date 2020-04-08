@@ -206,3 +206,17 @@ def write_files(files):
         f.close()
 
     return files_to_send
+
+
+# Function to update all models for their cdn data
+def update_all_models():
+    cards = Card.query.all()
+    activities = Activity.query.all()
+
+    for card in cards:
+        create_schema_json(card, "cards")
+
+    for activity in activities:
+        create_schema_json(activity, "activities")
+
+    return

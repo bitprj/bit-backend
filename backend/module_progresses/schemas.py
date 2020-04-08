@@ -5,21 +5,11 @@ from serpy import MethodField, Serializer
 
 
 class ModuleProgressSerializer(Serializer):
-    last_activity_unlocked = MethodField("serialize_last_activity")
-    chosen_project = MethodField("serialize_chosen_project")
+    last_activity_unlocked = ActivityRelSerializer()
+    chosen_project = ActivityRelSerializer()
     completed_activities = MethodField("serialize_completed_activities")
     incomplete_activities = MethodField("serialize_incompleted_activities")
     inprogress_activities = MethodField("serialize_inprogress_activities")
-
-    def serialize_last_activity(self, module_prog):
-        if not module_prog.last_activity_unlocked:
-            return None
-        return module_prog.last_activity_unlocked.id
-
-    def serialize_chosen_project(self, module_prog):
-        if not module_prog.chosen_project:
-            return None
-        return module_prog.chosen_project.id
 
     def serialize_completed_activities(self, module_prog):
         if not module_prog.completed_activities:
