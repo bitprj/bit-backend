@@ -57,9 +57,9 @@ class UserCreate(Resource):
 
 # Class to login in a user
 class UserAuthHandler(Resource):
-    method_decorators = [user_exists]
 
     # Function to login a user through a jwt token
+    @user_exists
     @user_is_active
     def post(self):
         form_data = request.get_json()
@@ -86,6 +86,7 @@ class UserAuthHandler(Resource):
         return {
                    "message": "Successfully logged out"
                }, 200
+
 
 class Protected(Resource):
     method_decorators = [jwt_required]
