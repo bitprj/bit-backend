@@ -2,12 +2,7 @@ from backend import ma
 from backend.cards.schemas import CardSerializer
 from backend.models import Activity, Module
 from marshmallow import fields, validates, ValidationError
-<< << << < HEAD
-from serpy import Serializer, IntField, StrField, MethodField, BoolField
-== == == =
 from serpy import BoolField, IntField, MethodField, Serializer, StrField
->> >> >> > 6
-fbb1cb8fc785094786229f311a2efcb0601a5ff
 
 
 # This schema is used to validate the activity form data

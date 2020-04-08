@@ -1,5 +1,8 @@
 from backend import ma
+from backend.activities.schemas import ActivityRelSerializer
+from backend.checkpoint_progresses.schemas import CheckpointProgressSerializer
 from marshmallow import fields
+from serpy import IntField, MethodField, Serializer
 
 
 # This schema is used to grade a student's activity
@@ -13,18 +16,17 @@ class ActivityProgressGradingSchema(ma.ModelSchema):
         ordered = True
 
 
-# This schema is used to display activity progress' checkpoints for the teacher to grade
-class ActivityProgressSubmissionSchema(ma.ModelSchema):
-    student_id = fields.Int(required=True)
-    activity_id = fields.Int(required=True)
-    activity = fields.Nested("ActivitySchema", only=("id",), required=True, many=False)
-    checkpoints = fields.Nested("CheckpointProgressSchema", only=("checkpoint_id", "checkpoint", "content", "student_comment"),
-                                required=True, many=True)
+# The Serpy schema is used to serialize the student's submissions for an Activity
+class ActivityProgressSubmissionSerializer(Serializer):
+    student_id = IntField(required=True)
+    activity_id = IntField(required=True)
+    activity = ActivityRelSerializer()
+    checkpoints = MethodField("serialize_checkpoints")
 
-    class Meta:
-        # Fields to show when sending data
-        fields = ("student_id", "activity_id", "activity", "checkpoints")
-        ordered = True
+    def serialize_checkpoints(self, activity_prog):
+        if not activity_prog:
+            return []
+        return CheckpointProgressSerializer(activity_prog.checkpoints, many=True).data
 
 
 # This schema is used to display ActivityProgress data
@@ -38,5 +40,4 @@ class ActivityProgressSchema(ma.ModelSchema):
 
 
 activity_progress_schema = ActivityProgressSchema()
-activity_progress_submission_schema = ActivityProgressSubmissionSchema(many=True)
 activity_progress_grading_schema = ActivityProgressGradingSchema()

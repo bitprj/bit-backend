@@ -1,5 +1,6 @@
 from backend import ma
 from marshmallow import fields
+from serpy import IntField, Serializer, StrField
 
 
 # This schema is used to display data for an autograder checkpoint
@@ -12,6 +13,13 @@ class AutograderCheckpointSchema(ma.ModelSchema):
         # Fields to show when sending data
         fields = ("checkpoint_id", "student_comment", "submissions")
         ordered = True
+
+
+# The Serpy schema is used to serialize CheckpointProgresses for Students
+class CheckpointProgressSerializer(Serializer):
+    checkpoint_id = IntField(required=True)
+    content = StrField(required=False)
+    student_comment = StrField(required=False)
 
 
 # This schema is used to keep track of checkpoint data
