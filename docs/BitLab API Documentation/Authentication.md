@@ -62,7 +62,7 @@ This call is used to login a user
     	"message": "You have been successfully logged in."
     }
 
-**DEL** Logout - `api.bitproject.org/user/logout`
+**DEL** Logout - `api.bitproject.org/auth`
 
 This call is used to logout a user
 

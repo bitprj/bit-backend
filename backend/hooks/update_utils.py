@@ -27,6 +27,7 @@ def update_card_data(file, activity_cards):
 # concepts and checkpoints get updated
 def update_cdn_data(file):
     activity = Activity.query.filter_by(filename=file.filename).first()
+    activity.cards.sort(key=lambda x: x.order)
     data = hook_utils.utils.md_to_json(file.raw_url)
 
     if "activity_prerequisites" in data:

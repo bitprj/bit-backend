@@ -43,27 +43,28 @@ class StudentInfo(Resource):
     # Function to display student data
     @student_exists
     def get(self):
-        # Commented code is for future use
-        # student_id = request.args.get("student_id")
-        # classroom_id = request.args.get("classroom_id")
-        # student_data = None
+        student_id = request.args.get("student_id")
+        classroom_id = request.args.get("classroom_id")
+        student_data = None
 
-        # if student_id and classroom_id:
-        #     student = Student.query.get(student_id)
-        #     student_data = student_classroom_schema.dump(student)
-        # elif student_id and not classroom_id:
-        #     student = Student.query.get(student_id)
-        #     student_data = student_schema.dump(student)
-        # elif not student_id and not classroom_id:
-
-        username = get_jwt_identity()
-        student = Student.query.filter_by(username=username).first()
-        student_data = student_schema.dump(student)
-        student_data["suggested_activity"] = {}
-        student_data["suggested_activity"]["id"] = student.suggested_activity_id
-        student_data["suggested_activity"]["module_id"] = student.suggested_module_id
-        student.last_seen = datetime.utcnow()
-        db.session.commit()
+        if student_id and classroom_id:
+            student = Student.query.get(student_id)
+            student_data = student_classroom_schema.dump(student)
+        elif student_id and not classroom_id:
+            student = Student.query.get(student_id)
+            student_data = student_schema.dump(student)
+            student_data["suggested_activity"] = {}
+            student_data["suggested_activity"]["id"] = student.suggested_activity_id
+            student_data["suggested_activity"]["module_id"] = student.suggested_module_id
+        elif not student_id and not classroom_id:
+            username = get_jwt_identity()
+            student = Student.query.filter_by(username=username).first()
+            student_data = student_schema.dump(student)
+            student_data["suggested_activity"] = {}
+            student_data["suggested_activity"]["id"] = student.suggested_activity_id
+            student_data["suggested_activity"]["module_id"] = student.suggested_module_id
+            student.last_seen = datetime.utcnow()
+            db.session.commit()
 
         return student_data
 

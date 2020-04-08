@@ -130,3 +130,20 @@ def valid_user_form(f):
                 return f(*args, **kwargs)
 
     return wrap
+
+
+# Decorator to check if the user's JWT token is valid
+# TODO delete later bc its not needed
+def valid_token(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        user_data = get_jwt_claims()
+
+        if "id" in user_data and "roles" in user_data:
+            return f(*args, **kwargs)
+        else:
+            return {
+                       "message": "Invalid JWT token"
+                   }, 401
+
+    return wrap

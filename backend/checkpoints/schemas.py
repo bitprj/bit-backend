@@ -1,5 +1,6 @@
 from backend import ma
 from marshmallow import fields
+from serpy import IntField, Serializer
 
 
 # This schema is used to validate the checkpoint form data
@@ -40,6 +41,11 @@ class CheckpointSchema(ma.ModelSchema):
         fields = (
             "id", "instruction", "name", "checkpoint_type", "criteria", "choices", "correct_choice")
         ordered = True
+
+
+# Serpy schema for serialization
+class CheckpointRelSerializer(Serializer):
+    id = IntField(required=True)
 
 
 # This schema is used to keep track of criteria data for checkpoints

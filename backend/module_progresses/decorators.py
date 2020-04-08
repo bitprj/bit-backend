@@ -1,7 +1,7 @@
-from backend.models import ModuleProgress, Student
+from backend.models import ModuleProgress
 from backend.module_progresses.schemas import module_progress_update_data_schema
 from flask import request
-from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import get_jwt_claims
 from functools import wraps
 
 
@@ -9,9 +9,9 @@ from functools import wraps
 def module_prog_exists(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        username = get_jwt_identity()
-        student = Student.query.filter_by(username=username).first()
-        module_progress = ModuleProgress.query.filter_by(module_id=kwargs['module_id'], student_id=student.id).first()
+        user_data = get_jwt_claims()
+        module_progress = ModuleProgress.query.filter_by(module_id=kwargs['module_id'],
+                                                         student_id=user_data["id"]).first()
 
         if module_progress:
             return f(*args, **kwargs)

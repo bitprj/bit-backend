@@ -1,5 +1,6 @@
 from backend import ma
 from marshmallow import fields
+from serpy import Serializer, IntField
 
 
 # This schema is used to validate the card form data
@@ -35,6 +36,10 @@ class CardSchema(ma.ModelSchema):
         # Fields to show when sending data
         fields = ("id", "activity_id", "content", "gems", "name", "concepts", "hints", "checkpoint")
         ordered = True
+
+
+class CardSerializer(Serializer):
+    id = IntField(required=True)
 
 
 card_form_schema = CardFormSchema()

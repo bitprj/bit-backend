@@ -83,6 +83,9 @@ def create_image_obj(image_name, image_path, folder):
 
 # Function to create a json file based on the schema type and send it to s3
 def create_schema_json(model_obj, schema_type):
+    if isinstance(model_obj, Activity):
+        model_obj.cards.sort(key=lambda x: x.order)
+
     schema = get_schema(model_obj)
     schema_data = schema.dump(model_obj)
     filename = model_obj.name.replace(" ", "_") + "_" + str(model_obj.id) + ".json"
@@ -203,3 +206,17 @@ def write_files(files):
         f.close()
 
     return files_to_send
+
+
+# Function to update all models for their cdn data
+def update_all_models():
+    cards = Card.query.all()
+    activities = Activity.query.all()
+
+    for card in cards:
+        create_schema_json(card, "cards")
+
+    for activity in activities:
+        create_schema_json(activity, "activities")
+
+    return
