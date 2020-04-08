@@ -5,8 +5,8 @@ from serpy import MethodField, Serializer
 
 
 class ModuleProgressSerializer(Serializer):
-    last_activity_unlocked = ActivityRelSerializer()
-    chosen_project = ActivityRelSerializer()
+    last_activity_unlocked = ActivityRelSerializer(required=False)
+    chosen_project = ActivityRelSerializer(required=False)
     completed_activities = MethodField("serialize_completed_activities")
     incomplete_activities = MethodField("serialize_incompleted_activities")
     inprogress_activities = MethodField("serialize_inprogress_activities")
