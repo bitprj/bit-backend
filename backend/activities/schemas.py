@@ -45,12 +45,7 @@ class ActivitySchema(ma.Schema):
         ordered = True
 
 
-# This is a serpy schema to use for Activity relationships
-class ActivityRelSerializer(Serializer):
-    id = IntField(required=True)
-
-
-# This is serpy schema to serialize models
+# Serpy schema for serialization
 class ActivitySerializer(Serializer):
     id = IntField(required=True)
     name = StrField(required=True)
@@ -71,6 +66,11 @@ class ActivitySerializer(Serializer):
         if not activity.prerequisite_activities:
             return []
         return ActivitySerializer(activity.prerequisite_activities, many=True).data
+
+
+# This is a serpy schema to use for Activity relationships
+class ActivityRelSerializer(Serializer):
+    id = IntField(required=True)
 
 
 # This schema is used to display data for a SuggestedActivity

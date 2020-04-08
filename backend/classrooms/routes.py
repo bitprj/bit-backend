@@ -1,8 +1,5 @@
-from flask import (Blueprint, request)
-from flask_jwt_extended import get_jwt_identity, jwt_required
-from flask_restful import Resource
 from backend import api, db
-from backend.activity_progresses.schemas import activity_progress_submission_schema
+from backend.activity_progresses.schemas import ActivityProgressSubmissionSerializer
 from backend.authentication.decorators import roles_accepted
 from backend.classrooms.decorators import classroom_exists, owns_classroom, valid_classroom_form
 from backend.classrooms.schemas import classroom_schema
@@ -11,6 +8,10 @@ from backend.models import Classroom, Teacher
 from backend.modules.utils import add_modules_to_students, get_modules
 from backend.modules.decorators import valid_modules_list
 from backend.teachers.utils import get_activities
+from flask import (Blueprint, request)
+from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_restful import Resource
+
 
 # Blueprint for classrooms
 classrooms_bp = Blueprint("classrooms", __name__)
@@ -95,7 +96,7 @@ class ClassroomAssignments(Resource):
         ungraded_assignments = get_activities(classroom.students, activity_set)
 
         if ungraded_assignments:
-            return activity_progress_submission_schema.dump(ungraded_assignments)
+            return ActivityProgressSubmissionSerializer(ungraded_assignments, many=True).data
 
         return []
 
