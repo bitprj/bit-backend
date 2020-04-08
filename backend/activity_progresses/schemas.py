@@ -19,7 +19,6 @@ class ActivityProgressGradingSchema(ma.ModelSchema):
 # The Serpy schema is used to serialize the student's submissions for an Activity
 class ActivityProgressSubmissionSerializer(Serializer):
     student_id = IntField(required=True)
-    activity_id = IntField(required=True)
     activity = ActivityRelSerializer()
     checkpoints = MethodField("serialize_checkpoints")
 

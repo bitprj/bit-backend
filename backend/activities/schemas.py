@@ -45,6 +45,7 @@ class ActivitySchema(ma.Schema):
         ordered = True
 
 
+# Serpy schema for serialization
 class ActivitySerializer(Serializer):
     id = IntField(required=True)
     name = StrField(required=True)
