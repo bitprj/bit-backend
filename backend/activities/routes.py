@@ -7,7 +7,10 @@ from backend.models import Activity
 from flask import (Blueprint, request)
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource
+<<<<<<< HEAD
 from serpy import Serializer, IntField, StrField, MethodField, BoolField
+=======
+>>>>>>> 6fbb1cb8fc785094786229f311a2efcb0601a5ff
 
 # Blueprint for activities
 activities_bp = Blueprint("activities", __name__)
@@ -64,7 +67,6 @@ class ActivityGetSpecific(Resource):
         activity.cards.sort(key=lambda x: x.order)
 
         return ActivitySerializer(activity).data
-        # return activity_schema.dump(activity)
 
 
 # Creates the routes for the classes
