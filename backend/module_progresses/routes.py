@@ -3,9 +3,9 @@ from backend.activities.decorators import activity_project_exists
 from backend.authentication.decorators import roles_required
 from backend.module_progresses.decorators import module_prog_exists, valid_update_data
 from backend.module_progresses.schemas import ModuleProgressSerializer
-from backend.models import ModuleProgress, Student
+from backend.models import ModuleProgress
 from flask import (Blueprint, request)
-from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import get_jwt_claims
 from flask_restful import Resource
 
 # Blueprint for modules
@@ -19,9 +19,8 @@ class ModuleProgressData(Resource):
     # Function to display a student's module progress
     @module_prog_exists
     def get(self, module_id):
-        username = get_jwt_identity()
-        student = Student.query.filter_by(username=username).first()
-        module_progress = ModuleProgress.query.filter_by(module_id=module_id, student_id=student.id).first()
+        user_data = get_jwt_claims()
+        module_progress = ModuleProgress.query.filter_by(module_id=module_id, student_id=user_data["id"]).first()
 
         return ModuleProgressSerializer(module_progress).data
 
@@ -31,9 +30,8 @@ class ModuleProgressData(Resource):
     @activity_project_exists
     def put(self, module_id):
         data = request.get_json()
-        username = get_jwt_identity()
-        student = Student.query.filter_by(username=username).first()
-        module_progress = ModuleProgress.query.filter_by(module_id=module_id, student_id=student.id).first()
+        user_data = get_jwt_claims()
+        module_progress = ModuleProgress.query.filter_by(module_id=module_id, student_id=user_data["id"]).first()
         module_progress.chosen_project_id = data["chosen_project_id"]
         db.session.commit()
 

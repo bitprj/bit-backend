@@ -141,6 +141,7 @@ def add_claims_to_access_token(identity):
     user = User.query.filter_by(username=identity).first()
 
     return {
+        "id": user.id,
         "roles": user.roles
     }
 
