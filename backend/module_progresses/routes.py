@@ -17,8 +17,8 @@ class ModuleProgressData(Resource):
     method_decorators = [roles_required("Student")]
 
     # Function to display a student's module progress
-    @module_prog_exists
     @valid_token
+    @module_prog_exists
     def get(self, module_id):
         user_data = get_jwt_claims()
         module_progress = ModuleProgress.query.filter_by(module_id=module_id, student_id=user_data["id"]).first()

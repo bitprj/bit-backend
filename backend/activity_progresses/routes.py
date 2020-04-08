@@ -46,8 +46,8 @@ class ActivityProgressUpdate(Resource):
 
         return progress
 
-    @activity_prog_exists
     @valid_token
+    @activity_prog_exists
     def delete(self, activity_id):
         user_data = get_jwt_claims()
         student_activity_prog = ActivityProgress.query.filter_by(student_id=user_data["id"],
@@ -65,8 +65,8 @@ class ActivityProgressHints(Resource):
     method_decorators = [roles_accepted("Student"), activity_exists, hint_exists]
 
     # Function to unlock a hint by its hint_id
-    @activity_prog_exists
     @valid_token
+    @activity_prog_exists
     def put(self, activity_id, hint_id):
         user_data = get_jwt_claims()
         student_activity_prog = ActivityProgress.query.filter_by(student_id=user_data["id"],
