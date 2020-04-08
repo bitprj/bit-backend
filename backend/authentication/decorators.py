@@ -144,6 +144,6 @@ def valid_token(f):
         else:
             return {
                        "message": "Invalid JWT token"
-                   }, 403
+                   }, 401
 
     return wrap
