@@ -57,7 +57,6 @@ class UserCreate(Resource):
 
 # Class to login in a user
 class UserAuthHandler(Resource):
-
     # Function to login a user through a jwt token
     @user_exists
     @user_is_active
