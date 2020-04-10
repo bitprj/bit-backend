@@ -448,19 +448,6 @@ class Event(db.Model):
         return f"Event('{self.name}')"
 
 
-class Gem(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    amount = db.Column(db.Integer, nullable=False, default=0)
-    is_local = db.Column(db.Boolean, nullable=False, default=False)
-
-    def __init__(self, amount, is_local):
-        self.amount = amount
-        self.is_local = is_local
-
-    def __repr__(self):
-        return f"Gem('{self.is_local}, {self.amount}')"
-
-
 class Hint(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     github_raw_data = db.Column(db.Text, nullable=True)
@@ -710,7 +697,6 @@ class User(db.Model):
     presenter_events = db.relationship("Event", secondary="user_presenter_event_rel", back_populates="presenters")
     # rsvp_events keeps track of the events that the user has rsvp to
     rsvp_events = db.relationship("Event", secondary="user_event_rel", back_populates="rsvp_list")
-
 
     def __repr__(self):
         return f"User('{self.username}')"
