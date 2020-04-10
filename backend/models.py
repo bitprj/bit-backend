@@ -689,13 +689,18 @@ class User(db.Model):
     name = db.Column(db.Text, nullable=True)
     # username is the email
     username = db.Column(db.Text, unique=True, nullable=True)
-    password = db.Column(db.Text, unique=True, nullable=True)
     token = db.Column(db.Text, unique=True, nullable=True)
+    github_access_token = db.Column(db.String(255), nullable=True)
+    github_id = db.Column(db.Integer, nullable=True)
+    github_login = db.Column(db.String(255), nullable=True)
     # Roles are Admin, Teacher, or Student
     roles = db.Column(db.Text, nullable=True)
+    image = db.Column(db.Text, nullable=True)
+    # Can Delete later?
+    password = db.Column(db.Text, unique=True, nullable=True)
     is_active = db.Column(db.Boolean, default=False, nullable=True)
     location = db.Column(db.Text, nullable=True)
-    image = db.Column(db.Text, nullable=True)
+    #
     organizations = db.relationship("Organization", secondary="user_organization_rel", back_populates="owners")
     organizations_active = db.relationship("Organization", secondary="user_organization_active_rel",
                                            back_populates="active_users")
@@ -705,9 +710,7 @@ class User(db.Model):
     presenter_events = db.relationship("Event", secondary="user_presenter_event_rel", back_populates="presenters")
     # rsvp_events keeps track of the events that the user has rsvp to
     rsvp_events = db.relationship("Event", secondary="user_event_rel", back_populates="rsvp_list")
-    github_access_token = db.Column(db.String(255), nullable=True)
-    github_id = db.Column(db.Integer, nullable=True)
-    github_login = db.Column(db.String(255), nullable=True)
+
 
     def __repr__(self):
         return f"User('{self.username}')"

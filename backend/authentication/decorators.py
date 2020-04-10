@@ -1,5 +1,4 @@
-from backend import guard
-from backend.authentication.schemas import user_login_schema, valid_access_token
+from backend.authentication.schemas import valid_access_token
 from flask import request, session
 from flask_praetorian.exceptions import MissingRoleError
 from functools import wraps
@@ -74,6 +73,7 @@ def roles_required(*required_rolenames):
 def user_session_exists(f):
     @wraps(f)
     def wrap(*args, **kwargs):
+        print(session)
         if "profile" in session:
             return f(*args, **kwargs)
         else:

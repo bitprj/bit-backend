@@ -1,14 +1,15 @@
-from flask import (Blueprint, request)
-from flask_jwt_extended import get_jwt_identity
-from flask_restful import Resource
 from backend import api, db
 from backend.authentication.decorators import roles_accepted
 from backend.checkpoints.decorators import checkpoint_exists
 from backend.checkpoint_progresses.decorators import checkpoint_progress_exist, multiple_choice_is_completed, \
     valid_checkpoint_progress_data
 from backend.activity_progresses.utils import is_activity_completed
+from backend.authentication.decorators import user_session_exists
 from backend.checkpoint_progresses.utils import fill_in_checkpoint_progress, get_checkpoint_data
 from backend.models import CheckpointProgress, Student
+from flask import Blueprint, request, session
+from flask_jwt_extended import get_jwt_identity
+from flask_restful import Resource
 
 # Blueprint for checkpoints
 checkpoint_progresses_bp = Blueprint("checkpoint_progresses", __name__)
@@ -16,15 +17,14 @@ checkpoint_progresses_bp = Blueprint("checkpoint_progresses", __name__)
 
 # This class is used to get a specific checkpoint based on id
 class CheckpointProgressSubmit(Resource):
-    method_decorators = [roles_accepted("Student"), checkpoint_exists]
+    method_decorators = [user_session_exists, roles_accepted("Student"), checkpoint_exists]
 
     # Function to retrieve data from a checkpoint progress
     @checkpoint_progress_exist
     def get(self, checkpoint_id):
-        username = get_jwt_identity()
-        student = Student.query.filter_by(username=username).first()
+        user_data = session["profile"]
         checkpoint_prog = CheckpointProgress.query.filter_by(checkpoint_id=checkpoint_id,
-                                                             student_id=student.id).first()
+                                                             student_id=user_data["id"]).first()
 
         return get_checkpoint_data(checkpoint_prog)
 

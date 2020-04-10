@@ -1,6 +1,6 @@
 from backend import api, db
 from backend.activities.decorators import activity_project_exists
-from backend.authentication.decorators import roles_required, valid_token
+from backend.authentication.decorators import roles_required
 from backend.module_progresses.decorators import module_prog_exists, valid_update_data
 from backend.module_progresses.schemas import ModuleProgressSerializer
 from backend.models import ModuleProgress
@@ -17,7 +17,6 @@ class ModuleProgressData(Resource):
     method_decorators = [roles_required("Student")]
 
     # Function to display a student's module progress
-    @valid_token
     @module_prog_exists
     def get(self, module_id):
         user_data = get_jwt_claims()
@@ -26,7 +25,6 @@ class ModuleProgressData(Resource):
         return ModuleProgressSerializer(module_progress).data
 
     # Function to update a student's completed activities
-    @valid_token
     @module_prog_exists
     @valid_update_data
     @activity_project_exists
