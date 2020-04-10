@@ -1,13 +1,13 @@
-from flask import (Blueprint)
-from flask_jwt_extended import get_jwt_identity
-from flask_restful import Resource
 from backend import api, db
 from backend.authentication.decorators import roles_accepted
 from backend.models import Student, Topic
-from backend.topics.decorators import can_add_topic, can_complete_topic, has_completed_topic, topic_exists, topic_is_incomplete
+from backend.topics.decorators import can_add_topic, can_complete_topic, has_completed_topic, topic_exists, \
+    topic_is_incomplete
 from backend.tracks.decorators import *
 from backend.tracks.schemas import track_progress_schema
 from backend.tracks.utils import get_track_progress
+from flask import Blueprint, session
+from flask_restful import Resource
 
 # Blueprint for track progresses
 track_progresses_bp = Blueprint("track_progresses", __name__)
@@ -19,10 +19,9 @@ class TrackProgress(Resource):
 
     # Function to retrieve the students track progress
     def get(self, track_id):
-        username = get_jwt_identity()
-        student = Student.query.filter_by(username=username).first()
+        user_data = session["profile"]
+        track_progress = get_track_progress(user_data["id"], track_id)
 
-        track_progress = get_track_progress(student.id, track_id)
         return track_progress_schema.dump(track_progress)
 
 
@@ -34,8 +33,8 @@ class TrackProgressAdd(Resource):
     @can_add_topic
     @topic_is_incomplete
     def put(self, topic_id):
-        username = get_jwt_identity()
-        student = Student.query.filter_by(username=username).first()
+        user_data = session["profile"]
+        student = Student.query.get(user_data["id"])
         topic = Topic.query.get(topic_id)
         student.inprogress_topics.append(topic)
         student.incomplete_topics.remove(topic)
@@ -55,8 +54,8 @@ class TrackProgressUpdate(Resource):
     @can_complete_topic
     @has_completed_topic
     def put(self, topic_id):
-        username = get_jwt_identity()
-        student = Student.query.filter_by(username=username).first()
+        user_data = session["profile"]
+        student = Student.query.get(user_data["id"])
         topic = Topic.query.get(topic_id)
         student.completed_topics.append(topic)
         student.inprogress_topics.remove(topic)

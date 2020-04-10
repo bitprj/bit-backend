@@ -6,9 +6,8 @@ from backend.checkpoint_progresses.decorators import checkpoint_progress_exist, 
 from backend.activity_progresses.utils import is_activity_completed
 from backend.authentication.decorators import user_session_exists
 from backend.checkpoint_progresses.utils import fill_in_checkpoint_progress, get_checkpoint_data
-from backend.models import CheckpointProgress, Student
+from backend.models import CheckpointProgress
 from flask import Blueprint, request, session
-from flask_jwt_extended import get_jwt_identity
 from flask_restful import Resource
 
 # Blueprint for checkpoints
@@ -34,10 +33,9 @@ class CheckpointProgressSubmit(Resource):
     @multiple_choice_is_completed
     def put(self, checkpoint_id):
         data = request.form
-        username = get_jwt_identity()
-        student = Student.query.filter_by(username=username).first()
+        user_data = session["profile"]
         checkpoint_prog = CheckpointProgress.query.filter_by(checkpoint_id=checkpoint_id,
-                                                             student_id=student.id).first()
+                                                             student_id=user_data["id"]).first()
         fill_in_checkpoint_progress(data, checkpoint_prog)
 
         db.session.commit()

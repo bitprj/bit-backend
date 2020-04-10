@@ -1,6 +1,3 @@
-from flask import Blueprint
-from flask_jwt_extended import get_jwt_identity
-from flask_restful import Resource
 from backend import api, db
 from backend.authentication.decorators import roles_accepted
 from backend.models import Module, Student
@@ -8,6 +5,9 @@ from backend.modules.decorators import module_exists, module_is_incomplete, modu
 from backend.topics.decorators import topic_exists
 from backend.topics.utils import get_topic_progress
 from backend.topic_progresses.schemas import topic_progress_schema
+from flask import Blueprint, session
+from flask_restful import Resource
+
 
 # Blueprint for topics
 topic_progresses_bp = Blueprint("topic_progresses", __name__)
@@ -19,9 +19,8 @@ class TopicProgress(Resource):
 
     # Function to retrieve the module progress for a student given an id
     def get(self, topic_id):
-        username = get_jwt_identity()
-        student = Student.query.filter_by(username=username).first()
-        topic_progress = get_topic_progress(student.id, topic_id)
+        user_data = session["profile"]
+        topic_progress = get_topic_progress(user_data["id"], topic_id)
 
         return topic_progress_schema.dump(topic_progress)
 
@@ -33,8 +32,8 @@ class TopicProgressAdd(Resource):
     # Function to add a module to a student's inprogress_modules
     @module_is_incomplete
     def put(self, topic_id, module_id):
-        username = get_jwt_identity()
-        student = Student.query.filter_by(username=username).first()
+        user_data = session["profile"]
+        student = Student.query.get(user_data["id"])
         module = Module.query.get(module_id)
         student.inprogress_modules.append(module)
         student.incomplete_modules.remove(module)
@@ -54,8 +53,8 @@ class TopicProgressUpdate(Resource):
     @module_is_complete
     @module_in_inprogress
     def put(self, topic_id, module_id):
-        username = get_jwt_identity()
-        student = Student.query.filter_by(username=username).first()
+        user_data = session["profile"]
+        student = Student.query.get(user_data["id"])
         module = Module.query.get(module_id)
         student.completed_modules.append(module)
         student.inprogress_modules.remove(module)

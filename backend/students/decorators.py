@@ -1,7 +1,6 @@
 from backend.models import Student
 from backend.students.schemas import update_data_schema
-from flask import request
-from flask_jwt_extended import get_jwt_identity
+from flask import request, session
 from functools import wraps
 
 
@@ -20,8 +19,8 @@ def student_exists(f):
                            "message": "Student does not exist"
                        }, 404
         else:
-            username = get_jwt_identity()
-            student = Student.query.filter_by(username=username).first()
+            user_data = session["profile"]
+            student = Student.query.get(user_data["id"])
 
             if student:
                 return f(*args, **kwargs)
