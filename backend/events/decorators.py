@@ -1,7 +1,6 @@
-from flask import request
-from flask_jwt_extended import get_jwt_identity
 from backend.events.schemas import event_form_schema
 from backend.models import Event, User
+from flask import request, session
 from functools import wraps
 
 
@@ -26,14 +25,14 @@ def event_exists(f):
 def has_rsvp(f):
     @wraps(f)
     def wrap(*args, **kwargs):
+        user_data = session["profile"]
+        user = User.query.get(user_data["id"])
         event = Event.query.get(kwargs['event_id'])
-        username = get_jwt_identity()
-        user = User.query.filter_by(username=username).first()
 
         if user in event.rsvp_list:
             return {
                        "message": "You already RSVP'd for this event"
-                   }, 406
+                   }, 403
         else:
             return f(*args, **kwargs)
 
@@ -45,15 +44,16 @@ def has_rsvp(f):
 def in_rsvp(f):
     @wraps(f)
     def wrap(*args, **kwargs):
+        user_data = session["profile"]
+        user = User.query.get(user_data["id"])
         event = Event.query.get(kwargs['event_id'])
-        username = get_jwt_identity()
-        user = User.query.filter_by(username=username).first()
+
         if user in event.rsvp_list:
             return f(*args, **kwargs)
         else:
             return {
                        "message": "You can't leave an RSVP if you were not in it in the first place."
-                   }, 406
+                   }, 403
 
     return wrap
 
@@ -63,16 +63,16 @@ def in_rsvp(f):
 def owns_event(f):
     @wraps(f)
     def wrap(*args, **kwargs):
+        user_data = session["profile"]
+        user = User.query.get(user_data["id"])
         event = Event.query.get(kwargs['event_id'])
-        username = get_jwt_identity()
-        user = User.query.filter_by(username=username).first()
 
         if user in event.organization.owners or user in event.presenters:
             return f(*args, **kwargs)
         else:
             return {
                        "message": "You do not own this event"
-                   }, 203
+                   }, 403
 
     return wrap
 
@@ -88,7 +88,7 @@ def valid_event_form(f):
         if errors:
             return {
                        "message": "Missing or sending incorrect data to create a event. Double check the JSON data that it has everything needed to create a event."
-                   }, 500
+                   }, 422
         else:
             return f(*args, **kwargs)
 

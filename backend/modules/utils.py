@@ -1,6 +1,6 @@
 from backend import db
 from backend.general_utils import create_schema_json
-from backend.models import Module, ModuleProgress, StudentBadges
+from backend.models import Module, ModuleProgress
 from backend.module_progresses.utils import can_create_module_progress
 
 

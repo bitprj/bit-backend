@@ -1,4 +1,5 @@
 from backend.authentication.schemas import valid_access_token
+from backend.general_utils import verify_user_session
 from flask import request, session
 from flask_praetorian.exceptions import MissingRoleError
 from functools import wraps
@@ -27,6 +28,7 @@ def roles_accepted(*accepted_rolenames):
     def decorator(method):
         @wraps(method)
         def wrapper(*args, **kwargs):
+            verify_user_session()
             role_set = set([str(n) for n in accepted_rolenames])
             user_roles = set(r.strip() for r in session["profile"]["roles"].split(','))
 
@@ -51,6 +53,7 @@ def roles_required(*required_rolenames):
     def decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
+            verify_user_session()
             role_set = set([str(n) for n in required_rolenames])
             user_roles = set(r.strip() for r in session["profile"]["roles"].split(','))
 

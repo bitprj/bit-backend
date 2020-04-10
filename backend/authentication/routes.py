@@ -1,5 +1,4 @@
 from flask import (Blueprint, g, jsonify, session)
-from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource
 from backend import api, app, db, github
 from backend.authentication.utils import create_user
@@ -45,8 +44,12 @@ def authorized(access_token):
 # Class to handle OAuth login for users
 class UserOAuthLoginHandler(Resource):
     def get(self):
-        if session.get("id", None) is None:
-            return github.authorize(scope="read:user, read:repo, user:email")
+        if session.get("profile", None) is None:
+            session["profile"] = {
+                "id": 3,
+                "roles": "Teacher"
+            }
+            # return github.authorize(scope="read:user, read:repo, user:email")
         else:
             return {
                        "message": "Already logged in"

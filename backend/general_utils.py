@@ -4,12 +4,14 @@ from backend.cards.schemas import card_schema
 from backend.checkpoints.schemas import checkpoint_schema
 from backend.concepts.schemas import concept_schema
 from backend.config import S3_BUCKET, S3_CDN_BUCKET
+from backend.exceptions import UserSessionVerification
 from backend.hints.schemas import hint_schema
 from backend.models import Activity, Card, Checkpoint, Concept, Hint, Module, Topic, Track
 from backend.modules.schemas import module_schema
 from backend.topics.schemas import topic_schema
 from backend.tracks.schemas import track_schema
 from bs4 import BeautifulSoup as BS
+from flask import session
 from PIL import Image
 from urllib.request import urlopen
 from zipfile import ZipFile
@@ -191,6 +193,13 @@ def send_file_to_cdn(data, filename, schema_type, model_obj):
     os.remove(filename)
 
     return
+
+
+# Function to check if the user's session exists
+# If not raise an Exception
+def verify_user_session():
+    if "profile" not in session:
+        raise UserSessionVerification("User is not logged in", status_code=401)
 
 
 # Function to write to the files from github

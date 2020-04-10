@@ -1,7 +1,7 @@
-from flask import request
-from flask_jwt_extended import get_jwt_identity
 from backend.classrooms.schemas import classroom_code_schema, classroom_form_schema
 from backend.models import Classroom, Teacher
+from flask import request, session
+from flask_jwt_extended import get_jwt_identity
 from functools import wraps
 
 
@@ -26,10 +26,9 @@ def owns_classroom(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         classroom = Classroom.query.get(kwargs['classroom_id'])
-        username = get_jwt_identity()
-        teacher = Teacher.query.filter_by(username=username).first()
+        user_data = session["profile"]
 
-        if classroom.teacher_id == teacher.id:
+        if classroom.teacher_id == user_data["id"]:
             return f(*args, **kwargs)
         else:
             return {

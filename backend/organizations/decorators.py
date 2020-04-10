@@ -1,8 +1,8 @@
-from flask import request
-from flask_jwt_extended import get_jwt_identity
 from backend import safe_url
 from backend.organizations.schemas import organization_file_schema, organization_form_schema
 from backend.models import Organization, User
+from flask import request, session
+from flask_jwt_extended import get_jwt_identity
 from functools import wraps
 
 
@@ -59,8 +59,8 @@ def exist_in_organization(f):
 def has_joined_already(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        username = get_jwt_identity()
-        user = User.query.filter_by(username=username).first()
+        user_data = session["profile"]
+        user = User.query.get(user_data["id"])
         organization = Organization.query.get(kwargs['organization_id'])
 
         if user in organization.active_users or user in organization.inactive_users:
@@ -93,9 +93,9 @@ def organization_exists(f):
 def owns_organization(f):
     @wraps(f)
     def wrap(*args, **kwargs):
+        user_data = session["profile"]
+        user = User.query.get(user_data["id"])
         organization = Organization.query.get(kwargs['organization_id'])
-        username = get_jwt_identity()
-        user = User.query.filter_by(username=username).first()
 
         if user in organization.owners:
             return f(*args, **kwargs)
@@ -119,7 +119,7 @@ def valid_organization_form(f):
         if errors or errors_2:
             return {
                        "message": "Missing or sending incorrect data to create a organization. Double check the JSON data that it has everything needed to create a organization."
-                   }, 500
+                   }, 422
         else:
             return f(*args, **kwargs)
 
