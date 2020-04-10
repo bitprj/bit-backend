@@ -68,14 +68,6 @@ def edit_module(module, data):
     module.image = data["image"]
     create_schema_json(module, "modules")
 
-    # delete_badge_weights(module.badge_weights)
-    # module.badge_weights = add_badge_weights(contentful_data["parameters"]["badge_weights"]["en-US"], module.id)
-    # delete_badge_prereqs(module)
-    # assign_badge_prereqs(contentful_data, module, "Module")
-
-    # if "activity_prereqs" in contentful_data["parameters"]:
-    #     module.activity_prereqs = get_activities(contentful_data["parameters"]["activity_prereqs"]["en-US"])
-
     return
 
 

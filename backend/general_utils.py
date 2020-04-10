@@ -129,6 +129,17 @@ def get_base_folder(filename):
     return image_folder
 
 
+# Function to return a list of modules based on a list of module github_ids
+def get_github_modules(module_list):
+    modules = []
+
+    for module_github_id in module_list:
+        module = Module.query.filter_by(github_id=module_github_id).first()
+        modules.append(module)
+
+    return modules
+
+
 # Function to choose a schema to return data
 def get_schema(model_obj):
     if isinstance(model_obj, Track):
@@ -147,6 +158,17 @@ def get_schema(model_obj):
         return hint_schema
     elif isinstance(model_obj, Checkpoint):
         return checkpoint_schema
+
+
+# Function to return a list of topics based on the github_ids
+def get_topics(topic_list):
+    topics = []
+
+    for github_id in topic_list:
+        topic = Topic.query.filter_by(github_id=github_id).first()
+        topics.append(topic)
+
+    return topics
 
 
 # Function to parse an image tag for its name

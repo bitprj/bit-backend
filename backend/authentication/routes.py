@@ -45,11 +45,7 @@ def authorized(access_token):
 class UserOAuthLoginHandler(Resource):
     def get(self):
         if session.get("profile", None) is None:
-            session["profile"] = {
-                "id": 3,
-                "roles": "Teacher"
-            }
-            # return github.authorize(scope="read:user, read:repo, user:email")
+            return github.authorize(scope="read:user, read:repo, user:email")
         else:
             return {
                        "message": "Already logged in"
