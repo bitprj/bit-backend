@@ -30,7 +30,6 @@ Flask==1.1.1
 Flask-Bcrypt==0.7.1
 flask-buzz==0.1.14
 Flask-Cors==3.0.8
-Flask-JWT-Extended==3.24.1
 Flask-Login==0.5.0
 Flask-Mail==0.9.1
 flask-marshmallow==0.11.0
@@ -71,7 +70,7 @@ priority==1.3.0
 psycopg2-binary==2.8.4
 pusher==2.1.4
 pusher-chatkit-server==1.0.4
-py-buzz==1.0.3
+py-buzz==0.3.7
 pyasn1==0.4.8
 pycparser==2.20
 PyGithub==1.47

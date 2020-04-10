@@ -1,12 +1,11 @@
-from flask import (Blueprint, request)
-from flask_jwt_extended import jwt_required
-from flask_restful import Resource
 from backend import api, db
+from backend.authentication.decorators import user_session_exists
 from backend.badges.decorators import badge_delete, badge_exists, badge_exists_in_contentful
 from backend.badges.schemas import badge_schema
 from backend.badges.utils import create_badge, edit_badge
 from backend.models import Badge
-
+from flask import Blueprint, request
+from flask_restful import Resource
 
 # Blueprint for badges
 badges_bp = Blueprint("badges", __name__)
@@ -54,7 +53,7 @@ class BadgeDelete(Resource):
 
 # Function to get a specific Badge based on badge id
 class BadgeGetSpecific(Resource):
-    method_decorators = [badge_exists, jwt_required]
+    method_decorators = [badge_exists, user_session_exists]
 
     def get(self, badge_id):
         badge = Badge.query.get(badge_id)

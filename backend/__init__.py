@@ -3,7 +3,6 @@ from contentful_management import Client
 from flask import Flask
 from flask_cors import CORS
 from flask_github import GitHub
-from flask_jwt_extended import JWTManager
 from flask_mail import Mail
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
@@ -32,7 +31,6 @@ app.config["PROPAGATE_EXCEPTIONS"] = True
 
 api = Api(app)
 db = SQLAlchemy(app)
-jwt = JWTManager(app)
 guard = Praetorian()
 mail = Mail(app)
 safe_url = URLSafeTimedSerializer(SECRET_KEY)

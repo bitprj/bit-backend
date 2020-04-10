@@ -1,7 +1,6 @@
 from backend.checkpoint_progresses.schemas import checkpoint_submission_schema
-from backend.models import CheckpointProgress, Student
+from backend.models import CheckpointProgress
 from flask import request, session
-from flask_jwt_extended import get_jwt_identity
 from functools import wraps
 
 

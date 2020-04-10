@@ -2,7 +2,6 @@ from backend import safe_url
 from backend.organizations.schemas import organization_file_schema, organization_form_schema
 from backend.models import Organization, User
 from flask import request, session
-from flask_jwt_extended import get_jwt_identity
 from functools import wraps
 
 
@@ -40,8 +39,8 @@ def exist_in_organization(f):
         if data:
             user = User.query.filter_by(username=data["username"]).first()
         else:
-            username = get_jwt_identity()
-            user = User.query.filter_by(username=username).first()
+            user_data = session["profile"]
+            user = User.query.get(user_data["id"])
         organization = Organization.query.get(kwargs['organization_id'])
 
         if user in organization.active_users or user in organization.inactive_users:

@@ -67,7 +67,7 @@ class UserOAuthLogoutHandler(Resource):
 class Protected(Resource):
     method_decorators = [user_session_exists]
 
-    # This route is to check if the user is authenticated with a jwt token
+    # This route is to check if the user is authenticated through sessions
     def get(self):
         user_data = session["profile"]
 

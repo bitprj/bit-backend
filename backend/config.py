@@ -38,5 +38,3 @@ GITHUB_REPO = os.environ.get("GITHUB_REPO")
 GITHUB_CLIENT_ID = os.environ.get("GITHUB_CLIENT_ID")
 GITHUB_CLIENT_SECRET = os.environ.get("GITHUB_CLIENT_SECRET")
 API = os.environ.get("API")
-
-JWT_COOKIE_SECURE = os.environ.get("JWT_COOKIE_SECURE")

@@ -1,7 +1,6 @@
 from backend.classrooms.schemas import classroom_code_schema, classroom_form_schema
-from backend.models import Classroom, Teacher
+from backend.models import Classroom
 from flask import request, session
-from flask_jwt_extended import get_jwt_identity
 from functools import wraps
 
 
