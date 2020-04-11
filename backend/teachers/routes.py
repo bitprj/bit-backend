@@ -1,6 +1,3 @@
-from flask import Blueprint, request
-from flask_jwt_extended import get_jwt_identity
-from flask_restful import Resource
 from backend import api, db
 from backend.authentication.decorators import roles_accepted
 from backend.activity_progresses.decorators import activity_prog_grading_format, is_activity_graded, \
@@ -9,6 +6,9 @@ from backend.models import ActivityProgress, Teacher
 from backend.modules.utils import complete_modules
 from backend.teachers.schemas import teacher_classroom_schema
 from backend.teachers.utils import grade_activity
+from flask import Blueprint, request, session
+from flask_restful import Resource
+
 
 # Blueprint for teachers
 teachers_bp = Blueprint("teachers", __name__)
@@ -19,8 +19,8 @@ class TeacherFetchData(Resource):
     method_decorators = [roles_accepted("Teacher")]
 
     def get(self):
-        username = get_jwt_identity()
-        teacher = Teacher.query.filter_by(username=username).first()
+        user_data = session["profile"]
+        teacher = Teacher.query.get(user_data["id"])
 
         return teacher_classroom_schema.dump(teacher)
 

@@ -1,6 +1,6 @@
 from backend import db
 from backend.general_utils import create_schema_json
-from backend.models import Module, ModuleProgress, StudentBadges
+from backend.models import Module, ModuleProgress
 from backend.module_progresses.utils import can_create_module_progress
 
 
@@ -67,14 +67,6 @@ def edit_module(module, data):
     module.gems_needed = data["gems_needed"]
     module.image = data["image"]
     create_schema_json(module, "modules")
-
-    # delete_badge_weights(module.badge_weights)
-    # module.badge_weights = add_badge_weights(contentful_data["parameters"]["badge_weights"]["en-US"], module.id)
-    # delete_badge_prereqs(module)
-    # assign_badge_prereqs(contentful_data, module, "Module")
-
-    # if "activity_prereqs" in contentful_data["parameters"]:
-    #     module.activity_prereqs = get_activities(contentful_data["parameters"]["activity_prereqs"]["en-US"])
 
     return
 

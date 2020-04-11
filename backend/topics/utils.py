@@ -1,6 +1,5 @@
-from backend.general_utils import create_schema_json
+from backend.general_utils import create_schema_json, get_github_modules
 from backend.models import Module, Student, Topic
-from backend.prereqs.fetch import get_modules
 
 
 # Function to check if a student has completed the required modules for a topic
@@ -25,13 +24,7 @@ def create_topic(data):
                   )
 
     if "modules" in data:
-        topic.modules = get_modules(data["modules"])
-
-    # if "module_prereqs" in contentful_data["parameters"]:
-    #     topic.module_prereqs = get_modules(contentful_data["parameters"]["module_prereqs"]["en-US"])
-    #
-    # if "activity_prereqs" in contentful_data["parameters"]:
-    #     topic.activity_prereqs = get_activities(contentful_data["parameters"]["activity_prereqs"]["en-US"])
+        topic.modules = get_github_modules(data["modules"])
 
     return topic
 
@@ -51,17 +44,9 @@ def edit_topic(topic, data):
     topic.description = data["description"]
 
     if "modules" in data:
-        topic.modules = get_modules(data["modules"])
-        
-    create_schema_json(topic, "topics")
-    # delete_badge_prereqs(topic)
-    # assign_badge_prereqs(contentful_data, topic, "Topic")
+        topic.modules = get_github_modules(data["modules"])
 
-    # if "module_prereqs" in contentful_data["parameters"]:
-    #     topic.module_prereqs = get_modules(contentful_data["parameters"]["module_prereqs"]["en-US"])
-    #
-    # if "activity_prereqs" in contentful_data["parameters"]:
-    #     topic.activity_prereqs = get_activities(contentful_data["parameters"]["activity_prereqs"]["en-US"])
+    create_schema_json(topic, "topics")
 
     return
 

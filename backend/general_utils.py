@@ -4,12 +4,14 @@ from backend.cards.schemas import card_schema
 from backend.checkpoints.schemas import checkpoint_schema
 from backend.concepts.schemas import concept_schema
 from backend.config import S3_BUCKET, S3_CDN_BUCKET
+from backend.exceptions import UserSessionVerification
 from backend.hints.schemas import hint_schema
 from backend.models import Activity, Card, Checkpoint, Concept, Hint, Module, Topic, Track
 from backend.modules.schemas import module_schema
 from backend.topics.schemas import topic_schema
 from backend.tracks.schemas import track_schema
 from bs4 import BeautifulSoup as BS
+from flask import session
 from PIL import Image
 from urllib.request import urlopen
 from zipfile import ZipFile
@@ -127,6 +129,17 @@ def get_base_folder(filename):
     return image_folder
 
 
+# Function to return a list of modules based on a list of module github_ids
+def get_github_modules(module_list):
+    modules = []
+
+    for module_github_id in module_list:
+        module = Module.query.filter_by(github_id=module_github_id).first()
+        modules.append(module)
+
+    return modules
+
+
 # Function to choose a schema to return data
 def get_schema(model_obj):
     if isinstance(model_obj, Track):
@@ -145,6 +158,17 @@ def get_schema(model_obj):
         return hint_schema
     elif isinstance(model_obj, Checkpoint):
         return checkpoint_schema
+
+
+# Function to return a list of topics based on the github_ids
+def get_topics(topic_list):
+    topics = []
+
+    for github_id in topic_list:
+        topic = Topic.query.filter_by(github_id=github_id).first()
+        topics.append(topic)
+
+    return topics
 
 
 # Function to parse an image tag for its name
@@ -191,6 +215,13 @@ def send_file_to_cdn(data, filename, schema_type, model_obj):
     os.remove(filename)
 
     return
+
+
+# Function to check if the user's session exists
+# If not raise an Exception
+def verify_user_session():
+    if "profile" not in session:
+        raise UserSessionVerification("User is not logged in", status_code=401)
 
 
 # Function to write to the files from github

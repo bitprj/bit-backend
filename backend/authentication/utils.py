@@ -1,4 +1,4 @@
-from backend import guard, mail, safe_url
+from backend import guard, mail
 from backend.models import Admin, Student, Teacher, User
 from flask_mail import Message
 from flask import url_for
@@ -53,16 +53,22 @@ def create_teacher(form_data):
 
 
 # Function to choose which user to create, based on user_type
-def create_user(user_type, form_data):
-    user = None
+def create_user(oauth_user_data, oauth_emails):
+    user = Student(name=oauth_user_data["name"],
+                   username=oauth_emails[0]["email"],
+                   roles="Student",
+                   image=oauth_user_data["avatar_url"],
+                   github_id=oauth_user_data["id"],
+                   github_login=oauth_user_data["login"]
+                   )
 
-    if user_type == "Admin":
-        user = create_admin(form_data)
-    elif user_type == "Teacher":
-        user = create_teacher(form_data)
-    elif user_type == "Student":
-        user = create_student(form_data)
-    user.is_active = True
+    # if user_type == "Admin":
+    #     user = create_admin(form_data)
+    # elif user_type == "Teacher":
+    #     user = create_teacher(form_data)
+    # elif user_type == "Student":
+    #     user = create_student(form_data)
+    # user.is_active = True
 
     return user
 
@@ -76,17 +82,6 @@ def get_users(users):
         user_list.append(target_user)
 
     return user_list
-
-
-# Function to send an email verification email
-def send_verification_email(email):
-    token = safe_url.dumps(email, salt="email-confirm")
-    msg = Message("Bit Project Email Confirmation", sender="info@bitproject.org", recipients=[email])
-    link = url_for("userauthorize", token=token, _external=True)
-    msg.body = "Click the following link to activate your account {}".format(link)
-    mail.send(msg)
-
-    return
 
 
 # Function to send an email verification email

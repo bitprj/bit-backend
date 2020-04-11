@@ -1,6 +1,5 @@
-from backend.general_utils import send_file_to_cdn
+from backend.general_utils import send_file_to_cdn, get_topics
 from backend.models import Student, Topic, Track
-from backend.prereqs.fetch import get_topics
 from backend.tracks.schemas import track_schema
 
 

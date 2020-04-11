@@ -1,7 +1,6 @@
 from backend.models import ModuleProgress
 from backend.module_progresses.schemas import module_progress_update_data_schema
-from flask import request
-from flask_jwt_extended import get_jwt_claims
+from flask import request, session
 from functools import wraps
 
 
@@ -9,7 +8,7 @@ from functools import wraps
 def module_prog_exists(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        user_data = get_jwt_claims()
+        user_data = session["profile"]
         module_progress = ModuleProgress.query.filter_by(module_id=kwargs['module_id'],
                                                          student_id=user_data["id"]).first()
 

@@ -1,7 +1,5 @@
-from flask import (Blueprint, request)
-from flask_jwt_extended import jwt_required
-from flask_restful import Resource
 from backend import api, db
+from backend.authentication.decorators import user_session_exists
 from backend.checkpoints.decorators import checkpoint_exists, checkpoint_exists_in_github, valid_checkpoint_form, \
     valid_checkpoint_type
 from backend.checkpoints.schemas import checkpoint_schema
@@ -9,6 +7,9 @@ from backend.checkpoints.utils import assign_checkpoint_to_card, create_checkpoi
     fill_optional_checkpoint_fields
 from backend.general_utils import create_schema_json
 from backend.models import Card, Checkpoint
+from flask import Blueprint, request
+from flask_restful import Resource
+
 
 # Blueprint for checkpoints
 checkpoints_bp = Blueprint("checkpoints", __name__)
@@ -62,7 +63,7 @@ class CheckpointCRUD(Resource):
 
 # This class is used to get a specific checkpoint based on id
 class CheckpointGetSpecific(Resource):
-    method_decorators = [jwt_required, checkpoint_exists]
+    method_decorators = [user_session_exists, checkpoint_exists]
 
     # Function to return data on a single checkpoint
     def get(self, checkpoint_id):
