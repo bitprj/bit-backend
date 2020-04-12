@@ -76,6 +76,7 @@ def roles_required(*required_rolenames):
 def user_session_exists(f):
     @wraps(f)
     def wrap(*args, **kwargs):
+        print(session["profile"])
         if "profile" in session:
             return f(*args, **kwargs)
         else:
