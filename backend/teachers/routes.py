@@ -9,7 +9,6 @@ from backend.teachers.utils import grade_activity
 from flask import Blueprint, request, session
 from flask_restful import Resource
 
-
 # Blueprint for teachers
 teachers_bp = Blueprint("teachers", __name__)
 

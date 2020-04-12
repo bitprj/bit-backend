@@ -1,12 +1,13 @@
 from backend import pusher_client
-from backend.models import ActivityProgress, CheckpointProgress
+from backend.models import ActivityProgress, CheckpointProgress, ModuleProgress
 from datetime import datetime
 
 
 # Loops through the checkpoint progresses, finds the checkpoint progress and assigns the comment
-def assign_comments(checkpoints):
+def assign_comments(checkpoints, student_id):
     for checkpoint in checkpoints:
-        checkpoint_prog = CheckpointProgress.query.get(checkpoint["checkpoint_id"])
+        checkpoint_prog = CheckpointProgress.query.filter_by(checkpoint_id=checkpoint["checkpoint_id"],
+                                                             student_id=student_id).first()
         checkpoint_prog.teacher_comment = checkpoint["comment"]
 
     return
@@ -36,10 +37,15 @@ def grade_activity(activity_progress, data):
     activity_progress.is_graded = True
     activity_progress.date_graded = datetime.now().date()
     activity_progress.is_passed = pass_activity(data["checkpoints"])
-    assign_comments(data["checkpoints"])
+    assign_comments(data["checkpoints"], student.id)
 
     if activity_progress.is_passed:
         activity_progress.student.global_gems += activity_progress.accumulated_gems
+        for module in activity_progress.activity.modules:
+            module_prog = ModuleProgress.query.filter_by(module_id=module.id, student_id=student.id).first()
+            if activity_progress.activity in module_prog.inprogress_activities:
+                module_prog.inprogress_activities.remove(activity_progress.activity)
+                module_prog.completed_activities.append(activity_progress.activity)
 
         if activity_progress.activity in student.current_activities:
             student.current_activities.remove(activity_progress.activity)
