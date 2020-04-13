@@ -4,7 +4,8 @@ from backend.classrooms.decorators import valid_classroom_code, valid_classroom_
 from backend.models import Classroom, Student
 from backend.module_progresses.utils import can_create_module_progress
 from backend.students.decorators import student_exists, valid_update_data
-from backend.students.schemas import student_classroom_schema, student_schema
+from backend.students.schemas import StudentSerializer, StudentClassroomSerializer
+from backend.students.utils import update_student_suggested_activity
 from datetime import datetime
 from flask import Blueprint, request, session
 from flask_restful import Resource
@@ -21,7 +22,7 @@ class StudentClassroom(Resource):
     def put(self):
         data = request.get_json()
         user_data = session["profile"]
-        student = Student.query.get(user_data["id"])
+        student = Student.query.get(user_data["student_id"])
         classroom = Classroom.query.filter_by(class_code=data["class_code"]).first()
         student.classes.append(classroom)
         student.incomplete_modules += classroom.modules
@@ -37,34 +38,25 @@ class StudentClassroom(Resource):
 
 
 # Class to display student data
-class StudentInfo(Resource):
+class StudentData(Resource):
     method_decorators = [user_session_exists]
 
     # Function to display student data
     @student_exists
-    def get(self):
-        student_id = request.args.get("student_id")
+    def get(self, student_id):
+        student = Student.query.get(student_id)
         classroom_id = request.args.get("classroom_id")
-        student_data = None
 
-        if student_id and classroom_id:
-            student = Student.query.get(student_id)
-            student_data = student_classroom_schema.dump(student)
-        elif student_id and not classroom_id:
-            student = Student.query.get(student_id)
-            student_data = student_schema.dump(student)
-            student_data["suggested_activity"] = {}
-            student_data["suggested_activity"]["id"] = student.suggested_activity_id
-            student_data["suggested_activity"]["module_id"] = student.suggested_module_id
-        elif not student_id and not classroom_id:
-            user_data = session["profile"]
-            student = Student.query.get(user_data["id"])
-            student_data = student_schema.dump(student)
-            student_data["suggested_activity"] = {}
-            student_data["suggested_activity"]["id"] = student.suggested_activity_id
-            student_data["suggested_activity"]["module_id"] = student.suggested_module_id
-            student.last_seen = datetime.utcnow()
+        if classroom_id:
+            student_data = StudentClassroomSerializer(student).data
+        elif student_id == session["profile"]["student_id"]:
+            student_data = StudentSerializer(student).data
+            student_data["suggested_activity"] = update_student_suggested_activity(student)
+            student.meta.user.last_seen = datetime.utcnow()
             db.session.commit()
+        else:
+            student_data = StudentSerializer(student).data
+            student_data["suggested_activity"] = update_student_suggested_activity(student)
 
         return student_data
 
@@ -76,7 +68,7 @@ class StudentInfo(Resource):
         student = Student.query.get(user_data["id"])
         student.suggested_activity_id = data["suggested_activity"]["id"]
         student.suggested_module_id = data["suggested_activity"]["module_id"]
-        student_data = student_schema.dump(student)
+        student_data = StudentSerializer(student).data
         student_data["suggested_activity"] = data["suggested_activity"]
         db.session.commit()
 
@@ -84,5 +76,5 @@ class StudentInfo(Resource):
 
 
 # Creates the routes for the classes
-api.add_resource(StudentInfo, "/students/data")
+api.add_resource(StudentData, "/students/<int:student_id>")
 api.add_resource(StudentClassroom, "/students/classrooms")

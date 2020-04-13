@@ -44,7 +44,7 @@ def module_is_incomplete(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         user_data = session["profile"]
-        student = Student.query.get(user_data["id"])
+        student = Student.query.get(user_data["student_id"])
         module = Module.query.get(kwargs["module_id"])
 
         if module in student.incomplete_modules:
@@ -62,7 +62,7 @@ def module_in_inprogress(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         user_data = session["profile"]
-        student = Student.query.get(user_data["id"])
+        student = Student.query.get(user_data["student_id"])
         module = Module.query.get(kwargs["module_id"])
 
         if module in student.inprogress_modules:
@@ -80,7 +80,7 @@ def module_is_complete(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         user_data = session["profile"]
-        student = Student.query.get(user_data["id"])
+        student = Student.query.get(user_data["student_id"])
         module = Module.query.get(kwargs["module_id"])
 
         for activity in module.activities:

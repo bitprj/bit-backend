@@ -1,14 +1,13 @@
 from backend import api, db
-from backend.authentication.decorators import roles_accepted
 from backend.activity_progresses.decorators import activity_prog_grading_format, is_activity_graded, \
     submitted_activity_prog_exist
 from backend.models import ActivityProgress, Teacher
 from backend.modules.utils import complete_modules
-from backend.teachers.schemas import teacher_classroom_schema
+from backend.teachers.decorators import teacher_exists
+from backend.teachers.schemas import TeacherSerializer
 from backend.teachers.utils import grade_activity
-from flask import Blueprint, request, session
+from flask import Blueprint, request
 from flask_restful import Resource
-
 
 # Blueprint for teachers
 teachers_bp = Blueprint("teachers", __name__)
@@ -16,17 +15,17 @@ teachers_bp = Blueprint("teachers", __name__)
 
 # Class to fetch classroom data for the teacher
 class TeacherFetchData(Resource):
-    method_decorators = [roles_accepted("Teacher")]
+    method_decorators = [teacher_exists]
 
-    def get(self):
-        user_data = session["profile"]
-        teacher = Teacher.query.get(user_data["id"])
+    def get(self, teacher_id):
+        teacher = Teacher.query.get(teacher_id)
 
-        return teacher_classroom_schema.dump(teacher)
+        return TeacherSerializer(teacher).data
 
 
-# Class to display teacher data
+# Class to grade the Student's assignments
 class TeacherAssignments(Resource):
+    method_decorators = [teacher_exists]
 
     # This route is used to grade an activity
     @activity_prog_grading_format
@@ -50,4 +49,4 @@ class TeacherAssignments(Resource):
 
 # Creates the routes for the classes
 api.add_resource(TeacherAssignments, "/teachers/<int:activity_id>/grade")
-api.add_resource(TeacherFetchData, "/teachers/data")
+api.add_resource(TeacherFetchData, "/teachers/<int:teacher_id>")

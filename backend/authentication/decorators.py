@@ -1,5 +1,6 @@
 from backend.authentication.schemas import valid_access_token
 from backend.general_utils import verify_user_session
+from backend.models import Meta
 from flask import request, session
 from flask_praetorian.exceptions import MissingRoleError
 from functools import wraps
@@ -29,8 +30,9 @@ def roles_accepted(*accepted_rolenames):
         @wraps(method)
         def wrapper(*args, **kwargs):
             verify_user_session()
+            meta = Meta.query.get(session["profile"]["meta_id"])
             role_set = set([str(n) for n in accepted_rolenames])
-            user_roles = set(r.strip() for r in session["profile"]["roles"].split(','))
+            user_roles = set(r.strip() for r in meta.roles.split(','))
 
             try:
                 MissingRoleError.require_condition(
@@ -54,8 +56,9 @@ def roles_required(*required_rolenames):
         @wraps(f)
         def wrapper(*args, **kwargs):
             verify_user_session()
+            meta = Meta.query.get(session["profile"]["meta_id"])
             role_set = set([str(n) for n in required_rolenames])
-            user_roles = set(r.strip() for r in session["profile"]["roles"].split(','))
+            user_roles = set(r.strip() for r in meta.roles.split(','))
 
             try:
                 MissingRoleError.require_condition(

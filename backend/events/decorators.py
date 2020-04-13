@@ -26,7 +26,7 @@ def has_rsvp(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         user_data = session["profile"]
-        user = User.query.get(user_data["id"])
+        user = User.query.get(user_data["user_id"])
         event = Event.query.get(kwargs['event_id'])
 
         if user in event.rsvp_list:
@@ -45,7 +45,7 @@ def in_rsvp(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         user_data = session["profile"]
-        user = User.query.get(user_data["id"])
+        user = User.query.get(user_data["user_id"])
         event = Event.query.get(kwargs['event_id'])
 
         if user in event.rsvp_list:
@@ -64,7 +64,7 @@ def owns_event(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         user_data = session["profile"]
-        user = User.query.get(user_data["id"])
+        user = User.query.get(user_data["user_id"])
         event = Event.query.get(kwargs['event_id'])
 
         if user in event.organization.owners or user in event.presenters:

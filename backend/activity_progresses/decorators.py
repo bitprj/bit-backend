@@ -9,7 +9,7 @@ def activity_prog_exists(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         user_data = session["profile"]
-        student_activity_prog = ActivityProgress.query.filter_by(student_id=user_data["id"],
+        student_activity_prog = ActivityProgress.query.filter_by(student_id=user_data["student_id"],
                                                                  activity_id=kwargs['activity_id']).first()
 
         if student_activity_prog:
@@ -30,7 +30,7 @@ def has_completed_prerequisites(f):
         activity = Activity.query.get(kwargs["activity_id"])
 
         for activity_prereq in activity.prerequisite_activities:
-            activity_prog = ActivityProgress.query.filter_by(student_id=user_data["id"],
+            activity_prog = ActivityProgress.query.filter_by(student_id=user_data["student_id"],
                                                              activity_id=activity_prereq.id).first()
             if activity_prog:
                 if not activity_prog.is_completed:
@@ -55,7 +55,7 @@ def activity_prog_grading_format(f):
         else:
             return {
                        "message": "Assignments are in the wrong format."
-                   }, 500
+                   }, 422
 
     return wrap
 

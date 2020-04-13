@@ -60,7 +60,7 @@ def card_is_unlockable(f):
     def wrap(*args, **kwargs):
         user_data = session["profile"]
         card = Card.query.get(kwargs['card_id'])
-        student_activity_prog = ActivityProgress.query.filter_by(student_id=user_data["id"],
+        student_activity_prog = ActivityProgress.query.filter_by(student_id=user_data["student_id"],
                                                                  activity_id=kwargs['activity_id']).first()
         if card in student_activity_prog.cards_locked:
             return f(*args, **kwargs)

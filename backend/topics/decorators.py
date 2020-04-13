@@ -10,7 +10,7 @@ def can_add_topic(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         user_data = session["profile"]
-        student = Student.query.get(user_data["id"])
+        student = Student.query.get(user_data["student_id"])
         topic = Topic.query.get(kwargs['topic_id'])
         can_add = completed_modules(student, topic.module_prereqs)
 
@@ -29,7 +29,7 @@ def can_complete_topic(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         user_data = session["profile"]
-        student = Student.query.get(user_data["id"])
+        student = Student.query.get(user_data["student_id"])
         topic = Topic.query.get(kwargs['topic_id'])
         can_complete = completed_modules(student, topic.modules)
 
@@ -48,7 +48,7 @@ def has_completed_topic(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         user_data = session["profile"]
-        student = Student.query.get(user_data["id"])
+        student = Student.query.get(user_data["student_id"])
         topic = Topic.query.get(kwargs['topic_id'])
 
         if topic in student.completed_topics and topic not in student.inprogress_topics:
@@ -99,7 +99,7 @@ def topic_is_incomplete(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         user_data = session["profile"]
-        student = Student.query.get(user_data["id"])
+        student = Student.query.get(user_data["student_id"])
         topic = Topic.query.get(kwargs["topic_id"])
 
         if topic in student.incomplete_topics:

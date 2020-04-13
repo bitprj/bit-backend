@@ -8,26 +8,14 @@ from functools import wraps
 def student_exists(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        if request.args:
-            student_id = request.args.get("student_id")
-            student = Student.query.get(student_id)
+        student = Student.query.get(kwargs["student_id"])
 
-            if student and student_id:
-                return f(*args, **kwargs)
-            else:
-                return {
-                           "message": "Student does not exist"
-                       }, 404
+        if student:
+            return f(*args, **kwargs)
         else:
-            user_data = session["profile"]
-            student = Student.query.get(user_data["id"])
-
-            if student:
-                return f(*args, **kwargs)
-            else:
-                return {
-                           "message": "Student does not exist"
-                       }, 404
+            return {
+                       "message": "Student does not exist"
+                   }, 404
 
     return wrap
 

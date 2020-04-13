@@ -1,9 +1,10 @@
-from flask import (Blueprint, g, jsonify, session)
-from flask_restful import Resource
 from backend import api, app, db, github
 from backend.authentication.utils import create_user
 from backend.authentication.decorators import access_token_exists, roles_required, user_session_exists
-from backend.models import User
+from backend.authentication.schemas import MetaSerializer
+from backend.models import Meta, Student, User
+from flask import Blueprint, g, jsonify, session
+from flask_restful import Resource
 
 # Blueprint for users
 authentication_bp = Blueprint("authentication", __name__)
@@ -14,6 +15,7 @@ authentication_bp = Blueprint("authentication", __name__)
 @github.authorized_handler
 def authorized(access_token):
     oauth_user = None
+    meta = None
 
     if oauth_user is None:
         oauth_user = User(github_access_token=access_token)
@@ -25,20 +27,21 @@ def authorized(access_token):
 
     if existing_user:
         oauth_user = existing_user
+        meta = oauth_user.meta
     else:
-        oauth_user = create_user(github_user, github_emails)
+        meta = Meta(roles="Student")
+        db.session.add(meta)
+        db.session.commit()
+        oauth_user = create_user(github_user, github_emails, access_token, meta.id)
+        student = Student(meta_id=meta.id)
+        db.session.add(student)
         db.session.add(oauth_user)
+        db.session.commit()
 
-    db.session.commit()
-    session["profile"] = {
-        "id": oauth_user.id,
-        "roles": oauth_user.roles
-    }
+    session["profile"] = MetaSerializer(meta).data
     g.user = oauth_user
 
-    return {
-               "message": "Login Successful"
-           }, 200
+    return session["profile"]
 
 
 # Class to handle OAuth login for users
@@ -136,4 +139,3 @@ api.add_resource(UserIsStudent, "/isStudent")
 api.add_resource(UserIsTeacher, "/isTeacher")
 api.add_resource(UserOAuthLoginHandler, "/login")
 api.add_resource(UserOAuthLogoutHandler, "/logout")
-

@@ -72,7 +72,7 @@ class EventJoin(Resource):
     @has_rsvp
     def put(self, event_id):
         user_data = session["profile"]
-        user = User.query.get(user_data["id"])
+        user = User.query.get(user_data["user_id"])
         event = Event.query.get(event_id)
         event.rsvp_list.append(user)
         db.session.commit()
@@ -85,7 +85,7 @@ class EventJoin(Resource):
     @in_rsvp
     def delete(self, event_id):
         user_data = session["profile"]
-        user = User.query.get(user_data["id"])
+        user = User.query.get(user_data["user_id"])
         event = Event.query.get(event_id)
         event.rsvp_list.remove(user)
         db.session.commit()

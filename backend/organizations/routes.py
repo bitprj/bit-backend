@@ -55,7 +55,7 @@ class OrganizationCreate(Resource):
         form_data = request.form
         form_files = request.files
         user_data = session["profile"]
-        user = User.query.get(user_data["id"])
+        user = User.query.get(user_data["user_id"])
         organization = create_organization(form_data, form_files, user)
 
         db.session.add(organization)
@@ -116,7 +116,7 @@ class OrganizationMembership(Resource):
     @has_joined_already
     def put(self, organization_id):
         user_data = session["profile"]
-        user = User.query.get(user_data["id"])
+        user = User.query.get(user_data["user_id"])
         organization = Organization.query.get(organization_id)
         organization.active_users.append(user)
         db.session.commit()
@@ -129,7 +129,7 @@ class OrganizationMembership(Resource):
     @exist_in_organization
     def delete(self, organization_id):
         user_data = session["profile"]
-        user = User.query.get(user_data["id"])
+        user = User.query.get(user_data["user_id"])
         organization = Organization.query.get(organization_id)
         remove_user(organization, user)
         db.session.commit()
