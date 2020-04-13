@@ -23,7 +23,7 @@ class StudentSerializer(Serializer):
     def serialize_current_activities(self, student):
         if not student.current_activities:
             return []
-        return activity_schemas.ActivityRelSerializer(student.current_activities).data
+        return activity_schemas.ActivityRelSerializer(student.current_activities, many=True).data
 
     def serialize_completed_modules(self, student):
         if not student.completed_modules:

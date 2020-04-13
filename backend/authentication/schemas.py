@@ -1,10 +1,11 @@
 from backend import ma
 from marshmallow import fields
-from serpy import IntField, MethodField, Serializer
+from serpy import IntField, MethodField, Serializer, StrField
 
 
 class MetaSerializer(Serializer):
     id = IntField(required=True, label="meta_id")
+    roles = StrField(required=True)
     user_id = MethodField("serialize_user")
     student_id = MethodField("serialize_student")
     teacher_id = MethodField("serialize_teacher")
