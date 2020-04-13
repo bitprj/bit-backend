@@ -10,7 +10,7 @@ def module_prog_exists(f):
     def wrap(*args, **kwargs):
         user_data = session["profile"]
         module_progress = ModuleProgress.query.filter_by(module_id=kwargs['module_id'],
-                                                         student_id=user_data["id"]).first()
+                                                         student_id=user_data["student_id"]).first()
 
         if module_progress:
             return f(*args, **kwargs)

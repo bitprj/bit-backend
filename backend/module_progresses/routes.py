@@ -19,7 +19,8 @@ class ModuleProgressData(Resource):
     @module_prog_exists
     def get(self, module_id):
         user_data = session["profile"]
-        module_progress = ModuleProgress.query.filter_by(module_id=module_id, student_id=user_data["id"]).first()
+        module_progress = ModuleProgress.query.filter_by(module_id=module_id,
+                                                         student_id=user_data["student_id"]).first()
 
         return ModuleProgressSerializer(module_progress).data
 
@@ -30,7 +31,8 @@ class ModuleProgressData(Resource):
     def put(self, module_id):
         data = request.get_json()
         user_data = session["profile"]
-        module_progress = ModuleProgress.query.filter_by(module_id=module_id, student_id=user_data["id"]).first()
+        module_progress = ModuleProgress.query.filter_by(module_id=module_id,
+                                                         student_id=user_data["student_id"]).first()
         module_progress.chosen_project_id = data["chosen_project_id"]
         db.session.commit()
 

@@ -74,7 +74,7 @@ class HintStatusData(Resource):
         user_data = session["profile"]
         hint = Hint.query.get(hint_id)
         activity_id = get_activity_id(hint)
-        activity_prog = ActivityProgress.query.filter_by(student_id=user_data["id"],
+        activity_prog = ActivityProgress.query.filter_by(student_id=user_data["student_id"],
                                                          activity_id=activity_id).first()
         hint_status = HintStatus.query.filter_by(activity_progress_id=activity_prog.id, hint_id=hint_id).first()
 

@@ -20,7 +20,7 @@ class TrackProgress(Resource):
     # Function to retrieve the students track progress
     def get(self, track_id):
         user_data = session["profile"]
-        track_progress = get_track_progress(user_data["id"], track_id)
+        track_progress = get_track_progress(user_data["student_id"], track_id)
 
         return track_progress_schema.dump(track_progress)
 
@@ -34,7 +34,7 @@ class TrackProgressAdd(Resource):
     @topic_is_incomplete
     def put(self, topic_id):
         user_data = session["profile"]
-        student = Student.query.get(user_data["id"])
+        student = Student.query.get(user_data["student_id"])
         topic = Topic.query.get(topic_id)
         student.inprogress_topics.append(topic)
         student.incomplete_topics.remove(topic)
@@ -55,7 +55,7 @@ class TrackProgressUpdate(Resource):
     @has_completed_topic
     def put(self, topic_id):
         user_data = session["profile"]
-        student = Student.query.get(user_data["id"])
+        student = Student.query.get(user_data["student_id"])
         topic = Topic.query.get(topic_id)
         student.completed_topics.append(topic)
         student.inprogress_topics.remove(topic)

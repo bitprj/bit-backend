@@ -20,7 +20,7 @@ class TopicProgress(Resource):
     # Function to retrieve the module progress for a student given an id
     def get(self, topic_id):
         user_data = session["profile"]
-        topic_progress = get_topic_progress(user_data["id"], topic_id)
+        topic_progress = get_topic_progress(user_data["student_id"], topic_id)
 
         return topic_progress_schema.dump(topic_progress)
 
@@ -33,7 +33,7 @@ class TopicProgressAdd(Resource):
     @module_is_incomplete
     def put(self, topic_id, module_id):
         user_data = session["profile"]
-        student = Student.query.get(user_data["id"])
+        student = Student.query.get(user_data["student_id"])
         module = Module.query.get(module_id)
         student.inprogress_modules.append(module)
         student.incomplete_modules.remove(module)
@@ -54,7 +54,7 @@ class TopicProgressUpdate(Resource):
     @module_in_inprogress
     def put(self, topic_id, module_id):
         user_data = session["profile"]
-        student = Student.query.get(user_data["id"])
+        student = Student.query.get(user_data["student_id"])
         module = Module.query.get(module_id)
         student.completed_modules.append(module)
         student.inprogress_modules.remove(module)

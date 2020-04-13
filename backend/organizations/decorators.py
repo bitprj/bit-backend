@@ -59,7 +59,7 @@ def has_joined_already(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         user_data = session["profile"]
-        user = User.query.get(user_data["id"])
+        user = User.query.get(user_data["user_id"])
         organization = Organization.query.get(kwargs['organization_id'])
 
         if user in organization.active_users or user in organization.inactive_users:
@@ -93,7 +93,7 @@ def owns_organization(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         user_data = session["profile"]
-        user = User.query.get(user_data["id"])
+        user = User.query.get(user_data["user_id"])
         organization = Organization.query.get(kwargs['organization_id'])
 
         if user in organization.owners:
