@@ -231,7 +231,7 @@ class Activity(db.Model):
     badge_prereqs = db.relationship("ActivityBadgePrereqs", cascade="all,delete", lazy="joined",
                                     back_populates="activity")
     # modules keeps track of all of the modules that an activity belongs to
-    module_prereqs = db.relationship("Module", secondary="activity_module_prereqs", lazy="joined",
+    module_prereqs = db.relationship("Module", secondary="activity_module_prereqs",
                                      back_populates="activity_prereqs")
     # students_completed keeps track of which students have completed an activity
     students_completed = db.relationship("Student", secondary="student_activity_completed_rel",
@@ -252,7 +252,7 @@ class Activity(db.Model):
     modules_inprogress = db.relationship("ModuleProgress", secondary="module_progress_completed_activities_rel",
                                          back_populates="inprogress_activities")
     # topic_prereqs keeps track of the activities that needs to be completed before accessing a topic
-    topic_prereqs = db.relationship("Topic", secondary="topic_activity_prereqs", lazy="joined",
+    topic_prereqs = db.relationship("Topic", secondary="topic_activity_prereqs",
                                     back_populates="activity_prereqs")
     # last_module is the module in which the module unlocked last
     last_module = db.relationship("ModuleProgress", back_populates="last_activity_unlocked",
@@ -320,11 +320,11 @@ class Card(db.Model):
     # hints keep track of the hints that a card owns
     hints = db.relationship("Hint", cascade="all,delete", back_populates="card")
     # activity_locked_cards keep track of all the activities locked cards
-    activity_locked_cards = db.relationship("ActivityProgress", lazy="joined",
+    activity_locked_cards = db.relationship("ActivityProgress",
                                             secondary="activity_progress_locked_cards_rel",
                                             back_populates="cards_locked")
     # activity_locked_cards keep track of all the activities unlocked cards
-    activity_unlocked_cards = db.relationship("ActivityProgress", lazy="joined",
+    activity_unlocked_cards = db.relationship("ActivityProgress",
                                               secondary="activity_progress_unlocked_cards_rel",
                                               back_populates="cards_unlocked")
 
@@ -673,6 +673,7 @@ class Track(db.Model):
 
 class Meta(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    roles = db.Column(db.Text, nullable=True)
     user = db.relationship("User", uselist=False, cascade="all,delete", back_populates="meta")
     admin = db.relationship("Admin", uselist=False, cascade="all,delete", back_populates="meta")
     student = db.relationship("Student", uselist=False, cascade="all,delete", back_populates="meta")
