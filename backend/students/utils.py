@@ -55,6 +55,16 @@ def update_module_progresses(activity, student):
     return topics
 
 
+# Function to update the student's suggested activity
+def update_student_suggested_activity(student):
+    suggested_activity = {
+        "id": student.suggested_activity_id,
+        "module_id": student.suggested_module_id
+    }
+
+    return suggested_activity
+
+
 # Function to update a student's topic progresses
 def update_topic_progresses(topics, student):
     completed_topics = set(student.completed_topics)

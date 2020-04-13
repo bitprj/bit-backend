@@ -5,8 +5,6 @@ from backend import ma
 # This schema is used to display student data
 class StudentSchema(ma.Schema):
     id = fields.Str(required=True)
-    name = fields.Str(required=True)
-    last_seen = fields.DateTime(required=False)
     classes = fields.Nested("ClassroomSchema", only=("id",), many=True, data_key="classrooms")
     suggested_activity = fields.Nested("SuggestedActivitySchema", required=True)
     current_activities = fields.Nested("ActivitySchema", only=("id",), many=True)
@@ -18,7 +16,7 @@ class StudentSchema(ma.Schema):
     class Meta:
         # Fields to show when sending data
         fields = (
-            "id", "name", "last_seen", "classes", "suggested_activity", "current_activities", "completed_modules",
+            "id", "classes", "suggested_activity", "current_activities", "completed_modules",
             "inprogress_modules", "incomplete_modules", "inprogress_topics")
         ordered = True
 

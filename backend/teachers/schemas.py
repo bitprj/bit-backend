@@ -1,11 +1,12 @@
 from backend import ma
 from backend.classrooms.schemas import ClassroomSerializer
 from marshmallow import fields
-from serpy import MethodField, Serializer
+from serpy import IntField, MethodField, Serializer
 
 
 # This schema is used to display user data,
 class TeacherClassroomSerializer(Serializer):
+    id = IntField(required=True)
     classrooms = MethodField("serialize_classrooms")
 
     def serialize_classrooms(self, teacher):
