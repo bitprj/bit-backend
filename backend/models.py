@@ -731,7 +731,7 @@ class User(db.Model):
 
 class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    meta_id = db.Column(db.Integer, db.ForeignKey('meta.id'), nullable=False)
+    meta_id = db.Column(db.Integer, db.ForeignKey('meta.id'))
     meta = db.relationship("Meta", back_populates="admin")
 
     def __repr__(self):
@@ -778,7 +778,7 @@ class Student(db.Model):
     suggested_activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"), nullable=True)
     suggested_activity = db.relationship("Activity", back_populates="suggested_students")
     suggested_module_id = db.Column(db.Integer, nullable=True)
-    meta_id = db.Column(db.Integer, db.ForeignKey('meta.id'), nullable=False)
+    meta_id = db.Column(db.Integer, db.ForeignKey('meta.id'))
     meta = db.relationship("Meta", back_populates="student")
 
     def __repr__(self):
@@ -788,7 +788,7 @@ class Student(db.Model):
 class Teacher(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     classrooms = db.relationship('Classroom', cascade="all,delete", back_populates='teacher')
-    meta_id = db.Column(db.Integer, db.ForeignKey('meta.id'), nullable=False)
+    meta_id = db.Column(db.Integer, db.ForeignKey('meta.id'))
     meta = db.relationship("Meta", back_populates="teacher")
 
     def __repr__(self):
