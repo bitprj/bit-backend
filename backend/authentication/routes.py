@@ -29,7 +29,7 @@ def authorized(access_token):
         oauth_user = existing_user
         meta = oauth_user.meta
     else:
-        meta = Meta()
+        meta = Meta(roles="Student")
         db.session.add(meta)
         db.session.commit()
         oauth_user = create_user(github_user, github_emails, access_token, meta.id)
@@ -48,14 +48,6 @@ def authorized(access_token):
 class UserOAuthLoginHandler(Resource):
     def get(self):
         if session.get("profile", None) is None:
-            # session["profile"] = {
-            #     "id": 48,
-            #     "roles": "Teacher"
-            # }
-            # session["profile"] = {
-            #     "id": 2,
-            #     "roles": "Student"
-            # }
             return github.authorize(scope="read:user, read:repo, user:email")
         else:
             return {

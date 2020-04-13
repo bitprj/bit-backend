@@ -24,7 +24,7 @@ class ActivityProgressUpdate(Resource):
     @has_completed_prerequisites
     def get(self, activity_id):
         user_data = session["profile"]
-        student = Student.query.get(user_data["id"])
+        student = Student.query.get(user_data["student_id"])
         student_activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
                                                                  activity_id=activity_id).first()
 
@@ -47,7 +47,7 @@ class ActivityProgressUpdate(Resource):
     @activity_prog_exists
     def delete(self, activity_id):
         user_data = session["profile"]
-        student_activity_prog = ActivityProgress.query.filter_by(student_id=user_data["id"],
+        student_activity_prog = ActivityProgress.query.filter_by(student_id=user_data["student_id"],
                                                                  activity_id=activity_id).first()
         db.session.delete(student_activity_prog)
         db.session.commit()
@@ -65,7 +65,7 @@ class ActivityProgressHints(Resource):
     @activity_prog_exists
     def put(self, activity_id, hint_id):
         user_data = session["profile"]
-        student_activity_prog = ActivityProgress.query.filter_by(student_id=user_data["id"],
+        student_activity_prog = ActivityProgress.query.filter_by(student_id=user_data["student_id"],
                                                                  activity_id=activity_id).first()
         hint = Hint.query.get(hint_id)
         unlock_message = unlock_hint(student_activity_prog, hint)

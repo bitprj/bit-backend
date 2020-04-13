@@ -25,25 +25,9 @@ class MetaSerializer(Serializer):
         return meta.teacher.id
 
 
-# This schema is used to display user data,
-class UserSchema(ma.Schema):
-    id = fields.Str(required=True)
-    name = fields.Str(required=True)
-    username = fields.Email(required=True)
-    location = fields.Str(required=True)
-    roles = fields.Str(required=False)
-    image = fields.Str(required=True)
-
-    class Meta:
-        # Fields to show when sending data
-        fields = ("id", "name", "username", "roles", "location", "image")
-        ordered = True
-
-
 # This schema is used to validate a Github access token
 class ValidAccessTokenSchema(ma.Schema):
     code = fields.Str(required=True)
 
 
-user_schema = UserSchema()
 valid_access_token = ValidAccessTokenSchema()

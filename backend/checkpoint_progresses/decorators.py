@@ -10,7 +10,7 @@ def checkpoint_progress_exist(f):
     def wrap(*args, **kwargs):
         user_data = session["profile"]
         checkpoint_prog = CheckpointProgress.query.filter_by(checkpoint_id=kwargs['checkpoint_id'],
-                                                             student_id=user_data["id"]).first()
+                                                             student_id=user_data["student_id"]).first()
         if checkpoint_prog:
             return f(*args, **kwargs)
         else:
@@ -27,7 +27,7 @@ def multiple_choice_is_completed(f):
     def wrap(*args, **kwargs):
         user_data = session["profile"]
         checkpoint_prog = CheckpointProgress.query.filter_by(checkpoint_id=kwargs['checkpoint_id'],
-                                                             student_id=user_data["id"]).first()
+                                                             student_id=user_data["student_id"]).first()
         if checkpoint_prog.is_completed and checkpoint_prog.checkpoint.checkpoint_type == "Multiple Choice":
             return {
                        "message": "You already answered this multiple choice checkpoint"

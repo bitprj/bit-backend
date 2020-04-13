@@ -23,7 +23,7 @@ class CheckpointProgressSubmit(Resource):
     def get(self, checkpoint_id):
         user_data = session["profile"]
         checkpoint_prog = CheckpointProgress.query.filter_by(checkpoint_id=checkpoint_id,
-                                                             student_id=user_data["id"]).first()
+                                                             student_id=user_data["student_id"]).first()
 
         return get_checkpoint_data(checkpoint_prog)
 
@@ -35,7 +35,7 @@ class CheckpointProgressSubmit(Resource):
         data = request.form
         user_data = session["profile"]
         checkpoint_prog = CheckpointProgress.query.filter_by(checkpoint_id=checkpoint_id,
-                                                             student_id=user_data["id"]).first()
+                                                             student_id=user_data["student_id"]).first()
         fill_in_checkpoint_progress(data, checkpoint_prog)
 
         db.session.commit()
