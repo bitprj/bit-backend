@@ -1,5 +1,6 @@
 from backend import ma
 from marshmallow import fields, validate
+from serpy import IntField, Serializer
 
 
 # This schema is used to validate the badge form data
@@ -49,6 +50,11 @@ class ClassroomCodeSchema(ma.Schema):
         # Fields to show when sending data
         fields = ("class_code",)
         ordered = True
+
+
+# Serpy schema for serialization
+class ClassroomSerializer(Serializer):
+    id = IntField(required=True)
 
 
 classroom_code_schema = ClassroomCodeSchema()
