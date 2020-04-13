@@ -4,7 +4,7 @@ from backend.classrooms.decorators import valid_classroom_code, valid_classroom_
 from backend.models import Classroom, Student
 from backend.module_progresses.utils import can_create_module_progress
 from backend.students.decorators import student_exists, valid_update_data
-from backend.students.schemas import student_classroom_schema, student_schema
+from backend.students.schemas import StudentSerializer, StudentClassroomSerializer
 from backend.students.utils import update_student_suggested_activity
 from datetime import datetime
 from flask import Blueprint, request, session
@@ -22,7 +22,7 @@ class StudentClassroom(Resource):
     def put(self):
         data = request.get_json()
         user_data = session["profile"]
-        student = Student.query.get(user_data["id"])
+        student = Student.query.get(user_data["student_id"])
         classroom = Classroom.query.filter_by(class_code=data["class_code"]).first()
         student.classes.append(classroom)
         student.incomplete_modules += classroom.modules
@@ -48,14 +48,14 @@ class StudentData(Resource):
         classroom_id = request.args.get("classroom_id")
 
         if classroom_id:
-            student_data = student_classroom_schema.dump(student)
+            student_data = StudentClassroomSerializer(student).data
         elif student_id == session["profile"]["student_id"]:
-            student_data = student_schema.dump(student)
+            student_data = StudentSerializer(student).data
             student_data["suggested_activity"] = update_student_suggested_activity(student)
             student.meta.user.last_seen = datetime.utcnow()
             db.session.commit()
         else:
-            student_data = student_schema.dump(student)
+            student_data = StudentSerializer(student).data
             student_data["suggested_activity"] = update_student_suggested_activity(student)
 
         return student_data
@@ -68,7 +68,7 @@ class StudentData(Resource):
         student = Student.query.get(user_data["id"])
         student.suggested_activity_id = data["suggested_activity"]["id"]
         student.suggested_module_id = data["suggested_activity"]["module_id"]
-        student_data = student_schema.dump(student)
+        student_data = StudentSerializer(student).data
         student_data["suggested_activity"] = data["suggested_activity"]
         db.session.commit()
 

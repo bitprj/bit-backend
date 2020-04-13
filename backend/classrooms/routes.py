@@ -2,7 +2,7 @@ from backend import api, db
 from backend.activity_progresses.schemas import ActivityProgressSubmissionSerializer
 from backend.authentication.decorators import roles_accepted
 from backend.classrooms.decorators import classroom_exists, owns_classroom, valid_classroom_form
-from backend.classrooms.schemas import classroom_schema
+from backend.classrooms.schemas import ClassroomSerializer
 from backend.classrooms.utils import create_classroom, edit_classroom, get_classroom_activities
 from backend.models import Classroom
 from backend.modules.utils import add_modules_to_students, get_modules
@@ -22,7 +22,7 @@ class ClassroomCRUD(Resource):
     def get(self, classroom_id):
         classroom = Classroom.query.get(classroom_id)
 
-        return classroom_schema.dump(classroom)
+        return ClassroomSerializer(classroom).data
 
     # Function to edit a classroom
     @owns_classroom
@@ -55,7 +55,7 @@ class ClassroomCreate(Resource):
     def post(self):
         form_data = request.get_json()
         user_data = session["profile"]
-        classroom = create_classroom(form_data, user_data["id"])
+        classroom = create_classroom(form_data, user_data["teacher_id"])
 
         db.session.add(classroom)
         db.session.commit()

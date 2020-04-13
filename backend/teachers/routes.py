@@ -1,11 +1,10 @@
 from backend import api, db
-from backend.authentication.decorators import roles_accepted
 from backend.activity_progresses.decorators import activity_prog_grading_format, is_activity_graded, \
     submitted_activity_prog_exist
 from backend.models import ActivityProgress, Teacher
 from backend.modules.utils import complete_modules
 from backend.teachers.decorators import teacher_exists
-from backend.teachers.schemas import TeacherClassroomSerializer
+from backend.teachers.schemas import TeacherSerializer
 from backend.teachers.utils import grade_activity
 from flask import Blueprint, request
 from flask_restful import Resource
@@ -21,7 +20,7 @@ class TeacherFetchData(Resource):
     def get(self, teacher_id):
         teacher = Teacher.query.get(teacher_id)
 
-        return TeacherClassroomSerializer(teacher).data
+        return TeacherSerializer(teacher).data
 
 
 # Class to grade the Student's assignments

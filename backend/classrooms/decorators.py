@@ -27,7 +27,7 @@ def owns_classroom(f):
         classroom = Classroom.query.get(kwargs['classroom_id'])
         user_data = session["profile"]
 
-        if classroom.teacher_id == user_data["id"]:
+        if classroom.teacher_id == user_data["teacher_id"]:
             return f(*args, **kwargs)
         else:
             return {

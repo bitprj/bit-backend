@@ -42,9 +42,9 @@ def update_module_progresses(activity, student):
         if module_prog:
             module_prog.last_activity_unlocked_id = activity.id
 
-        if activity in module_prog.incomplete_activities and activity not in module_prog.completed_activities:
-            module_prog.incomplete_activities.remove(activity)
-            module_prog.inprogress_activities.append(activity)
+            if activity in module_prog.incomplete_activities and activity not in module_prog.completed_activities:
+                module_prog.incomplete_activities.remove(activity)
+                module_prog.inprogress_activities.append(activity)
 
         if module in incomplete_modules:
             student.incomplete_modules.remove(module)
