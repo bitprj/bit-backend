@@ -133,7 +133,6 @@ def update_test_cases(test_case_location):
 
 # Function to type cast topic fields
 def update_topic_data(data, file):
-    data["github_id"] = int(data["github_id"])
     data["image"] = parse_img_tag(data["image"], data["image_folder"], "topics")
     data["filename"] = file.filename
 
