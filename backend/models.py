@@ -615,7 +615,6 @@ class Submission(db.Model):
 
 class Topic(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    github_id = db.Column(db.Integer, nullable=True)
     name = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
     description = db.Column(db.Text, nullable=True)
@@ -640,9 +639,9 @@ class Topic(db.Model):
                                           back_populates="inprogress_topics")
     students = db.relationship("TopicProgress", cascade="all,delete", back_populates="topic")
 
-    def __init__(self, github_id, name, description, image):
-        self.github_id = github_id
+    def __init__(self, name, filename, description, image):
         self.name = name
+        self.filename = filename
         self.description = description
         self.image = image
 

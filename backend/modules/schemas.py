@@ -1,7 +1,7 @@
 from backend import ma
 from backend.badges.schemas import BadgeRequirementSchema
 from marshmallow import fields
-from serpy import IntField, MethodField, Serializer, StrField
+from serpy import IntField, Serializer, StrField
 
 
 # This schema is used to validate the module form data

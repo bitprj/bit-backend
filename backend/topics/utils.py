@@ -16,8 +16,7 @@ def completed_modules(student, modules):
 
 # Function to create a topic
 def create_topic(data):
-    topic = Topic(github_id=data["github_id"],
-                  name=data["name"],
+    topic = Topic(name=data["name"],
                   filename=data["filename"],
                   description=data["description"],
                   image=data["image"]
@@ -29,19 +28,11 @@ def create_topic(data):
     return topic
 
 
-# Function to delete a topic's relationships
-def delete_topic(topic):
-    topic.modules = []
-    topic.module_prereqs = []
-    topic.activity_prereqs = []
-
-    return
-
-
 # Function to edit an topic
 def edit_topic(topic, data):
     topic.name = data["name"]
     topic.description = data["description"]
+    topic.image = data["image"]
 
     if "modules" in data:
         topic.modules = get_github_modules(data["modules"])
