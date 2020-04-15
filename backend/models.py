@@ -483,7 +483,6 @@ class Hint(db.Model):
 
 class Module(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    github_id = db.Column(db.Integer, nullable=True)
     name = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
     description = db.Column(db.Text, nullable=True)
@@ -523,8 +522,7 @@ class Module(db.Model):
     inprogress_topics = db.relationship("TopicProgress", secondary="topic_progress_inprogress_modules_rel",
                                         back_populates="inprogress_modules")
 
-    def __init__(self, github_id, filename, name, description, gems_needed, image):
-        self.github_id = github_id
+    def __init__(self, filename, name, description, gems_needed, image):
         self.filename = filename
         self.name = name
         self.description = description

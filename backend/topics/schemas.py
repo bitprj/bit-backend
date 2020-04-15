@@ -1,7 +1,6 @@
 from backend import ma
 from marshmallow import fields
 from serpy import IntField, MethodField, Serializer, StrField
-import backend.modules.schemas as module_schemas
 
 
 # This schema is used to validate form data
@@ -11,7 +10,7 @@ class TopicFormSchema(ma.Schema):
     description = fields.Str(required=True)
     image = fields.Str(required=True)
     image_folder = fields.Str(required=True)
-    modules = fields.List(fields.Int, required=False)
+    modules = fields.List(fields.Str(), required=False)
 
     class Meta:
         # Fields to show when sending data
@@ -30,7 +29,7 @@ class TopicSerializer(Serializer):
     def module_serializer(self, topic):
         if not topic.modules:
             return []
-        module_schemas.ModuleRelSerializer(topic.modules, many=True).data
+        return [{"id": module.id} for module in topic.modules]
 
 
 # Keep this schema for now until we update all models with serpy schemas

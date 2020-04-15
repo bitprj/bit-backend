@@ -15,10 +15,10 @@ def store_files(files_to_change):
     tests_cases = set()
 
     for file in files_to_change.values():
-        if len(file.filename.split("/")) == 2 and "README.md" in file.filename:
+        if len(file.filename.split("/")) == 2 and "README.md" in file.filename and file.filename.endswith(".md"):
             topic_files.append(file)
 
-        if "Module" in file.filename and "Activity" not in file.filename and "Lab" not in file.filename and "README.md" in file.filename:
+        if len(file.filename.split("/")) == 3 and "Modules" in file.filename and file.filename.endswith(".md"):
             module_files.append(file)
 
         if "Module" in file.filename and (

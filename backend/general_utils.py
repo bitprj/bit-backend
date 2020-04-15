@@ -133,8 +133,8 @@ def get_base_folder(filename):
 def get_github_modules(module_list):
     modules = []
 
-    for module_github_id in module_list:
-        module = Module.query.filter_by(github_id=module_github_id).first()
+    for module_path in module_list:
+        module = Module.query.filter_by(filename=module_path).first()
         modules.append(module)
 
     return modules
