@@ -178,12 +178,15 @@ def parse_img_tag(image, image_folder, folder):
     image_name = None
 
     for image in soup.find_all('img'):
-        image_name = image["src"]
+        # This gets the name of the image
+        image_name = "/" + image["src"].split("/")[-1]
+
     image_path = image_folder + image_name
 
     if "https" in image_path:
         return image_name
     else:
+        image_name = image["src"].split("/")[-1]
         return create_image_obj(image_name, image_path, folder)
 
 
