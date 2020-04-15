@@ -48,6 +48,13 @@ classroom_modules_rel = db.Table("classroom_modules_rel",
                                  db.Column("module_id", db.Integer, db.ForeignKey("module.id"))
                                  )
 
+# This many to many relationship is used to keep track of which activity projects belong to module progress and vice versa
+module_progress_chosen_projects = db.Table("module_progress_chosen_projects",
+                                           db.Column("module_progress_id", db.Integer,
+                                                     db.ForeignKey("module_progress.id")),
+                                           db.Column("activity_id", db.Integer, db.ForeignKey("activity.id"))
+                                           )
+
 # This many to many relationship is used to keep track of which activities belong to module progress and vice versa
 module_progress_completed_activities_rel = db.Table("module_progress_completed_activities_rel",
                                                     db.Column("module_progress_id", db.Integer,
@@ -257,9 +264,8 @@ class Activity(db.Model):
     # last_module is the module in which the module unlocked last
     last_module = db.relationship("ModuleProgress", back_populates="last_activity_unlocked",
                                   foreign_keys="ModuleProgress.last_activity_unlocked_id")
-    # chosen_module is the module in which the chosen_project is associated with
-    chosen_module = db.relationship("ModuleProgress", back_populates="chosen_project",
-                                    foreign_keys="ModuleProgress.chosen_project_id")
+    chosen_modules = db.relationship("ModuleProgress", secondary="module_progress_chosen_projects",
+                                     back_populates="chosen_projects")
     # students keep track of the student's activity progress
     students = db.relationship("ActivityProgress", back_populates="activity")
     # This is used to keep track of the student's actions for an activity
@@ -939,11 +945,8 @@ class ModuleProgress(db.Model):
     last_activity_unlocked_id = db.Column(db.Integer, db.ForeignKey('activity.id'))
     last_activity_unlocked = db.relationship("Activity", back_populates="last_module",
                                              foreign_keys=[last_activity_unlocked_id])
-    # chosen_project is the project chosen for a module
-    chosen_project_id = db.Column(db.Integer, db.ForeignKey('activity.id'))
-    chosen_project = db.relationship("Activity", back_populates="chosen_module",
-                                     foreign_keys=[chosen_project_id])
-
+    chosen_projects = db.relationship("Activity", secondary="module_progress_chosen_projects",
+                                      back_populates="chosen_modules")
     # completed_activities keeps track of all activities completed
     completed_activities = db.relationship("Activity", secondary="module_progress_completed_activities_rel",
                                            back_populates="modules_completed")
