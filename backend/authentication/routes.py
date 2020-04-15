@@ -3,7 +3,7 @@ from backend.authentication.utils import create_user
 from backend.authentication.decorators import access_token_exists, roles_required, user_session_exists
 from backend.authentication.schemas import MetaSerializer
 from backend.models import Meta, Student, User
-from flask import Blueprint, g, jsonify, session
+from flask import Blueprint, g, jsonify, redirect, session
 from flask_restful import Resource
 
 # Blueprint for users
@@ -23,7 +23,13 @@ def authorized(access_token):
     g.user = oauth_user
     github_user = github.get("/user")
     github_emails = github.get("/user/emails")
-    existing_user = User.query.filter_by(github_id=github_user["id"]).first()
+    # existing_user = User.query.filter_by(github_id=github_user["id"]).first()
+    # TODO This is temporary, remove when all current users are synced with github
+    for email in github_emails:
+        existing_user = User.query.filter_by(email=email).first()
+        
+        if existing_user:
+            break
 
     if existing_user:
         oauth_user = existing_user
@@ -41,7 +47,8 @@ def authorized(access_token):
     session["profile"] = MetaSerializer(meta).data
     g.user = oauth_user
 
-    return session["profile"]
+    # return session["profile"]
+    return redirect("https://camp.bitproject.org", 200)
 
 
 # Class to handle OAuth login for users
