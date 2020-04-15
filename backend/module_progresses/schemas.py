@@ -1,39 +1,24 @@
 from backend import ma
 from backend.activities.schemas import ActivityRelSerializer
 from marshmallow import fields
-from serpy import MethodField, Serializer
+from serpy import Serializer
 
 
 class ModuleProgressSerializer(Serializer):
     last_activity_unlocked = ActivityRelSerializer(required=False)
-    chosen_project = ActivityRelSerializer(required=False)
-    completed_activities = MethodField("serialize_completed_activities")
-    incomplete_activities = MethodField("serialize_incompleted_activities")
-    inprogress_activities = MethodField("serialize_inprogress_activities")
-
-    def serialize_completed_activities(self, module_prog):
-        if not module_prog.completed_activities:
-            return None
-        return ActivityRelSerializer(module_prog.completed_activities, many=True).data
-
-    def serialize_incompleted_activities(self, module_prog):
-        if not module_prog.incomplete_activities:
-            return None
-        return ActivityRelSerializer(module_prog.incomplete_activities, many=True).data
-
-    def serialize_inprogress_activities(self, module_prog):
-        if not module_prog.inprogress_activities:
-            return None
-        return ActivityRelSerializer(module_prog.inprogress_activities, many=True).data
+    chosen_projects = ActivityRelSerializer(many=True, required=False)
+    completed_activities = ActivityRelSerializer(many=True, required=False)
+    incomplete_activities = ActivityRelSerializer(many=True, required=False)
+    inprogress_activities = ActivityRelSerializer(many=True, required=False)
 
 
 # This schema is used to validate data to update ModuleProgress
 class ModuleProgressUpdateDataSchema(ma.Schema):
-    chosen_project_id = fields.Int(required=True)
+    chosen_project_ids = fields.List(fields.Int(), required=True)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("chosen_project_id",)
+        fields = ("chosen_project_ids",)
         ordered = True
 
 
