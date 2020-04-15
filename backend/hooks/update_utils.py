@@ -132,13 +132,4 @@ def update_topic_data(data, file):
     data["image"] = parse_img_tag(data["image"], data["image_folder"], "topics")
     data["filename"] = file.filename
 
-    if "modules" in data:
-        modules = []
-
-        for module_path in data["modules"]:
-            topic_path = file.filename.split("/")
-            module_path = topic_path[0] + module_path
-            modules.append(module_path)
-        data["modules"] = modules
-
     return data

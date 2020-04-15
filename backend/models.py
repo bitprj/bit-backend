@@ -222,7 +222,6 @@ topic_track_reqs = db.Table("track_topic_reqs",
 
 class Activity(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    github_id = db.Column(db.Integer, nullable=True)
     name = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
     description = db.Column(db.Text, nullable=True)
@@ -275,8 +274,7 @@ class Activity(db.Model):
                                               backref=db.backref('parent_activity', remote_side='Activity.id'))
     suggested_students = db.relationship("Student", back_populates="suggested_activity")
 
-    def __init__(self, github_id, filename, name, description, summary, difficulty, image):
-        self.github_id = github_id
+    def __init__(self, filename, name, description, summary, difficulty, image):
         self.filename = filename
         self.name = name
         self.description = description
