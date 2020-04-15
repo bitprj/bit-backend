@@ -1,5 +1,5 @@
 from backend import db
-from backend.activities.utils import get_activities
+from backend.activities.utils import get_activities, get_activity_paths
 from backend.general_utils import create_schema_json
 from backend.models import Module, ModuleProgress
 from backend.module_progresses.utils import can_create_module_progress
@@ -26,7 +26,7 @@ def create_module(data):
                     image=data["image"]
                     )
 
-    activity_paths = data["activities"] + data["projects"]
+    activity_paths = get_activity_paths(data)
     module.activities = get_activities(activity_paths)
 
     return module
@@ -70,9 +70,9 @@ def edit_module(module, data):
     module.gems_needed = data["gems_needed"]
     module.image = data["image"]
     create_schema_json(module, "modules")
-    activity_paths = data["activities"] + data["projects"]
+    activity_paths = get_activity_paths(data)
     module.activities = get_activities(activity_paths)
-    
+
     return
 
 

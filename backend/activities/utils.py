@@ -65,6 +65,18 @@ def get_activities(activity_paths):
     return activities
 
 
+# Function to get the activity_paths from a module README
+def get_activity_paths(data):
+    activity_paths = []
+
+    if "activities" in data:
+        activity_paths += data["activities"]
+    if "projects" in data:
+        activity_paths += data["projects"]
+
+    return activity_paths
+
+
 # Function to check if the activity's cards have hints
 def has_hints(cards):
     for card in cards.keys():
