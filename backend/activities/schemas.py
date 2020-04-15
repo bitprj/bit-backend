@@ -7,7 +7,6 @@ from serpy import BoolField, IntField, MethodField, Serializer, StrField
 
 # This schema is used to validate the activity form data
 class ActivityFormSchema(ma.Schema):
-    github_id = fields.Int(required=True)
     filename = fields.Str(required=True)
     name = fields.Str(required=True)
     description = fields.Str(required=True)
@@ -20,9 +19,8 @@ class ActivityFormSchema(ma.Schema):
 
     class Meta:
         # Fields to show when sending data
-        fields = (
-            "github_id", "filename", "name", "description", "summary", "difficulty", "image", "image_folder",
-            "cards", "activity_prerequisites")
+        fields = ("filename", "name", "description", "summary", "difficulty", "image", "image_folder",
+                  "cards", "activity_prerequisites")
         ordered = True
 
 

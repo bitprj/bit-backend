@@ -133,8 +133,8 @@ def get_base_folder(filename):
 def get_github_modules(module_list):
     modules = []
 
-    for module_github_id in module_list:
-        module = Module.query.filter_by(github_id=module_github_id).first()
+    for module_path in module_list:
+        module = Module.query.filter_by(filename=module_path).first()
         modules.append(module)
 
     return modules
@@ -178,12 +178,15 @@ def parse_img_tag(image, image_folder, folder):
     image_name = None
 
     for image in soup.find_all('img'):
-        image_name = image["src"]
+        # This gets the name of the image
+        image_name = "/" + image["src"].split("/")[-1]
+
     image_path = image_folder + image_name
 
     if "https" in image_path:
         return image_name
     else:
+        image_name = image["src"].split("/")[-1]
         return create_image_obj(image_name, image_path, folder)
 
 

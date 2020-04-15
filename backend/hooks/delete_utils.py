@@ -33,22 +33,22 @@ def delete_criteria(checkpoint_criteria, checkpoint_id):
 # Function to delete files from github
 def delete_files(files_to_delete):
     for file in files_to_delete.values():
-        if "checkpoints" in file:
+        if ("Activities" in file or "Projects" in file) and "checkpoints" in file and file.endswith(".md"):
             delete_file(file, "/checkpoints")
 
         if "concepts" in file:
             delete_file(file, "/concepts")
 
-        if "Module" in file and "Activity" not in file and "Lab" not in file and "README.md" in file:
+        if len(file.split("/")) == 3 and "Modules" in file and file.endswith(".md"):
             delete_file(file, "/modules")
 
-        if "Module" in file and ("Activity" in file or "Lab" in file) and "README.md" in file:
+        if ("Activities" in file or "Projects" in file) and "README.md" in file:
             delete_file(file, "/activities")
 
-        if "Module" in file and ("Activity" in file or "Lab" in file) and "cards" in file and file.endswith(".md"):
+        if ("Activities" in file or "Projects" in file) and "cards" in file and file.endswith(".md"):
             delete_card(file)
 
-        if "Topic" in file and "Module" not in file and "Activity" not in file and "Lab" not in file and "README.md" in file:
+        if len(file.split("/")) == 2 and "README.md" in file:
             delete_file(file, "/topics")
 
     return

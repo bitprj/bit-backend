@@ -1,4 +1,5 @@
 from backend import db
+from backend.activities.utils import get_activities, get_activity_paths
 from backend.general_utils import create_schema_json
 from backend.models import Module, ModuleProgress
 from backend.module_progresses.utils import can_create_module_progress
@@ -18,13 +19,15 @@ def add_modules_to_students(modules, students):
 
 # Function to create a module
 def create_module(data):
-    module = Module(github_id=data["github_id"],
-                    filename=data["filename"],
+    module = Module(filename=data["filename"],
                     name=data["name"],
                     description=data["description"],
                     gems_needed=data["gems_needed"],
-                    image=data["image"],
+                    image=data["image"]
                     )
+
+    activity_paths = get_activity_paths(data)
+    module.activities = get_activities(activity_paths)
 
     return module
 
@@ -67,6 +70,8 @@ def edit_module(module, data):
     module.gems_needed = data["gems_needed"]
     module.image = data["image"]
     create_schema_json(module, "modules")
+    activity_paths = get_activity_paths(data)
+    module.activities = get_activities(activity_paths)
 
     return
 

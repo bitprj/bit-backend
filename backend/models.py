@@ -222,7 +222,6 @@ topic_track_reqs = db.Table("track_topic_reqs",
 
 class Activity(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    github_id = db.Column(db.Integer, nullable=True)
     name = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
     description = db.Column(db.Text, nullable=True)
@@ -275,8 +274,7 @@ class Activity(db.Model):
                                               backref=db.backref('parent_activity', remote_side='Activity.id'))
     suggested_students = db.relationship("Student", back_populates="suggested_activity")
 
-    def __init__(self, github_id, filename, name, description, summary, difficulty, image):
-        self.github_id = github_id
+    def __init__(self, filename, name, description, summary, difficulty, image):
         self.filename = filename
         self.name = name
         self.description = description
@@ -483,7 +481,6 @@ class Hint(db.Model):
 
 class Module(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    github_id = db.Column(db.Integer, nullable=True)
     name = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
     description = db.Column(db.Text, nullable=True)
@@ -523,8 +520,7 @@ class Module(db.Model):
     inprogress_topics = db.relationship("TopicProgress", secondary="topic_progress_inprogress_modules_rel",
                                         back_populates="inprogress_modules")
 
-    def __init__(self, github_id, filename, name, description, gems_needed, image):
-        self.github_id = github_id
+    def __init__(self, filename, name, description, gems_needed, image):
         self.filename = filename
         self.name = name
         self.description = description
@@ -621,7 +617,6 @@ class Submission(db.Model):
 
 class Topic(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    github_id = db.Column(db.Integer, nullable=True)
     name = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
     description = db.Column(db.Text, nullable=True)
@@ -646,9 +641,9 @@ class Topic(db.Model):
                                           back_populates="inprogress_topics")
     students = db.relationship("TopicProgress", cascade="all,delete", back_populates="topic")
 
-    def __init__(self, github_id, name, description, image):
-        self.github_id = github_id
+    def __init__(self, name, filename, description, image):
         self.name = name
+        self.filename = filename
         self.description = description
         self.image = image
 

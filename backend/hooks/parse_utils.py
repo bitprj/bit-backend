@@ -15,29 +15,26 @@ def store_files(files_to_change):
     tests_cases = set()
 
     for file in files_to_change.values():
-        if "Topic" in file.filename and "Module" not in file.filename and "Activity" not in file.filename and "Lab" not in file.filename and "README.md" in file.filename:
-            topic_files.append(file)
-
-        if "Module" in file.filename and "Activity" not in file.filename and "Lab" not in file.filename and "README.md" in file.filename:
+        if len(file.filename.split("/")) == 3 and "Modules" in file.filename and file.filename.endswith(".md"):
             module_files.append(file)
 
-        if "Module" in file.filename and (
-                "Activity" in file.filename or "Lab" in file.filename) and "README.md" in file.filename:
+        if len(file.filename.split("/")) == 2 and "README.md" in file.filename and file.filename.endswith(".md"):
+            topic_files.append(file)
+
+        if ("Activities" in file.filename or "Projects" in file.filename) and "README.md" in file.filename:
             activity_files.append(file)
 
         if "concepts" in file.filename and "images" not in file.filename:
             concept_files.append(file)
 
-        if "Topic" in file.filename and "Module" in file.filename and (
-                "Activity" in file.filename or "Lab" in file.filename) and "cards" in file.filename and file.filename.endswith(
-                ".md"):
+        if ("Activities" in file.filename or "Projects" in file.filename) and "cards" in file.filename and file.filename.endswith(".md"):
             card_files.append(file)
 
-        if "Module" in file.filename and (
-                "Activity" in file.filename or "Lab" in file.filename) and "checkpoints" in file.filename:
+        if ("Activities" in file.filename or "Projects" in file.filename) and "checkpoints" in file.filename and file.filename.endswith(".md"):
             checkpoint_files.append(file)
 
-        if "Topic" in file.filename and "Module" in file.filename and ("Activity" in file.filename or "Lab" in file.filename) and "tests" in file.filename:
+        if "Topic" in file.filename and "Module" in file.filename and (
+                "Activity" in file.filename or "Lab" in file.filename) and "tests" in file.filename:
             name = file.filename.split("/")
             test_location = "/".join(name[:-1])
             test_location += "/"
@@ -53,12 +50,6 @@ def parse_files(topic_files, module_files, activity_files, concept_files, card_f
                 test_case_files):
     # Activity cards is used to get the card dictionary if their cards get updated
     activity_cards = {}
-    for file in module_files:
-        parse_module(file)
-
-    for file in topic_files:
-        parse_topic(file)
-
     for file in concept_files:
         parse_concept(file)
 
@@ -80,6 +71,12 @@ def parse_files(topic_files, module_files, activity_files, concept_files, card_f
             activity_readme = repo.get_contents(parent_path)
             cards = md_to_json(activity_readme.download_url)["cards"]
             parse_card(file, cards, parent_path)
+
+    for file in module_files:
+        parse_module(file)
+
+    for file in topic_files:
+        parse_topic(file)
 
     for file in test_case_files:
         update_test_cases(file[:-1])
