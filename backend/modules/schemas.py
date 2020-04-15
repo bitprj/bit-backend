@@ -12,10 +12,12 @@ class ModuleFormSchema(ma.Schema):
     gems_needed = fields.Int(required=True)
     image = fields.Str(required=True)
     image_folder = fields.Str(required=True)
+    activities = fields.List(fields.Str(), required=False)
+    projects = fields.List(fields.Str(), required=False)
 
     class Meta:
         # Fields to show when sending data
-        fields = ("name", "filename", "description", "gems_needed", "image", "image_folder")
+        fields = ("name", "filename", "description", "gems_needed", "image", "image_folder", "activities", "projects")
         ordered = True
 
 
