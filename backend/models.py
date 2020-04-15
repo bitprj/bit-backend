@@ -687,6 +687,7 @@ class Meta(db.Model):
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text, nullable=True)
+    username = db.Column(db.Text, nullable=True)
     email = db.Column(db.Text, unique=True, nullable=True)
     token = db.Column(db.Text, unique=True, nullable=True)
     github_access_token = db.Column(db.String(255), nullable=True)

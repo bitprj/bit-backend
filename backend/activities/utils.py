@@ -43,6 +43,9 @@ def edit_activity(activity, data):
     activity.filename = data["filename"]
     activity.is_project = has_hints(data["cards"])
 
+    if "activity_prerequisites" in data:
+        activity.prerequisite_activities = update_prereqs(data["activity_prerequisites"])
+
     if "cards" in data:
         card_filename_path = activity.filename.split("/")[:-1]
         card_path = "/".join(card_filename_path)
@@ -111,8 +114,8 @@ def update_card(card_data, card_name, card_filename):
 def update_prereqs(activities):
     prereqs = []
 
-    for activity_id in activities:
-        activity = Activity.query.filter_by(github_id=int(activity_id)).first()
+    for activity_path in activities:
+        activity = Activity.query.filter_by(filename=activity_path + "/README.md").first()
         if activity:
             prereqs.append(activity)
 

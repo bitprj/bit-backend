@@ -63,7 +63,7 @@ class ActivitySerializer(Serializer):
     def serialize_activities(self, activity):
         if not activity.prerequisite_activities:
             return []
-        return ActivitySerializer(activity.prerequisite_activities, many=True).data
+        return [{"id": activity.id} for activity in activity.prerequisite_activities]
 
 
 # This is a serpy schema to use for Activity relationships

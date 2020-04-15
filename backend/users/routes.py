@@ -3,7 +3,7 @@ from backend.authentication.decorators import user_session_exists
 from backend.users.decorators import user_exists
 from backend.users.schemas import UserSerializer
 from backend.models import User
-from flask import Blueprint
+from flask import Blueprint, session
 from flask_restful import Resource
 
 # Blueprint for users
@@ -20,4 +20,14 @@ class UserData(Resource):
         return UserSerializer(user).data
 
 
+# Class to return the user meta data
+class MetaData(Resource):
+    def get(self):
+        if "profile" in session:
+            return session["profile"]
+        else:
+            return {}, 401
+
+
 api.add_resource(UserData, "/users/<int:user_id>")
+api.add_resource(MetaData, "/meta")
