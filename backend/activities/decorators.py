@@ -21,18 +21,24 @@ def activity_exists(f):
 
 
 # Decorator to check if an activity project exists
-def activity_project_exists(f):
+def activity_projects_exists(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         data = request.get_json()
-        activity = Activity.query.get(data['chosen_project_id'])
+        for activity_id in data["chosen_project_ids"]:
+            activity = Activity.query.get(activity_id)
 
-        if activity:
-            return f(*args, **kwargs)
-        else:
-            return {
-                       "message": "Project does not exist"
-                   }, 404
+            if not activity:
+                return {
+                           "message": "Project does not exist"
+                       }, 404
+
+            if not activity.is_project:
+                return {
+                           "message": "{} is not a project".format(activity.name)
+                       }, 422
+
+        return f(*args, **kwargs)
 
     return wrap
 

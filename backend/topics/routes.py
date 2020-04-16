@@ -1,12 +1,12 @@
-from flask import (Blueprint, request)
-from flask_jwt_extended import jwt_required
-from flask_restful import Resource
 from backend import api, db
+from backend.authentication.decorators import user_session_exists
 from backend.general_utils import create_schema_json
 from backend.models import Topic
 from backend.topics.decorators import topic_exists, topic_exists_in_github, valid_topic_form
-from backend.topics.schemas import topic_schema
-from backend.topics.utils import create_topic, delete_topic, edit_topic
+from backend.topics.schemas import TopicSerializer
+from backend.topics.utils import create_topic, edit_topic
+from flask import Blueprint, request
+from flask_restful import Resource
 
 # Blueprint for topics
 topics_bp = Blueprint("topics", __name__)
@@ -44,7 +44,6 @@ class TopicCRUD(Resource):
     def delete(self):
         data = request.get_json()
         topic = Topic.query.filter_by(filename=data["filename"]).first()
-        delete_topic(topic)
 
         db.session.delete(topic)
         db.session.commit()
@@ -54,12 +53,12 @@ class TopicCRUD(Resource):
 
 # Function to get a specific Topic based on topic id
 class TopicGetSpecific(Resource):
-    method_decorators = [jwt_required, topic_exists]
+    method_decorators = [user_session_exists, topic_exists]
 
     def get(self, topic_id):
         topic = Topic.query.get(topic_id)
 
-        return topic_schema.dump(topic)
+        return TopicSerializer(topic).data
 
 
 # Creates the routes for the classes

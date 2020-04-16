@@ -205,7 +205,6 @@ def parse_activity(file):
     data = md_to_json(file.raw_url)
     data["image"] = parse_img_tag(data["image"], data["image_folder"], "activities")
     data["filename"] = file.filename
-    data["github_id"] = int(data["github_id"])
     activity = Activity.query.filter_by(filename=file.filename).first()
 
     if activity:

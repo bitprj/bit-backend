@@ -1,11 +1,11 @@
-from flask import (Blueprint, request)
-from flask_jwt_extended import jwt_required
-from flask_restful import Resource
 from backend import api, db
+from backend.authentication.decorators import user_session_exists
 from backend.models import Step
 from backend.steps.decorators import step_exists, step_exists_in_github, valid_step_form
 from backend.steps.schemas import step_schema
 from backend.steps.utils import create_step, edit_step, generate_step_cdn_url, get_step_from_patent
+from flask import Blueprint, request
+from flask_restful import Resource
 
 # Blueprint for steps
 steps_bp = Blueprint("steps", __name__)
@@ -53,7 +53,7 @@ class StepCRUD(Resource):
 
 # Function to get a specific Step based on step id
 class StepGetSpecific(Resource):
-    method_decorators = [jwt_required, step_exists]
+    method_decorators = [user_session_exists, step_exists]
 
     def get(self, step_id):
         step = Step.query.get(step_id)

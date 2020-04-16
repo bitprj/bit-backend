@@ -1,5 +1,7 @@
 from backend import ma
 from marshmallow import fields, validate
+from serpy import IntField, MethodField, Serializer, StrField
+import backend.students.schemas as student_schemas
 
 
 # This schema is used to validate the badge form data
@@ -49,6 +51,38 @@ class ClassroomCodeSchema(ma.Schema):
         # Fields to show when sending data
         fields = ("class_code",)
         ordered = True
+
+
+# Serpy schema for serialization
+class ClassroomSerializer(Serializer):
+    id = IntField(required=True)
+    name = StrField(required=True)
+    date_start = StrField(required=True)
+    date_end = StrField(required=True)
+    class_code = StrField(required=True)
+    teacher = MethodField("serialize_teacher")
+    students = MethodField("serialize_students")
+    modules = MethodField("serialize_modules")
+
+    def serialize_teacher(self, classroom):
+        if not classroom.teacher:
+            return {}
+        return {"id": classroom.teacher_id}
+
+    def serialize_students(self, classroom):
+        if not classroom.students:
+            return []
+        return student_schemas.StudentRelSerializer(classroom.students, many=True).data
+
+    def serialize_modules(self, classroom):
+        if not classroom.modules:
+            return []
+        return [("id", module.id) for module in classroom.modules]
+
+
+# Serpy schema for serialization for relationships
+class ClassroomRelSerializer(Serializer):
+    id = IntField(required=True)
 
 
 classroom_code_schema = ClassroomCodeSchema()

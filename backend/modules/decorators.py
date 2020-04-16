@@ -1,9 +1,8 @@
-from flask import request
-from flask_jwt_extended import get_jwt_identity
 from backend.classrooms.schemas import classroom_modules_schema
 from backend.models import Module, Student
 from backend.modules.schemas import module_form_schema
 from backend.modules.utils import get_modules
+from flask import request, session
 from functools import wraps
 
 
@@ -44,8 +43,8 @@ def module_exists_in_github(f):
 def module_is_incomplete(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        username = get_jwt_identity()
-        student = Student.query.filter_by(username=username).first()
+        user_data = session["profile"]
+        student = Student.query.get(user_data["student_id"])
         module = Module.query.get(kwargs["module_id"])
 
         if module in student.incomplete_modules:
@@ -62,8 +61,8 @@ def module_is_incomplete(f):
 def module_in_inprogress(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        username = get_jwt_identity()
-        student = Student.query.filter_by(username=username).first()
+        user_data = session["profile"]
+        student = Student.query.get(user_data["student_id"])
         module = Module.query.get(kwargs["module_id"])
 
         if module in student.inprogress_modules:
@@ -80,8 +79,8 @@ def module_in_inprogress(f):
 def module_is_complete(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        username = get_jwt_identity()
-        student = Student.query.filter_by(username=username).first()
+        user_data = session["profile"]
+        student = Student.query.get(user_data["student_id"])
         module = Module.query.get(kwargs["module_id"])
 
         for activity in module.activities:
@@ -105,7 +104,7 @@ def valid_module_form(f):
         if errors:
             return {
                        "message": "Missing or sending incorrect data to create a module. Double check the JSON data that it has everything needed to create a module."
-                   }, 500
+                   }, 422
         else:
             return f(*args, **kwargs)
 
@@ -122,14 +121,14 @@ def valid_modules_list(f):
         if errors:
             return {
                 "message": "Incorrect data types in list"
-            }, 500
+            }, 422
         else:
             modules = get_modules(data["module_ids"])
 
             if None in modules:
                 return {
                            "message": "Invalid module in list"
-                       }, 500
+                       }, 422
             else:
                 return f(*args, **kwargs)
 

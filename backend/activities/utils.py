@@ -18,20 +18,9 @@ def add_activity_to_module_progress(student, activity, module_prog):
     return
 
 
-# Function to assign an activity to a module
-def assign_activity_to_module(filename, activity):
-    activity_path = filename.split("/")
-    module_path = "/".join(activity_path[:-2]) + "/README.md"
-    module = Module.query.filter_by(filename=module_path).first()
-    module.activities.append(activity)
-
-    return
-
-
 # Function to create a activity
 def create_activity(data):
-    activity = Activity(github_id=data["github_id"],
-                        filename=data["filename"],
+    activity = Activity(filename=data["filename"],
                         name=data["name"],
                         description=data["description"],
                         summary=data["summary"],
@@ -40,7 +29,6 @@ def create_activity(data):
                         )
 
     activity.is_project = has_hints(data["cards"])
-    assign_activity_to_module(data["filename"], activity)
 
     return activity
 
@@ -54,7 +42,9 @@ def edit_activity(activity, data):
     activity.image = data["image"]
     activity.filename = data["filename"]
     activity.is_project = has_hints(data["cards"])
-    assign_activity_to_module(data["filename"], activity)
+
+    if "activity_prerequisites" in data:
+        activity.prerequisite_activities = update_prereqs(data["activity_prerequisites"])
 
     if "cards" in data:
         card_filename_path = activity.filename.split("/")[:-1]
@@ -65,6 +55,29 @@ def edit_activity(activity, data):
             update_card(card_data, card_name, card_filename)
 
     return
+
+
+# Function to get the list of activities based on the activity filepath
+def get_activities(activity_paths):
+    activities = []
+
+    for activity_path in activity_paths:
+        activity = Activity.query.filter_by(filename=activity_path + "/README.md").first()
+        activities.append(activity)
+
+    return activities
+
+
+# Function to get the activity_paths from a module README
+def get_activity_paths(data):
+    activity_paths = []
+
+    if "activities" in data:
+        activity_paths += data["activities"]
+    if "projects" in data:
+        activity_paths += data["projects"]
+
+    return activity_paths
 
 
 # Function to check if the activity's cards have hints
@@ -101,8 +114,8 @@ def update_card(card_data, card_name, card_filename):
 def update_prereqs(activities):
     prereqs = []
 
-    for activity_id in activities:
-        activity = Activity.query.filter_by(github_id=int(activity_id)).first()
+    for activity_path in activities:
+        activity = Activity.query.filter_by(filename=activity_path + "/README.md").first()
         if activity:
             prereqs.append(activity)
 

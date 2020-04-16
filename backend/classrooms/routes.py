@@ -2,16 +2,14 @@ from backend import api, db
 from backend.activity_progresses.schemas import ActivityProgressSubmissionSerializer
 from backend.authentication.decorators import roles_accepted
 from backend.classrooms.decorators import classroom_exists, owns_classroom, valid_classroom_form
-from backend.classrooms.schemas import classroom_schema
+from backend.classrooms.schemas import ClassroomSerializer
 from backend.classrooms.utils import create_classroom, edit_classroom, get_classroom_activities
-from backend.models import Classroom, Teacher
+from backend.models import Classroom
 from backend.modules.utils import add_modules_to_students, get_modules
 from backend.modules.decorators import valid_modules_list
 from backend.teachers.utils import get_activities
-from flask import (Blueprint, request)
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask import Blueprint, request, session
 from flask_restful import Resource
-
 
 # Blueprint for classrooms
 classrooms_bp = Blueprint("classrooms", __name__)
@@ -19,12 +17,12 @@ classrooms_bp = Blueprint("classrooms", __name__)
 
 # Class for classroom CRUD routes
 class ClassroomCRUD(Resource):
-    method_decorators = [roles_accepted("Teacher", "Student"), jwt_required, classroom_exists]
+    method_decorators = [roles_accepted("Teacher", "Student"), classroom_exists]
 
     def get(self, classroom_id):
         classroom = Classroom.query.get(classroom_id)
 
-        return classroom_schema.dump(classroom)
+        return ClassroomSerializer(classroom).data
 
     # Function to edit a classroom
     @owns_classroom
@@ -36,7 +34,7 @@ class ClassroomCRUD(Resource):
 
         db.session.commit()
 
-        return {"message": "Classroom successfully updated"}, 202
+        return {"message": "Classroom successfully updated"}, 200
 
     # Function to delete a classroom!!
     @owns_classroom
@@ -56,9 +54,8 @@ class ClassroomCreate(Resource):
     # Function to create a classroom
     def post(self):
         form_data = request.get_json()
-        username = get_jwt_identity()
-        teacher = Teacher.query.filter_by(username=username).first()
-        classroom = create_classroom(form_data, teacher.id)
+        user_data = session["profile"]
+        classroom = create_classroom(form_data, user_data["teacher_id"])
 
         db.session.add(classroom)
         db.session.commit()
@@ -68,10 +65,10 @@ class ClassroomCreate(Resource):
 
 # This class is used to update a classroom's modules
 class ClassroomModules(Resource):
-    method_decorators = [roles_accepted("Teacher"), classroom_exists, valid_modules_list]
+    method_decorators = [roles_accepted("Teacher"), owns_classroom, classroom_exists,
+                         valid_modules_list]
 
     # Function to update a classroom's modules
-    @owns_classroom
     def put(self, classroom_id):
         data = request.get_json()
         classroom = Classroom.query.get(classroom_id)
@@ -86,10 +83,9 @@ class ClassroomModules(Resource):
 
 
 class ClassroomAssignments(Resource):
-    method_decorators = [roles_accepted("Teacher"), classroom_exists]
+    method_decorators = [roles_accepted("Teacher"), owns_classroom, classroom_exists]
 
     # Function to display teacher data
-    @owns_classroom
     def get(self, classroom_id):
         classroom = Classroom.query.get(classroom_id)
         activity_set = get_classroom_activities(classroom)

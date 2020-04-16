@@ -105,13 +105,9 @@ def update_step_data(step_data, data, key, parent_id, parent_type):
 def update_module_data(data):
     data["image"] = parse_img_tag(data["image"], data["image_folder"], "modules")
 
-    # Type casting strings to ints bc they are interpreted as strings
-    # when parsed
+    # Type casting strings to ints bc they are interpreted as strings when parsed
     if "gems_needed" in data:
         data["gems_needed"] = int(data["gems_needed"])
-
-    if "github_id" in data:
-        data["github_id"] = int(data["github_id"])
 
     return data
 
@@ -133,12 +129,7 @@ def update_test_cases(test_case_location):
 
 # Function to type cast topic fields
 def update_topic_data(data, file):
-    data["github_id"] = int(data["github_id"])
     data["image"] = parse_img_tag(data["image"], data["image_folder"], "topics")
     data["filename"] = file.filename
-
-    if "modules" in data:
-        for i in range(len(data["modules"]) - 1):
-            data["modules"][i] = int(data["modules"][i])
 
     return data

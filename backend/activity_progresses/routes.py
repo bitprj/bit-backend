@@ -1,16 +1,14 @@
 from backend import api, db
-from backend.authentication.decorators import roles_accepted
+from backend.authentication.decorators import roles_accepted, user_session_exists
 from backend.activities.decorators import activity_exists
 from backend.activity_progresses.decorators import activity_prog_exists, cards_exist_in_activity, \
     has_completed_prerequisites
 from backend.activity_progresses.schemas import activity_progress_schema
 from backend.activity_progresses.utils import create_progress, fill_in_rels, unlock_hint
-from backend.authentication.decorators import valid_token
 from backend.hints.decorators import hint_exists
 from backend.models import ActivityProgress, Card, Hint, Student
 from backend.students.utils import update_module_progresses, update_topic_progresses
-from flask import Blueprint
-from flask_jwt_extended import get_jwt_claims, get_jwt_identity
+from flask import Blueprint, session
 from flask_restful import Resource
 
 # Blueprint for activity progresses
@@ -19,14 +17,14 @@ activity_progresses_bp = Blueprint("activity_progresses", __name__)
 
 # Class to handle the activity progress model
 class ActivityProgressUpdate(Resource):
-    method_decorators = [roles_accepted("Student"), activity_exists]
+    method_decorators = [user_session_exists, roles_accepted("Student")]
 
     # Function to return the last card completed on an activity
     @cards_exist_in_activity
     @has_completed_prerequisites
     def get(self, activity_id):
-        username = get_jwt_identity()
-        student = Student.query.filter_by(username=username).first()
+        user_data = session["profile"]
+        student = Student.query.get(user_data["student_id"])
         student_activity_prog = ActivityProgress.query.filter_by(student_id=student.id,
                                                                  activity_id=activity_id).first()
 
@@ -46,11 +44,10 @@ class ActivityProgressUpdate(Resource):
 
         return progress
 
-    @valid_token
     @activity_prog_exists
     def delete(self, activity_id):
-        user_data = get_jwt_claims()
-        student_activity_prog = ActivityProgress.query.filter_by(student_id=user_data["id"],
+        user_data = session["profile"]
+        student_activity_prog = ActivityProgress.query.filter_by(student_id=user_data["student_id"],
                                                                  activity_id=activity_id).first()
         db.session.delete(student_activity_prog)
         db.session.commit()
@@ -62,14 +59,13 @@ class ActivityProgressUpdate(Resource):
 
 # Class to handle the activity progress' hints
 class ActivityProgressHints(Resource):
-    method_decorators = [roles_accepted("Student"), activity_exists, hint_exists]
+    method_decorators = [user_session_exists, roles_accepted("Student"), activity_exists, hint_exists]
 
     # Function to unlock a hint by its hint_id
-    @valid_token
     @activity_prog_exists
     def put(self, activity_id, hint_id):
-        user_data = get_jwt_claims()
-        student_activity_prog = ActivityProgress.query.filter_by(student_id=user_data["id"],
+        user_data = session["profile"]
+        student_activity_prog = ActivityProgress.query.filter_by(student_id=user_data["student_id"],
                                                                  activity_id=activity_id).first()
         hint = Hint.query.get(hint_id)
         unlock_message = unlock_hint(student_activity_prog, hint)

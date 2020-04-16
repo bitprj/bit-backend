@@ -1,48 +1,34 @@
 from backend import ma
-from marshmallow import fields, validates, ValidationError
+from marshmallow import fields
+from serpy import IntField, MethodField, Serializer, StrField
 
 
-# This schema is used to validate data to create a user
-class UserFormSchema(ma.Schema):
-    name = fields.Str(required=True)
-    username = fields.Email(required=True)
-    password = fields.Str(required=True)
-    roles = fields.Str(required=True)
-    location = fields.Str(required=True)
-    image = fields.Str(required=True)
+class MetaSerializer(Serializer):
+    id = IntField(required=True, label="meta_id")
+    roles = StrField(required=True)
+    user_id = MethodField("serialize_user")
+    student_id = MethodField("serialize_student")
+    teacher_id = MethodField("serialize_teacher")
 
-    @validates('roles')
-    def validate_user_type(self, data):
-        if data != "Student" and data != "Teacher":
-            raise ValidationError("Incorrect user type")
+    def serialize_user(self, meta):
+        if not meta.user:
+            return None
+        return meta.user.id
 
-    class Meta:
-        # Fields to show when sending data
-        fields = ("name", "username", "password", "roles", "location", "image")
-        ordered = True
+    def serialize_student(self, meta):
+        if not meta.student:
+            return None
+        return meta.student.id
 
-
-# This schema is used to display user data,
-class UserSchema(ma.Schema):
-    id = fields.Str(required=True)
-    name = fields.Str(required=True)
-    username = fields.Email(required=True)
-    location = fields.Str(required=True)
-    roles = fields.Str(required=False)
-    image = fields.Str(required=True)
-
-    class Meta:
-        # Fields to show when sending data
-        fields = ("id", "name", "username", "roles", "location", "image")
-        ordered = True
+    def serialize_teacher(self, meta):
+        if not meta.teacher:
+            return None
+        return meta.teacher.id
 
 
-# This schema is used to validate user login information
-class UserLoginSchema(ma.Schema):
-    username = fields.Email(required=True)
-    password = fields.Str(required=True)
+# This schema is used to validate a Github access token
+class ValidAccessTokenSchema(ma.Schema):
+    code = fields.Str(required=True)
 
 
-user_form_schema = UserFormSchema()
-user_schema = UserSchema()
-user_login_schema = UserLoginSchema()
+valid_access_token = ValidAccessTokenSchema()

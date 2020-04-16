@@ -1,6 +1,5 @@
-from backend.general_utils import create_schema_json
+from backend.general_utils import create_schema_json, get_github_modules
 from backend.models import Module, Student, Topic
-from backend.prereqs.fetch import get_modules
 
 
 # Function to check if a student has completed the required modules for a topic
@@ -17,51 +16,28 @@ def completed_modules(student, modules):
 
 # Function to create a topic
 def create_topic(data):
-    topic = Topic(github_id=data["github_id"],
-                  name=data["name"],
+    topic = Topic(name=data["name"],
                   filename=data["filename"],
                   description=data["description"],
                   image=data["image"]
                   )
 
     if "modules" in data:
-        topic.modules = get_modules(data["modules"])
-
-    # if "module_prereqs" in contentful_data["parameters"]:
-    #     topic.module_prereqs = get_modules(contentful_data["parameters"]["module_prereqs"]["en-US"])
-    #
-    # if "activity_prereqs" in contentful_data["parameters"]:
-    #     topic.activity_prereqs = get_activities(contentful_data["parameters"]["activity_prereqs"]["en-US"])
+        topic.modules = get_github_modules(data["modules"])
 
     return topic
-
-
-# Function to delete a topic's relationships
-def delete_topic(topic):
-    topic.modules = []
-    topic.module_prereqs = []
-    topic.activity_prereqs = []
-
-    return
 
 
 # Function to edit an topic
 def edit_topic(topic, data):
     topic.name = data["name"]
     topic.description = data["description"]
+    topic.image = data["image"]
 
     if "modules" in data:
-        topic.modules = get_modules(data["modules"])
-        
-    create_schema_json(topic, "topics")
-    # delete_badge_prereqs(topic)
-    # assign_badge_prereqs(contentful_data, topic, "Topic")
+        topic.modules = get_github_modules(data["modules"])
 
-    # if "module_prereqs" in contentful_data["parameters"]:
-    #     topic.module_prereqs = get_modules(contentful_data["parameters"]["module_prereqs"]["en-US"])
-    #
-    # if "activity_prereqs" in contentful_data["parameters"]:
-    #     topic.activity_prereqs = get_activities(contentful_data["parameters"]["activity_prereqs"]["en-US"])
+    create_schema_json(topic, "topics")
 
     return
 

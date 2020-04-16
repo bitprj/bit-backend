@@ -7,7 +7,6 @@ from serpy import BoolField, IntField, MethodField, Serializer, StrField
 
 # This schema is used to validate the activity form data
 class ActivityFormSchema(ma.Schema):
-    github_id = fields.Int(required=True)
     filename = fields.Str(required=True)
     name = fields.Str(required=True)
     description = fields.Str(required=True)
@@ -20,9 +19,8 @@ class ActivityFormSchema(ma.Schema):
 
     class Meta:
         # Fields to show when sending data
-        fields = (
-            "github_id", "filename", "name", "description", "summary", "difficulty", "image", "image_folder",
-            "cards", "activity_prerequisites")
+        fields = ("filename", "name", "description", "summary", "difficulty", "image", "image_folder",
+                  "cards", "activity_prerequisites")
         ordered = True
 
 
@@ -65,7 +63,7 @@ class ActivitySerializer(Serializer):
     def serialize_activities(self, activity):
         if not activity.prerequisite_activities:
             return []
-        return ActivitySerializer(activity.prerequisite_activities, many=True).data
+        return [{"id": activity.id} for activity in activity.prerequisite_activities]
 
 
 # This is a serpy schema to use for Activity relationships

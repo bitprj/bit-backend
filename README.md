@@ -1,5 +1,5 @@
 ## Python
-
+ 
 Make sure you have Python 3.7 installed.
 
 You can go to this link to download the latest version of Python: 
