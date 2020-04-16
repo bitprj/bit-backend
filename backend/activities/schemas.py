@@ -21,7 +21,7 @@ class ActivityFormSchema(ma.Schema):
     class Meta:
         # Fields to show when sending data
         fields = ("filename", "name", "description", "summary", "difficulty", "image", "image_folder",
-                  "cards", "activity_prerequisites")
+                  "cards", "contributors", "activity_prerequisites")
         ordered = True
 
 
