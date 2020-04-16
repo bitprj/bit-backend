@@ -1,11 +1,12 @@
-from flask import (Blueprint, request)
-from flask_jwt_extended import jwt_required
-from flask_restful import Resource
 from backend import api, db
-from backend.mc_choices.decorators import mc_choice_exists, mc_choice_exists_json, mc_choice_exists_in_github, valid_mc_choice_form
+from backend.authentication.decorators import user_session_exists
+from backend.mc_choices.decorators import mc_choice_exists, mc_choice_exists_json, mc_choice_exists_in_github, \
+    valid_mc_choice_form
 from backend.mc_choices.schemas import mc_choice_schema
 from backend.mc_choices.utils import create_mc_choice, edit_mc_choice, get_mc_choice
 from backend.models import MCChoice
+from flask import Blueprint, request
+from flask_restful import Resource
 
 # Blueprint for mc_choices
 mc_choices_bp = Blueprint("mc_choices", __name__)
@@ -51,7 +52,7 @@ class MCChoiceCRUD(Resource):
 
 # Function to get a specific MCChoice based on mc_choice id
 class MCChoiceGetSpecific(Resource):
-    method_decorators = [jwt_required, mc_choice_exists]
+    method_decorators = [user_session_exists, mc_choice_exists]
 
     def get(self, mc_choice_id):
         mc_choice = MCChoice.query.get(mc_choice_id)

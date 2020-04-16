@@ -1,4 +1,4 @@
-from backend.models import ModuleProgress
+from backend.models import Activity, ModuleProgress
 from backend.activities.utils import add_activity_to_module_progress
 
 
@@ -24,3 +24,14 @@ def create_module_progress(module, student):
     student.module_progresses.append(module_prog)
 
     return module_prog
+
+
+# Function to update a ModuleProgress' chosen projects
+def update_chosen_projects(activity_ids):
+    projects = []
+
+    for activity_id in activity_ids:
+        activity = Activity.query.get(activity_id)
+        projects.append(activity)
+
+    return projects

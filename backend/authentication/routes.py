@@ -1,84 +1,79 @@
-from flask import (Blueprint, jsonify, request)
-from flask_restful import Resource
-from backend import api, blacklist, db, jwt, safe_url
+from backend import api, app, db, github
 from backend.authentication.utils import create_user
-from backend.authentication.decorators import roles_required, user_exists, user_is_active, valid_user_form
-from backend.models import User
-from itsdangerous import SignatureExpired
+from backend.authentication.decorators import access_token_exists, roles_required, user_session_exists
+from backend.authentication.schemas import MetaSerializer
+from backend.models import Meta, Student, User
+from flask import Blueprint, g, jsonify, redirect, session
+from flask_restful import Resource
 
 # Blueprint for users
 authentication_bp = Blueprint("authentication", __name__)
 
 
-class UserAuthorize(Resource):
-    # Route to confirm that the email is real
-    def get(self, token):
-        email = None
+@authentication_bp.route("/github-callback")
+@access_token_exists
+@github.authorized_handler
+def authorized(access_token):
+    existing_user = None
+    oauth_user = None
+    meta = None
 
-        try:
-            email = safe_url.loads(token, salt='email-confirm', max_age=3600)
-        except SignatureExpired:
-            return {
-                       "message": "Your email token has expired. Go send a new one."
-                   }, 500
+    if oauth_user is None:
+        oauth_user = User(github_access_token=access_token)
 
-        user = User.query.filter_by(username=email).first()
-        user.is_active = True
+    g.user = oauth_user
+    github_user = github.get("/user")
+    github_emails = github.get("/user/emails")
+    # TODO Temporary to get users to sync their account with github
+    for email in github_emails:
+        existing_user = User.query.filter_by(username=email["email"]).first()
+        if existing_user:
+            break
+    # existing_user = User.query.filter_by(github_id=github_user["id"]).first()
 
-        return {
-                   "message": "Your email has been verified. You can login now."
-               }, 200
-
-
-# Class to create a user
-class UserCreate(Resource):
-    method_decorators = [valid_user_form]
-
-    # Function to return data on a single user
-    def post(self, user_type):
-        form_data = request.get_json()
-        form_data["user_type"] = user_type
-        user = create_user(user_type, form_data)
-
-        db.session.add(user)
+    if existing_user:
+        # TODO Temporary to get users to sync their account with github
+        print(existing_user)
+        oauth_user = existing_user
+        existing_user.github_id = github_user["id"]
+        existing_user.github_username = github_user["login"]
+        existing_user.github_access_token = access_token
+        meta = oauth_user.meta
         db.session.commit()
-        access_token = create_access_token(identity=user.username)
-        resp = jsonify({"username": user.username,
-                        "user_type": user.roles,
-                        "jwt_token": access_token
-                        })
-        # set_access_cookies(resp, access_token)
-        # send_verification_email(user.username)
+    else:
+        meta = Meta(roles="Student")
+        db.session.add(meta)
+        db.session.commit()
+        oauth_user = create_user(github_user, github_emails, access_token, meta.id)
+        student = Student(meta_id=meta.id)
+        db.session.add(student)
+        db.session.add(oauth_user)
+        db.session.commit()
 
-        return resp
+    session["profile"] = MetaSerializer(meta).data
+    g.user = oauth_user
+
+    # return session["profile"]
+    return redirect("https://camp.bitproject.org", 200)
 
 
-# Class to login in a user
-class UserAuthHandler(Resource):
-    # Function to login a user through a jwt token
-    @user_exists
-    @user_is_active
-    def post(self):
-        form_data = request.get_json()
-        username = form_data["username"]
-        user = User.query.filter_by(username=username).first()
-        # Create the tokens we will be sending back to the user
-        access_token = create_access_token(identity=username)
-        resp = jsonify({"username": username,
-                        "user_type": user.roles,
-                        "jwt_token": access_token
-                        })
-        # set_access_cookies(resp, access_token)
+# Class to handle OAuth login for users
+class UserOAuthLoginHandler(Resource):
+    def get(self):
+        if session.get("profile", None) is None:
+            return github.authorize(scope="read:user, read:repo, user:email")
+        else:
+            return {
+                       "message": "Already logged in"
+                   }, 403
 
-        return resp
 
-    # This function works by deleting the jwt cookies associated with the user
-    @jwt_required
-    def delete(self):
-        jti = get_raw_jwt()["jti"]
-        blacklist.add(jti)
-        # resp = jsonify({"logout": True})
-        # unset_jwt_cookies(resp)
+# Class to handle OAuth logout for users
+class UserOAuthLogoutHandler(Resource):
+    method_decorators = [user_session_exists]
+
+    def get(self):
+        session.pop("profile", None)
 
         return {
                    "message": "Successfully logged out"
@@ -86,17 +81,16 @@ class UserAuthHandler(Resource):
 
 
 class Protected(Resource):
-    method_decorators = [jwt_required]
+    method_decorators = [user_session_exists]
 
-    # This route is to check if the user is authenticated with a jwt token
+    # This route is to check if the user is authenticated through sessions
     def get(self):
-        username = get_jwt_identity()
-        user = User.query.filter_by(username=username).first()
+        user_data = session["profile"]
 
         return jsonify(
             {
                 "message": "User is logged!",
-                "user_type": user.roles
+                "user_type": user_data["roles"]
             }
         )
 
@@ -130,22 +124,31 @@ class Ping(Resource):
         return jsonify({"message": "pong"})
 
 
-@jwt.user_claims_loader
-def add_claims_to_access_token(identity):
-    user = User.query.filter_by(username=identity).first()
+@app.before_request
+def before_request():
+    g.user = None
+    if "id" in session:
+        g.user = User.query.get(session["id"])
 
-    return {
-        "id": user.id,
-        "roles": user.roles
-    }
+
+@app.after_request
+def after_request(response):
+    db.session.remove()
+    return response
+
+
+@github.access_token_getter
+def token_getter():
+    oauth_user = g.user
+    if oauth_user is not None:
+        return oauth_user.github_access_token
 
 
 # Creates the routes for the classes
-api.add_resource(UserAuthorize, "/confirm_email/<string:token>")
-api.add_resource(UserCreate, "/users/<string:user_type>/create")
-api.add_resource(UserAuthHandler, "/auth")
+api.add_resource(Ping, "/ping")
 api.add_resource(Protected, "/protected")
 api.add_resource(UserIsAdmin, "/isAdmin")
 api.add_resource(UserIsStudent, "/isStudent")
 api.add_resource(UserIsTeacher, "/isTeacher")
-api.add_resource(Ping, "/ping")
+api.add_resource(UserOAuthLoginHandler, "/login")
+api.add_resource(UserOAuthLogoutHandler, "/logout")

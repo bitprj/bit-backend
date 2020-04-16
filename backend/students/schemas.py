@@ -1,39 +1,77 @@
 from marshmallow import fields
 from backend import ma
+from serpy import IntField, MethodField, Serializer
+import backend.activities.schemas as activity_schemas
+import backend.classrooms.schemas as class_schemas
+import backend.modules.schemas as module_schemas
 
 
-# This schema is used to display student data
-class StudentSchema(ma.Schema):
-    id = fields.Str(required=True)
-    name = fields.Str(required=True)
-    last_seen = fields.DateTime(required=False)
-    classes = fields.Nested("ClassroomSchema", only=("id",), many=True, data_key="classrooms")
-    suggested_activity = fields.Nested("SuggestedActivitySchema", required=True)
-    current_activities = fields.Nested("ActivitySchema", only=("id",), many=True)
-    completed_modules = fields.Nested("ModuleSchema", only=("id", "name"), many=True)
-    inprogress_modules = fields.Nested("ModuleSchema", only=("id", "name"), many=True)
-    incomplete_modules = fields.Nested("ModuleSchema", only=("id", "name"), many=True)
-    inprogress_topics = fields.Nested("TopicSchema", only=("id", "name"), many=True)
+# Serpy schema for serialization
+class StudentSerializer(Serializer):
+    id = IntField(required=True)
+    classes = MethodField("serialize_classes", attr="classrooms")
+    current_activities = MethodField("serialize_current_activities")
+    completed_modules = MethodField("serialize_completed_modules")
+    inprogress_modules = MethodField("serialize_inprogress_modules")
+    incomplete_modules = MethodField("serialize_incomplete_modules")
 
-    class Meta:
-        # Fields to show when sending data
-        fields = (
-            "id", "name", "last_seen", "classes", "suggested_activity", "current_activities", "completed_modules",
-            "inprogress_modules", "incomplete_modules", "inprogress_topics")
-        ordered = True
+    def serialize_classes(self, student):
+        if not student.classes:
+            return []
+        return class_schemas.ClassroomRelSerializer(student.classes, many=True).data
+
+    def serialize_current_activities(self, student):
+        if not student.current_activities:
+            return []
+        return activity_schemas.ActivityRelSerializer(student.current_activities, many=True).data
+
+    def serialize_completed_modules(self, student):
+        if not student.completed_modules:
+            return []
+        return module_schemas.ModuleRelSerializer(student.completed_modules, many=True).data
+
+    def serialize_inprogress_modules(self, student):
+        if not student.inprogress_modules:
+            return []
+        return module_schemas.ModuleRelSerializer(student.inprogress_modules, many=True).data
+
+    def serialize_incomplete_modules(self, student):
+        if not student.incomplete_modules:
+            return []
+        return module_schemas.ModuleRelSerializer(student.incomplete_modules, many=True).data
 
 
-# This schema is used to display data based on the classroom that they are in
-class StudentClassroomSchema(ma.ModelSchema):
-    classes = fields.Nested("ClassroomSchema", only=("id", "modules"), many=True)
-    inprogress_modules = fields.Nested("ModuleSchema", only=("id",), many=True)
-    completed_activities = fields.Nested("ActivitySchema", only=("id",), many=True)
-    current_activities = fields.Nested("ActivitySchema", only=("id",), many=True)
+# Serpy schema for serialization for relationships
+class StudentRelSerializer(Serializer):
+    id = IntField(required=True)
 
-    class Meta:
-        # Fields to show when sending data
-        fields = ("classes", "inprogress_modules", "completed_activities")
-        ordered = True
+
+# Serpy schema for serialization for Student Classroom data
+class StudentClassroomSerializer(Serializer):
+    classes = MethodField("serialize_classes", attr="classrooms")
+    inprogress_modules = MethodField("serialize_inprogress_modules")
+    completed_activities = MethodField("serialize_completed_activities")
+    current_activities = MethodField("serialize_current_activities")
+
+    def serialize_classes(self, student):
+        if not student.classes:
+            return []
+        return class_schemas.ClassroomRelSerializer(student.classes, many=True).data
+
+    def serialize_inprogress_modules(self, student):
+        if not student.inprogress_modules:
+            return []
+        return module_schemas.ModuleRelSerializer(student.inprogress_modules, many=True).data
+
+    def serialize_completed_activities(self, student):
+        if not student.completed_activities:
+            return []
+        return activity_schemas.ActivityRelSerializer(student.completed_activities).data
+
+    def serialize_current_activities(self, student):
+        if not student.current_activities:
+            return []
+        return activity_schemas.ActivityRelSerializer(student.current_activities).data
 
 
 # This schema is used to validate the data sent for UpdateStudentData
@@ -45,6 +83,4 @@ class UpdateDataSchema(ma.Schema):
         ordered = True
 
 
-student_schema = StudentSchema()
-student_classroom_schema = StudentClassroomSchema()
 update_data_schema = UpdateDataSchema()

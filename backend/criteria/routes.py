@@ -1,9 +1,10 @@
-from flask import (Blueprint, request)
-from flask_restful import Resource
 from backend import api, db
 from backend.criteria.decorators import criteria_exists_in_github, valid_criteria_form
 from backend.criteria.utils import create_criteria, edit_criteria
 from backend.models import Criteria
+from flask import Blueprint, request
+from flask_restful import Resource
+
 
 # Blueprint for criteria
 criteria_bp = Blueprint("criteria", __name__)

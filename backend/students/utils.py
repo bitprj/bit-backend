@@ -42,9 +42,9 @@ def update_module_progresses(activity, student):
         if module_prog:
             module_prog.last_activity_unlocked_id = activity.id
 
-        if activity in module_prog.incomplete_activities and activity not in module_prog.completed_activities:
-            module_prog.incomplete_activities.remove(activity)
-            module_prog.inprogress_activities.append(activity)
+            if activity in module_prog.incomplete_activities and activity not in module_prog.completed_activities:
+                module_prog.incomplete_activities.remove(activity)
+                module_prog.inprogress_activities.append(activity)
 
         if module in incomplete_modules:
             student.incomplete_modules.remove(module)
@@ -53,6 +53,16 @@ def update_module_progresses(activity, student):
             student.inprogress_modules.append(module)
 
     return topics
+
+
+# Function to update the student's suggested activity
+def update_student_suggested_activity(student):
+    suggested_activity = {
+        "id": student.suggested_activity_id,
+        "module_id": student.suggested_module_id
+    }
+
+    return suggested_activity
 
 
 # Function to update a student's topic progresses

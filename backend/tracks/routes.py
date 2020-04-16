@@ -1,12 +1,13 @@
-from flask import Blueprint, request
-from flask_jwt_extended import jwt_required
-from flask_restful import Resource
 from backend import api, db
+from backend.authentication.decorators import user_session_exists
 from backend.general_utils import send_file_to_cdn
 from backend.models import Track
 from backend.tracks.decorators import track_exists, track_exists_in_github, valid_track_form
 from backend.tracks.schemas import track_schema, tracks_schema
 from backend.tracks.utils import create_track, edit_track
+from flask import Blueprint, request
+from flask_restful import Resource
+
 
 # Blueprint for tracks
 tracks_bp = Blueprint("tracks", __name__)
@@ -54,7 +55,7 @@ class TrackCRUD(Resource):
 
 # Class to get all tracks
 class TrackFetchAll(Resource):
-    method_decorators = [jwt_required]
+    method_decorators = [user_session_exists]
 
     # Function to get all tracks
     def get(self):
@@ -65,7 +66,7 @@ class TrackFetchAll(Resource):
 
 # Function to get a specific Track based on track id
 class TrackGetSpecific(Resource):
-    method_decorators = [jwt_required, track_exists]
+    method_decorators = [user_session_exists, track_exists]
 
     def get(self, track_id):
         track = Track.query.get(track_id)

@@ -48,6 +48,13 @@ classroom_modules_rel = db.Table("classroom_modules_rel",
                                  db.Column("module_id", db.Integer, db.ForeignKey("module.id"))
                                  )
 
+# This many to many relationship is used to keep track of which activity projects belong to module progress and vice versa
+module_progress_chosen_projects = db.Table("module_progress_chosen_projects",
+                                           db.Column("module_progress_id", db.Integer,
+                                                     db.ForeignKey("module_progress.id")),
+                                           db.Column("activity_id", db.Integer, db.ForeignKey("activity.id"))
+                                           )
+
 # This many to many relationship is used to keep track of which activities belong to module progress and vice versa
 module_progress_completed_activities_rel = db.Table("module_progress_completed_activities_rel",
                                                     db.Column("module_progress_id", db.Integer,
@@ -215,7 +222,6 @@ topic_track_reqs = db.Table("track_topic_reqs",
 
 class Activity(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    github_id = db.Column(db.Integer, nullable=True)
     name = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
     description = db.Column(db.Text, nullable=True)
@@ -228,10 +234,10 @@ class Activity(db.Model):
     # modules keeps track of all of the modules that an activity belongs to
     modules = db.relationship("Module", secondary="activity_module_rel", back_populates="activities")
     # badge_prereqs keeps track of all the badge xp that are required to an activity
-    badge_prereqs = db.relationship("ActivityBadgePrereqs", cascade="all,delete", lazy="joined",
+    badge_prereqs = db.relationship("ActivityBadgePrereqs", cascade="all,delete",
                                     back_populates="activity")
     # modules keeps track of all of the modules that an activity belongs to
-    module_prereqs = db.relationship("Module", secondary="activity_module_prereqs", lazy="joined",
+    module_prereqs = db.relationship("Module", secondary="activity_module_prereqs",
                                      back_populates="activity_prereqs")
     # students_completed keeps track of which students have completed an activity
     students_completed = db.relationship("Student", secondary="student_activity_completed_rel",
@@ -252,14 +258,13 @@ class Activity(db.Model):
     modules_inprogress = db.relationship("ModuleProgress", secondary="module_progress_completed_activities_rel",
                                          back_populates="inprogress_activities")
     # topic_prereqs keeps track of the activities that needs to be completed before accessing a topic
-    topic_prereqs = db.relationship("Topic", secondary="topic_activity_prereqs", lazy="joined",
+    topic_prereqs = db.relationship("Topic", secondary="topic_activity_prereqs",
                                     back_populates="activity_prereqs")
     # last_module is the module in which the module unlocked last
     last_module = db.relationship("ModuleProgress", back_populates="last_activity_unlocked",
                                   foreign_keys="ModuleProgress.last_activity_unlocked_id")
-    # chosen_module is the module in which the chosen_project is associated with
-    chosen_module = db.relationship("ModuleProgress", back_populates="chosen_project",
-                                    foreign_keys="ModuleProgress.chosen_project_id")
+    chosen_modules = db.relationship("ModuleProgress", secondary="module_progress_chosen_projects",
+                                     back_populates="chosen_projects")
     # students keep track of the student's activity progress
     students = db.relationship("ActivityProgress", back_populates="activity")
     # This is used to keep track of the student's actions for an activity
@@ -269,8 +274,7 @@ class Activity(db.Model):
                                               backref=db.backref('parent_activity', remote_side='Activity.id'))
     suggested_students = db.relationship("Student", back_populates="suggested_activity")
 
-    def __init__(self, github_id, filename, name, description, summary, difficulty, image):
-        self.github_id = github_id
+    def __init__(self, filename, name, description, summary, difficulty, image):
         self.filename = filename
         self.name = name
         self.description = description
@@ -320,11 +324,11 @@ class Card(db.Model):
     # hints keep track of the hints that a card owns
     hints = db.relationship("Hint", cascade="all,delete", back_populates="card")
     # activity_locked_cards keep track of all the activities locked cards
-    activity_locked_cards = db.relationship("ActivityProgress", lazy="joined",
+    activity_locked_cards = db.relationship("ActivityProgress",
                                             secondary="activity_progress_locked_cards_rel",
                                             back_populates="cards_locked")
     # activity_locked_cards keep track of all the activities unlocked cards
-    activity_unlocked_cards = db.relationship("ActivityProgress", lazy="joined",
+    activity_unlocked_cards = db.relationship("ActivityProgress",
                                               secondary="activity_progress_unlocked_cards_rel",
                                               back_populates="cards_unlocked")
 
@@ -448,19 +452,6 @@ class Event(db.Model):
         return f"Event('{self.name}')"
 
 
-class Gem(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    amount = db.Column(db.Integer, nullable=False, default=0)
-    is_local = db.Column(db.Boolean, nullable=False, default=False)
-
-    def __init__(self, amount, is_local):
-        self.amount = amount
-        self.is_local = is_local
-
-    def __repr__(self):
-        return f"Gem('{self.is_local}, {self.amount}')"
-
-
 class Hint(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     github_raw_data = db.Column(db.Text, nullable=True)
@@ -490,7 +481,6 @@ class Hint(db.Model):
 
 class Module(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    github_id = db.Column(db.Integer, nullable=True)
     name = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
     description = db.Column(db.Text, nullable=True)
@@ -530,8 +520,7 @@ class Module(db.Model):
     inprogress_topics = db.relationship("TopicProgress", secondary="topic_progress_inprogress_modules_rel",
                                         back_populates="inprogress_modules")
 
-    def __init__(self, github_id, filename, name, description, gems_needed, image):
-        self.github_id = github_id
+    def __init__(self, filename, name, description, gems_needed, image):
         self.filename = filename
         self.name = name
         self.description = description
@@ -628,7 +617,6 @@ class Submission(db.Model):
 
 class Topic(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    github_id = db.Column(db.Integer, nullable=True)
     name = db.Column(db.Text, nullable=True)
     filename = db.Column(db.Text, nullable=True)
     description = db.Column(db.Text, nullable=True)
@@ -653,9 +641,9 @@ class Topic(db.Model):
                                           back_populates="inprogress_topics")
     students = db.relationship("TopicProgress", cascade="all,delete", back_populates="topic")
 
-    def __init__(self, github_id, name, description, image):
-        self.github_id = github_id
+    def __init__(self, name, filename, description, image):
         self.name = name
+        self.filename = filename
         self.description = description
         self.image = image
 
@@ -684,18 +672,30 @@ class Track(db.Model):
         return f"Track('{self.name}')"
 
 
+class Meta(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    roles = db.Column(db.Text, nullable=True)
+    user = db.relationship("User", uselist=False, cascade="all,delete", back_populates="meta")
+    admin = db.relationship("Admin", uselist=False, cascade="all,delete", back_populates="meta")
+    student = db.relationship("Student", uselist=False, cascade="all,delete", back_populates="meta")
+    teacher = db.relationship("Teacher", uselist=False, cascade="all,delete", back_populates="meta")
+
+    def __repr__(self):
+        return f"Meta('{self.id}')"
+
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Text, nullable=False)
-    # username is the email
-    username = db.Column(db.Text, unique=True, nullable=False)
-    password = db.Column(db.Text, unique=True, nullable=False)
+    name = db.Column(db.Text, nullable=True)
+    username = db.Column(db.Text, nullable=True)
+    email = db.Column(db.Text, unique=True, nullable=True)
     token = db.Column(db.Text, unique=True, nullable=True)
-    # Roles are Admin, Teacher, or Student
-    roles = db.Column(db.Text, nullable=False)
-    is_active = db.Column(db.Boolean, default=False, nullable=False)
-    location = db.Column(db.Text, nullable=False)
+    github_access_token = db.Column(db.String(255), nullable=True)
+    github_id = db.Column(db.Integer, nullable=True)
+    github_username = db.Column(db.String(255), nullable=True)
     image = db.Column(db.Text, nullable=True)
+    global_gems = db.Column(db.Integer, nullable=False, default=0)
+    last_seen = db.Column(db.DateTime, nullable=True)
     organizations = db.relationship("Organization", secondary="user_organization_rel", back_populates="owners")
     organizations_active = db.relationship("Organization", secondary="user_organization_active_rel",
                                            back_populates="active_users")
@@ -705,6 +705,11 @@ class User(db.Model):
     presenter_events = db.relationship("Event", secondary="user_presenter_event_rel", back_populates="presenters")
     # rsvp_events keeps track of the events that the user has rsvp to
     rsvp_events = db.relationship("Event", secondary="user_event_rel", back_populates="rsvp_list")
+    meta_id = db.Column(db.Integer, db.ForeignKey('meta.id'))
+    meta = db.relationship("Meta", back_populates="user")
+
+    def __repr__(self):
+        return f"User('{self.email}')"
 
     @property
     def rolenames(self):
@@ -725,21 +730,18 @@ class User(db.Model):
     def identity(self):
         return self.id
 
-    def __repr__(self):
-        return f"User('{self.username}')"
 
-
-class Admin(User):
-    id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
+class Admin(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    meta_id = db.Column(db.Integer, db.ForeignKey('meta.id'))
+    meta = db.relationship("Meta", back_populates="admin")
 
     def __repr__(self):
         return f"Admin('{self.id}')"
 
 
-class Student(User):
-    id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
-    global_gems = db.Column(db.Integer, nullable=False, default=0)
-    last_seen = db.Column(db.DateTime, nullable=True)
+class Student(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
     # completed_activities keeps track of all activities that a student has completed
     completed_activities = db.relationship("Activity", secondary="student_activity_completed_rel",
                                            back_populates="students_completed")
@@ -765,7 +767,7 @@ class Student(User):
     inprogress_topics = db.relationship("Topic", secondary="student_topic_inprogress_rel",
                                         back_populates="students_inprogress")
     # current_track is used to keep track of the student's current track
-    current_track_id = db.Column(db.Integer, db.ForeignKey("track.id"))
+    current_track_id = db.Column(db.Integer, db.ForeignKey("track.id"), nullable=True)
     current_track = db.relationship("Track", back_populates="students")
     # activity_progresses keeps track of all the progresses that a student has made on their activities
     activity_progresses = db.relationship("ActivityProgress", cascade="all,delete", back_populates="student")
@@ -778,14 +780,18 @@ class Student(User):
     suggested_activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"), nullable=True)
     suggested_activity = db.relationship("Activity", back_populates="suggested_students")
     suggested_module_id = db.Column(db.Integer, nullable=True)
+    meta_id = db.Column(db.Integer, db.ForeignKey('meta.id'))
+    meta = db.relationship("Meta", back_populates="student")
 
     def __repr__(self):
         return f"Student('{self.id}')"
 
 
-class Teacher(User):
-    id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
-    classrooms = db.relationship('Classroom', back_populates='teacher')
+class Teacher(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    classrooms = db.relationship('Classroom', cascade="all,delete", back_populates='teacher')
+    meta_id = db.Column(db.Integer, db.ForeignKey('meta.id'))
+    meta = db.relationship("Meta", back_populates="teacher")
 
     def __repr__(self):
         return f"Teacher('{self.id}')"
@@ -936,11 +942,8 @@ class ModuleProgress(db.Model):
     last_activity_unlocked_id = db.Column(db.Integer, db.ForeignKey('activity.id'))
     last_activity_unlocked = db.relationship("Activity", back_populates="last_module",
                                              foreign_keys=[last_activity_unlocked_id])
-    # chosen_project is the project chosen for a module
-    chosen_project_id = db.Column(db.Integer, db.ForeignKey('activity.id'))
-    chosen_project = db.relationship("Activity", back_populates="chosen_module",
-                                     foreign_keys=[chosen_project_id])
-
+    chosen_projects = db.relationship("Activity", secondary="module_progress_chosen_projects",
+                                      back_populates="chosen_modules")
     # completed_activities keeps track of all activities completed
     completed_activities = db.relationship("Activity", secondary="module_progress_completed_activities_rel",
                                            back_populates="modules_completed")

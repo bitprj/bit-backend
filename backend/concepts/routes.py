@@ -1,13 +1,14 @@
-from flask import (Blueprint, request)
-from flask_jwt_extended import jwt_required
-from flask_restful import Resource
 from backend import api, db
+from backend.authentication.decorators import user_session_exists
 from backend.concepts.decorators import concept_exists, concept_exists_in_github, valid_concept_form
 from backend.concepts.schemas import concept_schema
 from backend.concepts.utils import create_concept, edit_concept
 from backend.general_utils import create_schema_json
 from backend.hooks.utils import call_step_routes
 from backend.models import Concept
+from flask import Blueprint, request
+from flask_restful import Resource
+
 
 # Blueprint for concepts
 concepts_bp = Blueprint("concepts", __name__)
@@ -56,7 +57,7 @@ class ConceptCRUD(Resource):
 
 # Function to get a specific Concept based on concept id
 class ConceptGetSpecific(Resource):
-    method_decorators = [jwt_required, concept_exists]
+    method_decorators = [user_session_exists, concept_exists]
 
     def get(self, concept_id):
         concept = Concept.query.get(concept_id)

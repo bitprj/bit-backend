@@ -1,7 +1,6 @@
-from flask import request
-from flask_jwt_extended import get_jwt_identity
 from backend.checkpoint_progresses.schemas import checkpoint_submission_schema
-from backend.models import CheckpointProgress, Student
+from backend.models import CheckpointProgress
+from flask import request, session
 from functools import wraps
 
 
@@ -9,10 +8,9 @@ from functools import wraps
 def checkpoint_progress_exist(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        username = get_jwt_identity()
-        student = Student.query.filter_by(username=username).first()
+        user_data = session["profile"]
         checkpoint_prog = CheckpointProgress.query.filter_by(checkpoint_id=kwargs['checkpoint_id'],
-                                                             student_id=student.id).first()
+                                                             student_id=user_data["student_id"]).first()
         if checkpoint_prog:
             return f(*args, **kwargs)
         else:
@@ -27,11 +25,9 @@ def checkpoint_progress_exist(f):
 def multiple_choice_is_completed(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        username = get_jwt_identity()
-        student = Student.query.filter_by(username=username).first()
+        user_data = session["profile"]
         checkpoint_prog = CheckpointProgress.query.filter_by(checkpoint_id=kwargs['checkpoint_id'],
-                                                             student_id=student.id).first()
-
+                                                             student_id=user_data["student_id"]).first()
         if checkpoint_prog.is_completed and checkpoint_prog.checkpoint.checkpoint_type == "Multiple Choice":
             return {
                        "message": "You already answered this multiple choice checkpoint"

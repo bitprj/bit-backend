@@ -23,8 +23,8 @@ class EventSchema(ma.Schema):
     summary = fields.Str(required=True)
     location = fields.Str(required=True, validate=[validate.Length(max=50)])
     organization = fields.Nested("OrganizationSchema", only=("id", "name"))
-    presenters = fields.Nested("UserSchema", only=("username",), many=True)
-    rsvp_list = fields.Nested("UserSchema", only=("username",), many=True)
+    presenters = fields.Nested("UserSchema", only=("email",), many=True)
+    rsvp_list = fields.Nested("UserSchema", only=("email",), many=True)
 
     class Meta:
         # Fields to show when sending data
