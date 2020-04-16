@@ -1,5 +1,4 @@
 from flask import (Blueprint, jsonify, request)
-from flask_jwt_extended import create_access_token, get_csrf_token, get_jwt_identity, jwt_required, get_raw_jwt
 from flask_restful import Resource
 from backend import api, blacklist, db, jwt, safe_url
 from backend.authentication.utils import create_user
@@ -25,7 +24,6 @@ class UserAuthorize(Resource):
 
         user = User.query.filter_by(username=email).first()
         user.is_active = True
-        db.session.commit()
 
         return {
                    "message": "Your email has been verified. You can login now."

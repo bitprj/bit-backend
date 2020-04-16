@@ -16,6 +16,7 @@ class ActivityFormSchema(ma.Schema):
     image = fields.Str(required=True)
     image_folder = fields.Str(required=False)
     cards = fields.Dict(required=True)
+    contributors = fields.List(fields.Str(), required=False)
     activity_prerequisites = fields.List(fields.Str(), required=False)
 
     class Meta:
