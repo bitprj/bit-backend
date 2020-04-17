@@ -33,7 +33,6 @@ def authorized(access_token):
 
     if existing_user:
         # TODO Temporary to get users to sync their account with github
-        print(existing_user)
         oauth_user = existing_user
         existing_user.github_id = github_user["id"]
         existing_user.github_username = github_user["login"]

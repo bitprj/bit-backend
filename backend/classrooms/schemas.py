@@ -77,7 +77,7 @@ class ClassroomSerializer(Serializer):
     def serialize_modules(self, classroom):
         if not classroom.modules:
             return []
-        return [("id", module.id) for module in classroom.modules]
+        return [{"id": module.id} for module in classroom.modules]
 
 
 # Serpy schema for serialization for relationships

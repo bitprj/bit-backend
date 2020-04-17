@@ -1,4 +1,5 @@
 from backend import ma
+from backend.authors.schemas import AuthorSchema
 from backend.cards.schemas import CardSerializer
 from backend.models import Activity, Module
 from marshmallow import fields, validates, ValidationError
@@ -15,12 +16,13 @@ class ActivityFormSchema(ma.Schema):
     image = fields.Str(required=True)
     image_folder = fields.Str(required=False)
     cards = fields.Dict(required=True)
+    contributors = fields.List(fields.Str(), required=False)
     activity_prerequisites = fields.List(fields.Str(), required=False)
 
     class Meta:
         # Fields to show when sending data
         fields = ("filename", "name", "description", "summary", "difficulty", "image", "image_folder",
-                  "cards", "activity_prerequisites")
+                  "cards", "contributors", "activity_prerequisites")
         ordered = True
 
 
@@ -34,12 +36,13 @@ class ActivitySchema(ma.Schema):
     image = fields.Str(required=True)
     # We are referencing another Schema below. You do this in oder to avoid circular referencing
     cards = fields.Nested("CardSchema", only=("id",), many=True)
+    authors = fields.Nested(AuthorSchema, only=("id", "username"), many=True)
     prerequisite_activities = fields.Nested("ActivitySchema", only=("id",), many=True)
 
     class Meta:
         # Fields to show when sending data
         fields = ("id", "name", "description", "summary", "is_project", "image", "cards",
-                  "prerequisite_activities")
+                  "authors", "prerequisite_activities")
         ordered = True
 
 
@@ -53,12 +56,18 @@ class ActivitySerializer(Serializer):
     image = StrField(required=True)
     is_project = BoolField(required=True)
     cards = MethodField("serialize_cards")
+    authors = MethodField("serialize_authors")
     prerequisite_activities = MethodField("serialize_activities")
 
     def serialize_cards(self, activity):
         if not activity.cards:
             return []
         return CardSerializer(activity.cards, many=True).data
+
+    def serialize_authors(self, activity):
+        if not activity.authors:
+            return []
+        return [{"username": author.username} for author in activity.authors]
 
     def serialize_activities(self, activity):
         if not activity.prerequisite_activities:
