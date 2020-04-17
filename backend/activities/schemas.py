@@ -1,4 +1,5 @@
 from backend import ma
+from backend.authors.schemas import AuthorSchema
 from backend.cards.schemas import CardSerializer
 from backend.models import Activity, Module
 from marshmallow import fields, validates, ValidationError
@@ -35,12 +36,13 @@ class ActivitySchema(ma.Schema):
     image = fields.Str(required=True)
     # We are referencing another Schema below. You do this in oder to avoid circular referencing
     cards = fields.Nested("CardSchema", only=("id",), many=True)
+    authors = fields.Nested(AuthorSchema, only=("id", "username"), many=True)
     prerequisite_activities = fields.Nested("ActivitySchema", only=("id",), many=True)
 
     class Meta:
         # Fields to show when sending data
         fields = ("id", "name", "description", "summary", "is_project", "image", "cards",
-                  "prerequisite_activities")
+                  "authors", "prerequisite_activities")
         ordered = True
 
 
