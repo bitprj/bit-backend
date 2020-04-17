@@ -54,12 +54,18 @@ class ActivitySerializer(Serializer):
     image = StrField(required=True)
     is_project = BoolField(required=True)
     cards = MethodField("serialize_cards")
+    authors = MethodField("serialize_authors")
     prerequisite_activities = MethodField("serialize_activities")
 
     def serialize_cards(self, activity):
         if not activity.cards:
             return []
         return CardSerializer(activity.cards, many=True).data
+
+    def serialize_authors(self, activity):
+        if not activity.authors:
+            return []
+        return [{"username": author.username} for author in activity.authors]
 
     def serialize_activities(self, activity):
         if not activity.prerequisite_activities:
