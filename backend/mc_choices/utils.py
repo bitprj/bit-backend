@@ -7,6 +7,7 @@ def create_mc_choice(data):
     mc_choice = MCChoice(content=data["content"],
                          choice_key=data["choice_key"])
 
+    print(data["is_correct_choice"])
     if data["is_correct_choice"]:
         mc_choice.correct_checkpoint_id = data["checkpoint_id"]
     else:
@@ -18,7 +19,7 @@ def create_mc_choice(data):
 # Function to edit a mc_choice
 def edit_mc_choice(mc_choice, data):
     mc_choice.content = data["content"]
-
+    print(data["is_correct_choice"])
     if data["is_correct_choice"]:
         mc_choice.correct_checkpoint_id = data["checkpoint_id"]
     else:
@@ -28,18 +29,15 @@ def edit_mc_choice(mc_choice, data):
 
 
 # Function to format data for a mc_choice
-def format_mc_choice_data(mc_choice, content, key, checkpoint_id):
+def format_mc_choice_data(content, key, checkpoint_id, is_correct):
     data = {
         "content": content,
         "checkpoint_id": checkpoint_id,
         "choice_key": key
     }
 
-    if mc_choice:
-        if mc_choice.correct_checkpoint_id:
-            data["is_correct_choice"] = True
-        else:
-            data["is_correct_choice"] = False
+    if is_correct:
+        data["is_correct_choice"] = True
     else:
         data["is_correct_choice"] = False
 
