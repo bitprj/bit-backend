@@ -1,6 +1,8 @@
 from backend.concepts.utils import get_concepts
+from backend.config import API
 from backend.general_utils import binary_search
-from backend.models import Activity, Card, Hint, Module
+from backend.models import Activity, Author, Card, Hint
+import requests
 
 
 # Function to add an to a module progress
@@ -30,6 +32,12 @@ def create_activity(data):
 
     activity.is_project = has_hints(data["cards"])
 
+    if "activity_prerequisites" in data:
+        activity.prerequisite_activities = update_prereqs(data["activity_prerequisites"])
+
+    if "contributors" in data:
+        activity.authors = get_activity_authors(data["contributors"])
+
     return activity
 
 
@@ -45,6 +53,9 @@ def edit_activity(activity, data):
 
     if "activity_prerequisites" in data:
         activity.prerequisite_activities = update_prereqs(data["activity_prerequisites"])
+
+    if "contributors" in data:
+        activity.authors = get_activity_authors(data["contributors"])
 
     if "cards" in data:
         card_filename_path = activity.filename.split("/")[:-1]
@@ -78,6 +89,23 @@ def get_activity_paths(data):
         activity_paths += data["projects"]
 
     return activity_paths
+
+
+# Function to get activity authors
+def get_activity_authors(contributors):
+    authors = []
+
+    for author_username in contributors:
+        author = Author.query.filter_by(username=author_username).first()
+
+        if not author:
+            requests.post(API + "/authors", json={"username": author_username})
+            author = Author.query.filter_by(username=author_username).first()
+
+        if author:
+            authors.append(author)
+
+    return authors
 
 
 # Function to check if the activity's cards have hints

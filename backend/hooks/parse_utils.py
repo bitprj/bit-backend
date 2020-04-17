@@ -85,7 +85,7 @@ def parse_files(topic_files, module_files, activity_files, concept_files, card_f
         parse_checkpoint(file)
 
     # Update the activity, card, hints,  cdn data
-    # for file in activity_files:
-    #     update_cdn_data(file)
+    for file in activity_files:
+        update_cdn_data(file)
 
     return

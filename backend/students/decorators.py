@@ -43,7 +43,7 @@ def valid_update_data(f):
     def wrap(*args, **kwargs):
         data = request.get_json()
         errors = update_data_schema.validate(data)
-        print(errors)
+
         if errors:
             return {
                        "message": "Missing or sending incorrect data"
