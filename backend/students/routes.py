@@ -62,7 +62,7 @@ class StudentData(Resource):
 
     # Function to edit student_data
     @valid_update_data
-    def put(self):
+    def put(self, student_id):
         data = request.get_json()
         user_data = session["profile"]
         student = Student.query.get(user_data["id"])
