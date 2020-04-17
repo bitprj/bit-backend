@@ -3,7 +3,7 @@ from backend.authentication.decorators import roles_required, user_session_exist
 from backend.classrooms.decorators import valid_classroom_code, valid_classroom_code_form
 from backend.models import Classroom, Student
 from backend.module_progresses.utils import can_create_module_progress
-from backend.students.decorators import student_exists, valid_update_data
+from backend.students.decorators import is_same_student, student_exists, valid_update_data
 from backend.students.schemas import StudentSerializer, StudentClassroomSerializer
 from backend.students.utils import update_student_suggested_activity
 from datetime import datetime
@@ -39,10 +39,9 @@ class StudentClassroom(Resource):
 
 # Class to display student data
 class StudentData(Resource):
-    method_decorators = [user_session_exists]
+    method_decorators = [user_session_exists, student_exists]
 
     # Function to display student data
-    @student_exists
     def get(self, student_id):
         student = Student.query.get(student_id)
         classroom_id = request.args.get("classroom_id")
@@ -61,11 +60,11 @@ class StudentData(Resource):
         return student_data
 
     # Function to edit student_data
+    @is_same_student
     @valid_update_data
     def put(self, student_id):
         data = request.get_json()
-        user_data = session["profile"]
-        student = Student.query.get(user_data["id"])
+        student = Student.query.get(student_id)
         student.suggested_activity_id = data["suggested_activity"]["id"]
         student.suggested_module_id = data["suggested_activity"]["module_id"]
         student_data = StudentSerializer(student).data
