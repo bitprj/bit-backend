@@ -81,7 +81,7 @@ def call_mc_choice_routes(choice_data, correct_choice, checkpoint_id):
 
     for key, content in choice_data.items():
         mc_choice = MCChoice.query.filter_by(checkpoint_id=checkpoint_id, choice_key=key).first()
-        data = format_mc_choice_data(mc_choice, content, key, checkpoint_id)
+        data = format_mc_choice_data(content, key, checkpoint_id, False)
 
         if mc_choice:
             mc_choices.remove(mc_choice)
@@ -89,7 +89,7 @@ def call_mc_choice_routes(choice_data, correct_choice, checkpoint_id):
         else:
             requests.post(API + "/mc_choices", json=data)
 
-    data = format_mc_choice_data(correct_mc_choice, correct_choice, "correct_choice", checkpoint_id)
+    data = format_mc_choice_data(correct_choice, "correct_choice", checkpoint_id, True)
 
     if correct_mc_choice:
         mc_choices.remove(correct_mc_choice)

@@ -21,7 +21,7 @@ class ActivityProgressUpdate(Resource):
 
     # Function to return the last card completed on an activity
     @cards_exist_in_activity
-    @has_completed_prerequisites
+    # @has_completed_prerequisites
     def get(self, activity_id):
         user_data = session["profile"]
         student = Student.query.get(user_data["student_id"])
