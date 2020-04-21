@@ -1,4 +1,5 @@
 from backend import api, db
+from backend.authentication.decorators import user_session_exists, roles_required
 from backend.activity_progresses.decorators import activity_prog_grading_format, is_activity_graded, \
     submitted_activity_prog_exist
 from backend.models import ActivityProgress, Teacher
@@ -25,7 +26,7 @@ class TeacherFetchData(Resource):
 
 # Class to grade the Student's assignments
 class TeacherAssignments(Resource):
-    method_decorators = [teacher_exists]
+    method_decorators = [user_session_exists, roles_required("Teacher")]
 
     # This route is used to grade an activity
     @activity_prog_grading_format
