@@ -59,7 +59,7 @@ def valid_checkpoint_type(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         data = request.get_json()
-        valid_checkpoints = ["Image", "Video", "Short Answer", "Multiple Choice", "Autograder"]
+        valid_checkpoints = ["Image", "Video", "File", "Short Answer", "Multiple Choice", "Autograder"]
 
         if data["checkpoint_type"] not in valid_checkpoints:
             return {

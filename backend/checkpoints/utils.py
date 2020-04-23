@@ -7,10 +7,11 @@ import os
 # Function to assign a checkpoint to its respective card
 def assign_checkpoint_to_card(checkpoint, data):
     checkpoint_path = data["filename"].split("/")[-1]
-    card_name = checkpoint_path.split("-")[0] + ".md"
+    card_num = ''.join([char for char in checkpoint_path if char.isdigit()])
+    card_name = card_num + ".md"
     card_filename = data["cards_folder"] + "/" + card_name
     card = Card.query.filter_by(filename=card_filename).first()
-    checkpoint.cards.append(card)
+    card.checkpoints.append(checkpoint)
 
     return
 
@@ -61,8 +62,8 @@ def edit_checkpoint(checkpoint, data):
     assign_checkpoint_to_card(checkpoint, data)
     fill_optional_checkpoint_fields(checkpoint, data)
     create_schema_json(checkpoint, "checkpoints")
-    card = Card.query.filter_by(checkpoint_id=checkpoint.id).first()
-    create_schema_json(card, "cards")
+    checkpoint.card.checkpoints.sort(key=lambda x: x.id)
+    create_schema_json(checkpoint.card, "cards")
 
     return
 

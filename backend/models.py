@@ -1,11 +1,12 @@
 from backend import db
+from sqlalchemy.ext.mutable import MutableList
 
 # RELATIONSHIPS. The below tables are used to keep track of which model belongs with a model
 # This many to many relationship is used to keep track of which activities belong to an Author and vice versa
 activity_author_rel = db.Table("activity_author_rel",
-                                db.Column("activity_id", db.Integer, db.ForeignKey("activity.id")),
-                                db.Column("author_id", db.Integer, db.ForeignKey("author.id"))
-                                )
+                               db.Column("activity_id", db.Integer, db.ForeignKey("activity.id")),
+                               db.Column("author_id", db.Integer, db.ForeignKey("author.id"))
+                               )
 
 # This many to many relationship is used to keep track of which activities belong to a module and vice versa
 activity_module_rel = db.Table("activity_module_rel",
@@ -48,6 +49,7 @@ card_concept_rel = db.Table("card_concept_rel",
                             db.Column("card_id", db.Integer, db.ForeignKey("card.id")),
                             db.Column("concept_id", db.Integer, db.ForeignKey("concept.id"))
                             )
+
 # This many to many relationship is used to keep track of which modules belong to a classroom and vice versa
 classroom_modules_rel = db.Table("classroom_modules_rel",
                                  db.Column("classroom_id", db.Integer, db.ForeignKey("classroom.id")),
@@ -336,8 +338,10 @@ class Card(db.Model):
     # activity_id and activity keeps track of which lab the card is owned by
     activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"))
     activity = db.relationship("Activity", back_populates="cards")
+    checkpoints = db.relationship("Checkpoint", cascade="all,delete", back_populates="card", foreign_keys="Checkpoint.card_id")
+    # Delete checkpoint_id and checkpoint when checkpoint get transfered to checkpoints
     checkpoint_id = db.Column(db.Integer, db.ForeignKey("checkpoint.id"))
-    checkpoint = db.relationship("Checkpoint", cascade="all,delete", back_populates="cards")
+    checkpoint = db.relationship("Checkpoint", cascade="all,delete", back_populates="cards", foreign_keys=[checkpoint_id])
     # concepts keeps track of which concepts that the card owns
     concepts = db.relationship("Concept", secondary="card_concept_rel", back_populates="cards")
     # hints keep track of the hints that a card owns
@@ -373,7 +377,10 @@ class Checkpoint(db.Model):
     filename = db.Column(db.Text, nullable=True)
     test_cases_location = db.Column(db.Text, nullable=True)
     tests_zip = db.Column(db.Text, nullable=True)
-    cards = db.relationship("Card", back_populates="checkpoint")
+    card_id = db.Column(db.Integer, db.ForeignKey("card.id"), nullable=True)
+    card = db.relationship("Card", back_populates="checkpoints", foreign_keys=[card_id])
+    # Delete cards when everything gets transfered over to card
+    cards = db.relationship("Card", back_populates="checkpoint", foreign_keys="Card.checkpoint_id")
     criteria = db.relationship("Criteria", cascade="all,delete", back_populates="checkpoint")
     checkpoint_progresses = db.relationship("CheckpointProgress", back_populates="checkpoint")
     # choices represent the choices if the checkpoint is a multiple choice checkpoint
@@ -898,6 +905,7 @@ class CheckpointProgress(db.Model):
     checkpoint_id = db.Column(db.Integer, db.ForeignKey('checkpoint.id'))
     student_id = db.Column(db.Integer, nullable=False)
     content = db.Column(db.Text, nullable=True)
+    files = db.Column(MutableList.as_mutable(db.ARRAY(db.Text)))
     multiple_choice_is_correct = db.Column(db.Boolean, nullable=True, default=False)
     student_comment = db.Column(db.Text, nullable=True)
     teacher_comment = db.Column(db.Text, nullable=True)
