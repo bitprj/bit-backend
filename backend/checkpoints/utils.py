@@ -85,7 +85,7 @@ def fill_optional_checkpoint_fields(checkpoint, data):
         create_cli_command(checkpoint, data["files_to_send"])
 
     # If there is criteria in the checkpoint then create criteria
-    if checkpoint.checkpoint_type == "Video" or checkpoint.checkpoint_type == "Image" and "criteria" in data:
+    if checkpoint.checkpoint_type == "File" or checkpoint.checkpoint_type == "Video" or checkpoint.checkpoint_type == "Image" and "criteria" in data:
         call_criteria_routes(data["criteria"], checkpoint)
 
     return

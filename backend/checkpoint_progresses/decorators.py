@@ -28,6 +28,7 @@ def multiple_choice_is_completed(f):
         user_data = session["profile"]
         checkpoint_prog = CheckpointProgress.query.filter_by(checkpoint_id=kwargs['checkpoint_id'],
                                                              student_id=user_data["student_id"]).first()
+
         if checkpoint_prog.is_completed and checkpoint_prog.checkpoint.checkpoint_type == "Multiple Choice":
             return {
                        "message": "You already answered this multiple choice checkpoint"
@@ -49,7 +50,7 @@ def valid_checkpoint_progress_data(f):
         if "content" in content_data:
             data["content"] = content_data["content"]
         elif "content" in files:
-            data["content"] = files["content"]
+            data["content"] = request.files
             data["comment"] = content_data["comment"]
 
         errors = checkpoint_submission_schema.validate(data)
@@ -57,7 +58,7 @@ def valid_checkpoint_progress_data(f):
         if errors:
             return {
                        "message": "Incorrect data being sent over"
-                   }, 500
+                   }, 422
         else:
             return f(*args, **kwargs)
 
