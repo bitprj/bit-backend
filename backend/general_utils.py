@@ -176,13 +176,16 @@ def parse_img_tag(image, image_folder, folder):
     # Gets the image path
     soup = BS(image, features="html.parser")
     image_name = None
+    image_file = None
 
     for image in soup.find_all('img'):
         # This gets the name of the image
+        image_file = image["src"]
         image_name = "/" + image["src"].split("/")[-1]
 
     image_path = image_folder + image_name
-    if "https" in image_path:
+
+    if "https" in image_file:
         return image_name
     else:
         image_name = image["src"].split("/")[-1]
