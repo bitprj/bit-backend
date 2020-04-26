@@ -24,20 +24,10 @@ def authorized(access_token):
     g.user = oauth_user
     github_user = github.get("/user")
     github_emails = github.get("/user/emails")
-    # TODO Temporary to get users to sync their account with github
-    for email in github_emails:
-        existing_user = User.query.filter_by(username=email["email"]).first()
-        if existing_user:
-            break
-    # existing_user = User.query.filter_by(github_id=github_user["id"]).first()
+    existing_user = User.query.filter_by(github_id=github_user["id"]).first()
 
     if existing_user:
-        # TODO Temporary to get users to sync their account with github
-        print(existing_user)
         oauth_user = existing_user
-        existing_user.github_id = github_user["id"]
-        existing_user.github_username = github_user["login"]
-        existing_user.github_access_token = access_token
         meta = oauth_user.meta
         db.session.commit()
     else:
