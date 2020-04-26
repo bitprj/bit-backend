@@ -1,6 +1,12 @@
 from backend import db
 
 # RELATIONSHIPS. The below tables are used to keep track of which model belongs with a model
+# This many to many relationship is used to keep track of which activities belong to an Author and vice versa
+activity_author_rel = db.Table("activity_author_rel",
+                                db.Column("activity_id", db.Integer, db.ForeignKey("activity.id")),
+                                db.Column("author_id", db.Integer, db.ForeignKey("author.id"))
+                                )
+
 # This many to many relationship is used to keep track of which activities belong to a module and vice versa
 activity_module_rel = db.Table("activity_module_rel",
                                db.Column("activity_id", db.Integer, db.ForeignKey("activity.id")),
@@ -273,6 +279,7 @@ class Activity(db.Model):
     prerequisite_activities = db.relationship("Activity",
                                               backref=db.backref('parent_activity', remote_side='Activity.id'))
     suggested_students = db.relationship("Student", back_populates="suggested_activity")
+    authors = db.relationship("Author", secondary="activity_author_rel", back_populates="activities")
 
     def __init__(self, filename, name, description, summary, difficulty, image):
         self.filename = filename
@@ -284,6 +291,18 @@ class Activity(db.Model):
 
     def __repr__(self):
         return f"Activity('{self.name}')"
+
+
+class Author(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.Text, nullable=True)
+    activities = db.relationship("Activity", secondary="activity_author_rel", back_populates="authors")
+
+    def __init__(self, username):
+        self.username = username
+
+    def __repr__(self):
+        return f"Author('{self.username}')"
 
 
 class Badge(db.Model):

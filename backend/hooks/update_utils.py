@@ -38,13 +38,14 @@ def update_cdn_data(file):
     for module in activity.modules:
         create_schema_json(module, "modules")
 
-    for card in activity.cards:
-        github_data = requests.get(card.github_raw_data)
-        card.content = github_data.text
-        create_schema_json(card, "cards")
+    if activity.cards:
+        for card in activity.cards:
+            github_data = requests.get(card.github_raw_data)
+            card.content = github_data.text
+            create_schema_json(card, "cards")
 
-        if card.hints:
-            update_hint_cdn(card.hints)
+            if card.hints:
+                update_hint_cdn(card.hints)
 
     db.session.commit()
 

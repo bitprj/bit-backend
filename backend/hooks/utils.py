@@ -43,7 +43,7 @@ def call_criteria_routes(criteria_data, checkpoint):
 
         data = {
             "criteria_key": key,
-            "content": data["content"],
+            "content": data,
             "checkpoint_id": checkpoint.id
         }
 

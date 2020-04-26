@@ -15,22 +15,22 @@ def store_files(files_to_change):
     tests_cases = set()
 
     for file in files_to_change.values():
-        if len(file.filename.split("/")) == 3 and "Modules" in file.filename and file.filename.endswith(".md"):
+        if len(file.filename.split("/")) == 3 and ("Modules" in file.filename or "modules" in file.filename) and file.filename.endswith(".md"):
             module_files.append(file)
 
         if len(file.filename.split("/")) == 2 and "README.md" in file.filename and file.filename.endswith(".md"):
             topic_files.append(file)
 
-        if ("Activities" in file.filename or "Projects" in file.filename) and "README.md" in file.filename:
+        if ("Activities" in file.filename or "activities" in file.filename or "Projects" in file.filename or "projects" in file.filename) and "README.md" in file.filename:
             activity_files.append(file)
 
         if "concepts" in file.filename and "images" not in file.filename:
             concept_files.append(file)
 
-        if ("Activities" in file.filename or "Projects" in file.filename) and "cards" in file.filename and file.filename.endswith(".md"):
+        if ("Activities" in file.filename or "activities" in file.filename or "Projects" in file.filename or "projects" in file.filename) and "cards" in file.filename and file.filename.endswith(".md"):
             card_files.append(file)
 
-        if ("Activities" in file.filename or "Projects" in file.filename) and "checkpoints" in file.filename and file.filename.endswith(".md"):
+        if ("Activities" in file.filename or "activities" in file.filename or "Projects" in file.filename or "projects" in file.filename) and "checkpoints" in file.filename and file.filename.endswith(".md"):
             checkpoint_files.append(file)
 
         if "Topic" in file.filename and "Module" in file.filename and (

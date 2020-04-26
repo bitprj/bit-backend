@@ -55,6 +55,7 @@ guard.init_app(app, User)
 from backend.activities.routes import activities_bp
 from backend.activity_progresses.routes import activity_progresses_bp
 from backend.authentication.routes import authentication_bp
+from backend.authors.routes import authors_bp
 from backend.badges.routes import badges_bp
 from backend.cards.routes import cards_bp
 from backend.checkpoints.routes import checkpoints_bp
@@ -81,6 +82,7 @@ from backend.users.routes import user_bp
 app.register_blueprint(activities_bp)
 app.register_blueprint(activity_progresses_bp)
 app.register_blueprint(authentication_bp)
+app.register_blueprint(authors_bp)
 app.register_blueprint(badges_bp)
 app.register_blueprint(cards_bp)
 app.register_blueprint(checkpoints_bp)

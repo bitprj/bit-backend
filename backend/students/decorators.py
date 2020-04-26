@@ -4,6 +4,23 @@ from flask import request, session
 from functools import wraps
 
 
+# Decorator to check if the student is the same as the student id sent in the request
+# This is to prevent students from impersonating other students
+def is_same_student(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        user_data = session["profile"]
+
+        if kwargs["student_id"] == user_data["student_id"]:
+            return f(*args, **kwargs)
+        else:
+            return {
+                       "message": "You are not allowed to update other student's data"
+                   }, 403
+
+    return wrap
+
+
 # Decorator to check if the user is logged in
 def student_exists(f):
     @wraps(f)
