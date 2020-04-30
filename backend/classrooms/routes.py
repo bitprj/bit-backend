@@ -1,4 +1,4 @@
-from backend import api, db
+from backend import api, db, celery, app
 from backend.activity_progresses.schemas import ActivityProgressSubmissionSerializer
 from backend.authentication.decorators import roles_accepted
 from backend.classrooms.decorators import classroom_exists, owns_classroom, valid_classroom_form
@@ -24,25 +24,34 @@ class ClassroomCRUD(Resource):
 
         return ClassroomSerializer(classroom).data
 
+    @celery.task(bind=True)
+    def updateClassroom(self, classroom_id, form_data):
+        with app.test_request_context():
+            classroom = Classroom.query.get(classroom_id)
+            edit_classroom(classroom, form_data)
+
+            db.session.commit()
+
     # Function to edit a classroom
     @owns_classroom
     @valid_classroom_form
     def put(self, classroom_id):
-        classroom = Classroom.query.get(classroom_id)
         form_data = request.get_json()
-        edit_classroom(classroom, form_data)
-
-        db.session.commit()
+        self.updateClassroom.delay(classroom_id, form_data)
 
         return {"message": "Classroom successfully updated"}, 200
+
+    @celery.task(bind=True)
+    def deleteClassroom(self, classroom_id):
+        with app.test_request_context():
+            classroom = Classroom.query.get(classroom_id)
+            db.session.delete(classroom)
+            db.session.commit()
 
     # Function to delete a classroom!!
     @owns_classroom
     def delete(self, classroom_id):
-        classroom = Classroom.query.get(classroom_id)
-
-        db.session.delete(classroom)
-        db.session.commit()
+        self.deleteClassroom.delay(classroom_id)
 
         return {"message": "Classroom successfully deleted"}, 200
 
@@ -52,13 +61,18 @@ class ClassroomCreate(Resource):
     method_decorators = [roles_accepted("Teacher"), valid_classroom_form]
 
     # Function to create a classroom
+    @celery.task(bind=True)
+    def createClassroom(self, form_data, user_data):
+        with app.test_request_context():
+            classroom = create_classroom(form_data, user_data["teacher_id"])
+
+            db.session.add(classroom)
+            db.session.commit()
+
     def post(self):
         form_data = request.get_json()
         user_data = session["profile"]
-        classroom = create_classroom(form_data, user_data["teacher_id"])
-
-        db.session.add(classroom)
-        db.session.commit()
+        self.createClassroom.delay(form_data, user_data)
 
         return {"message": "Classroom successfully created"}, 202
 
@@ -69,13 +83,18 @@ class ClassroomModules(Resource):
                          valid_modules_list]
 
     # Function to update a classroom's modules
+    @celery.task(bind=True)
+    def updateClassroomModules(self, data, classroom_id):
+        with app.test_request_context():
+            classroom = Classroom.query.get(classroom_id)
+            modules = get_modules(data["module_ids"])
+            add_modules_to_students(modules, classroom.students)
+            classroom.modules = modules
+            db.session.commit()
+            
     def put(self, classroom_id):
         data = request.get_json()
-        classroom = Classroom.query.get(classroom_id)
-        modules = get_modules(data["module_ids"])
-        add_modules_to_students(modules, classroom.students)
-        classroom.modules = modules
-        db.session.commit()
+        self.updateClassroomModules.delay(data, classroom_id)
 
         return {
                    "message": "Successfully updated classroom modules"
