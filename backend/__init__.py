@@ -11,7 +11,6 @@ from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 from github import Github
 from itsdangerous import URLSafeTimedSerializer
-from backend.celeryconfig import make_celery
 import pusher
 
 app = Flask(__name__)
@@ -29,9 +28,6 @@ app.config['GITHUB_CLIENT_ID'] = GITHUB_CLIENT_ID
 app.config['GITHUB_CLIENT_SECRET'] = GITHUB_CLIENT_SECRET
 app.config["CORS_HEADERS"] = "Content-Type"
 app.config["PROPAGATE_EXCEPTIONS"] = True
-app.config['CELERY_BROKER_URL'] = 'pyamqp://'
-app.config['CELERY_RESULT_BACKEND'] = 'rpc://'
-
 
 api = Api(app)
 db = SQLAlchemy(app)
@@ -51,8 +47,6 @@ pusher_client = pusher.Pusher(
     secret=PUSHER_SECRET,
     cluster=PUSHER_CLUSTER,
     ssl=True)
-celery = make_celery(app)
-app.app_context().push()
 
 from backend.models import User
 

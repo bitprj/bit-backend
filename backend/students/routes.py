@@ -1,4 +1,4 @@
-from backend import api, db, celery, app
+from backend import api, db
 from backend.authentication.decorators import roles_required, user_session_exists
 from backend.classrooms.decorators import valid_classroom_code, valid_classroom_code_form
 from backend.models import Classroom, Student
@@ -19,23 +19,18 @@ students_bp = Blueprint("students", __name__)
 class StudentClassroom(Resource):
     method_decorators = [roles_required("Student"), valid_classroom_code, valid_classroom_code_form]
 
-    @celery.task(bind=True)
-    def joinClassroom(self, data,user_data):
-        with app.test_request_context():
-            student = Student.query.get(user_data["student_id"])
-            classroom = Classroom.query.filter_by(class_code=data["class_code"]).first()
-            student.classes.append(classroom)
-            student.incomplete_modules += classroom.modules
-
-            for module in classroom.modules:
-                module_prog = can_create_module_progress(student, module)
-                db.session.add(module_prog)
-            db.session.commit()
-
     def put(self):
         data = request.get_json()
         user_data = session["profile"]
-        self.joinClassroom.delay(data,user_data)
+        student = Student.query.get(user_data["student_id"])
+        classroom = Classroom.query.filter_by(class_code=data["class_code"]).first()
+        student.classes.append(classroom)
+        student.incomplete_modules += classroom.modules
+
+        for module in classroom.modules:
+            module_prog = can_create_module_progress(student, module)
+            db.session.add(module_prog)
+        db.session.commit()
 
         return {
             "messaged": "Classroom joined"

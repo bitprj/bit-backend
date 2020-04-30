@@ -1,4 +1,4 @@
-from backend import api, db, celery, app
+from backend import api, db
 from backend.authentication.decorators import roles_accepted, user_session_exists
 from backend.activities.decorators import activity_exists
 from backend.activity_progresses.decorators import activity_prog_exists, cards_exist_in_activity, \
@@ -44,20 +44,13 @@ class ActivityProgressUpdate(Resource):
 
         return progress
 
-
-    @celery.task(bind=True)
-    def deleteActivityProgress(self, activity_id, user_data):
-        with app.test_request_context():
-            student_activity_prog = ActivityProgress.query.filter_by(student_id=user_data["student_id"],
-                                                                 activity_id=activity_id).first()
-            db.session.delete(student_activity_prog)
-            db.session.commit()
-
-
     @activity_prog_exists
     def delete(self, activity_id):
         user_data = session["profile"]
-        self.deleteActivityProgress.delay(activity_id, user_data)
+        student_activity_prog = ActivityProgress.query.filter_by(student_id=user_data["student_id"],
+                                                                 activity_id=activity_id).first()
+        db.session.delete(student_activity_prog)
+        db.session.commit()
 
         return {
                    "message": "Student activity progress successfully deleted."
@@ -68,21 +61,16 @@ class ActivityProgressUpdate(Resource):
 class ActivityProgressHints(Resource):
     method_decorators = [user_session_exists, roles_accepted("Student"), activity_exists, hint_exists]
 
-    @celery.task(bind=True)
-    def unlockActivityHint(self, user_data):
-        with app.test_request_context():
-            student_activity_prog = ActivityProgress.query.filter_by(student_id=user_data["student_id"],
-                                                                 activity_id=activity_id).first()
-            hint = Hint.query.get(hint_id)
-            unlock_message = unlock_hint(student_activity_prog, hint)
-
-            db.session.commit()
-
     # Function to unlock a hint by its hint_id
     @activity_prog_exists
     def put(self, activity_id, hint_id):
         user_data = session["profile"]
-        self.unlockActivityHint.delay(user_data)
+        student_activity_prog = ActivityProgress.query.filter_by(student_id=user_data["student_id"],
+                                                                 activity_id=activity_id).first()
+        hint = Hint.query.get(hint_id)
+        unlock_message = unlock_hint(student_activity_prog, hint)
+
+        db.session.commit()
 
         return {
                    "message": unlock_message
