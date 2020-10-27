@@ -19,7 +19,7 @@ click==7.1.1
 colorama==0.4.3
 contentful==1.12.3
 contentful-management==2.10.0
-cryptography==2.8
+cryptography==3.2
 decorator==4.4.2
 Deprecated==1.2.7
 docutils==0.14
