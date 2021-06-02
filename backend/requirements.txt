@@ -97,7 +97,7 @@ tornado==6.0.4
 tqdm==4.45.0
 troposphere==2.6.0
 typing-extensions==3.7.4.2
-urllib3==1.25.8
+urllib3==1.26.5
 Werkzeug==0.16.0
 wrapt==1.12.1
 wsgi-request-logger==0.4.6
